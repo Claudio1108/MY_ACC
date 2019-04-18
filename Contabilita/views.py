@@ -37,7 +37,6 @@ def viewCreateProtocol(request):
             context = {"tabella_protocolli": protocolli}
             return render(request,"Protocollo/AllProtocols.html",context)
 
-
     else:
 
         form = formProtocol()
@@ -442,9 +441,6 @@ def viewResocontoSpeseGestione(request):
 
             context = {'form': form, 'tabella_output1':rows}
             return render(request, "ResocontoSpeseGestione.html", context)
-
-
-
 
     else:
 
