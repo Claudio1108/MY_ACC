@@ -37,6 +37,7 @@ def viewCreateProtocol(request):
             context = {"tabella_protocolli": protocolli}
             return render(request,"Protocollo/AllProtocols.html",context)
 
+
     else:
 
         form = formProtocol()
