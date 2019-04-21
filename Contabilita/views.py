@@ -224,7 +224,9 @@ def viewAllSpeseGestione(request):
 
     spesegestione = SpesaGestione.objects.all()
 
-    context = { "tabella_spesegestione" : spesegestione }
+    spesagestione_filter = SpesaGestioneFilter(request.GET, queryset=spesegestione)
+
+    context = {'filter': spesagestione_filter}
 
     return render(request, "SpesaGestione/AllSpeseGestione.html", context)
 
