@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Contabilita',
     'widget_tweaks',
+    'django_filters',
 
 ]
 

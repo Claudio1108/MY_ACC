@@ -1,10 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect, HttpResponseRedirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from django.http import HttpResponse
 from .models import *
 from .forms import *
 from django.db import connection
+from .filters import *
+from django.core.handlers.wsgi import WSGIRequest
 
 # Create your views here.
 
@@ -16,7 +18,9 @@ def viewAllProtocols(request):
 
     protocolli = Protocollo.objects.all()
 
-    context = { "tabella_protocolli" : protocolli }
+    protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli)
+
+    context = {'filter': protocollo_filter }
 
     return render(request, "Protocollo/AllProtocols.html", context)
 
@@ -33,9 +37,7 @@ def viewCreateProtocol(request):
             print("il form è valido")
             new_protocol = form.save()
             print("new_protocol: ",new_protocol)
-            protocolli = Protocollo.objects.all()
-            context = {"tabella_protocolli": protocolli}
-            return render(request,"Protocollo/AllProtocols.html",context)
+            return redirect ('AllProtocols')
 
     else:
 
@@ -48,9 +50,7 @@ def viewDeleteProtocol(request,id):
 
     protocol = Protocollo.objects.get(id=id)
     protocol.delete()
-    protocolli = Protocollo.objects.all()
-    context = {"tabella_protocolli": protocolli}
-    return render(request,"Protocollo/AllProtocols.html",context)
+    return redirect('AllProtocols')
 
 def viewUpdateProtocol(request,id):
     if (request.method == "POST"):
@@ -63,9 +63,7 @@ def viewUpdateProtocol(request,id):
             print("il form è valido")
             new_protocol = form.save()
             print("new_protocol: ", new_protocol)
-            protocolli = Protocollo.objects.all()
-            context = {"tabella_protocolli": protocolli}
-            return render(request, "Protocollo/AllProtocols.html", context)
+            return redirect('AllProtocols')
 
     else:
         protocol = Protocollo.objects.get(id=id)
@@ -96,14 +94,10 @@ def viewCreateGuadagno(request):
                 form.save()
             else:
                 messages.error(request, 'ATTENZIONE. Il Guadagno inserito non rispetta i vincoli di parcella del protocollo')
-            guadagni = Guadagno.objects.all()
-            context = {"tabella_guadagni": guadagni}
-            return render(request,"Guadagno/AllGuadagni.html",context)
+            return redirect('AllGuadagni')
 
         else:
-            guadagni = Guadagno.objects.all()
-            context = {"tabella_guadagni": guadagni}
-            return render(request, "Guadagno/AllGuadagni.html", context)
+            return redirect('AllGuadagni')
 
     else:
 
@@ -119,9 +113,7 @@ def viewDeleteGuadagno(request,id):
 
     guadagno = Guadagno.objects.get(id=id)
     guadagno.delete()
-    guadagni = Guadagno.objects.all()
-    context = {"tabella_guadagni": guadagni}
-    return render(request,"Guadagno/AllGuadagni.html",context)
+    return redirect('AllGuadagni')
 
 def viewUpdateGuadagno(request,id):
     if (request.method == "POST"):
@@ -132,10 +124,15 @@ def viewUpdateGuadagno(request,id):
 
         if (form.is_valid()):
             print("il form è valido")
-            form.save()
-            guadagni = Guadagno.objects.all()
-            context = {"tabella_guadagni": guadagni}
-            return render(request, "Guadagno/AllGuadagni.html", context)
+            if (form.Check1() == True):
+                form.save()
+            else:
+                messages.error(request,
+                               'ATTENZIONE. Il Guadagno inserito non rispetta i vincoli di parcella del protocollo')
+            return redirect('AllGuadagni')
+
+        else:
+            return redirect('AllGuadagni')
 
     else:
         guadagno = Guadagno.objects.get(id=id)
@@ -163,15 +160,7 @@ def viewCreateSpesaCommessa(request):
         if(form.is_valid()):
             print("il form è valido")
             form.save()
-            spesecommessa = SpesaCommessa.objects.all()
-            context = {"tabella_spesecommessa": spesecommessa}
-            return render(request,"SpesaCommessa/AllSpeseCommessa.html",context)
-
-        else:
-            spesecommessa = SpesaCommessa.objects.all()
-            print(spesecommessa)
-            context = {"tabella_spesecommessa": spesecommessa}
-            return render(request, "SpesaCommessa/AllSpeseCommessa.html", context)
+            return redirect('AllSpeseCommessa')
 
     else:
 
@@ -185,9 +174,7 @@ def viewDeleteSpesaCommessa(request,id):
 
     spesacommessa = SpesaCommessa.objects.get(id=id)
     spesacommessa.delete()
-    spesecommessa = SpesaCommessa.objects.all()
-    context = {"tabella_spesecommessa": spesecommessa}
-    return render(request,"SpesaCommessa/AllSpeseCommessa.html",context)
+    return redirect('AllSpeseCommessa')
 
 def viewUpdateSpesaCommessa(request,id):
     if (request.method == "POST"):
@@ -199,9 +186,7 @@ def viewUpdateSpesaCommessa(request,id):
         if (form.is_valid()):
             print("il form è valido")
             form.save()
-            spesecommessa = SpesaCommessa.objects.all()
-            context = {"tabella_spesecommessa": spesecommessa}
-            return render(request, "SpesaCommessa/AllSpeseCommessa.html", context)
+            return redirect('AllSpeseCommessa')
 
     else:
         spesacommessa = SpesaCommessa.objects.get(id=id)
@@ -227,9 +212,7 @@ def viewUpdateSocio(request,id):
         if (form.is_valid()):
             print("il form è valido")
             form.save()
-            soci = Socio.objects.all()
-            context = {"tabella_soci": soci}
-            return render(request, "Socio/AllSoci.html", context)
+            return redirect('AllSoci')
 
     else:
         socio = Socio.objects.get(id=id)
@@ -256,15 +239,7 @@ def viewCreateSpesaGestione(request):
         if(form.is_valid()):
             print("il form è valido")
             form.save()
-            spesegestione = SpesaGestione.objects.all()
-            context = {"tabella_spesegestione": spesegestione}
-            return render(request,"SpesaGestione/AllSpeseGestione.html",context)
-
-        else:
-            spesegestione = SpesaGestione.objects.all()
-            print(spesegestione)
-            context = {"tabella_spesegestione": spesegestione}
-            return render(request, "SpesaGestione/AllSpeseGestione.html", context)
+            return redirect('AllSpeseGestione')
 
     else:
 
@@ -278,9 +253,7 @@ def viewDeleteSpesaGestione(request,id):
 
     spesagestione = SpesaGestione.objects.get(id=id)
     spesagestione.delete()
-    spesegestione = SpesaGestione.objects.all()
-    context = {"tabella_spesegestione": spesegestione}
-    return render(request,"SpesaGestione/AllSpeseGestione.html",context)
+    return redirect('AllSpeseGestione')
 
 def viewUpdateSpesaGestione(request,id):
     if (request.method == "POST"):
@@ -292,10 +265,7 @@ def viewUpdateSpesaGestione(request,id):
         if (form.is_valid()):
             print("il form è valido")
             form.save()
-            spesegestione = SpesaGestione.objects.all()
-            context = {"tabella_spesegestione": spesegestione}
-            return render(request, "SpesaGestione/AllSpeseGestione.html", context)
-
+            return redirect('AllSpeseGestione')
     else:
         spesagestione = SpesaGestione.objects.get(id=id)
         form = formSpesaGestione(instance=spesagestione)
@@ -321,15 +291,7 @@ def viewCreateRicavoEffettivo(request):
         if(form.is_valid()):
             print("il form è valido")
             form.save()
-            ricavieffettivi = RicavoEffettivo.objects.all()
-            context = {"tabella_ricavieffettivi": ricavieffettivi}
-            return render(request,"RicavoEffettivo/AllRicaviEffettivi.html",context)
-
-        else:
-            ricavieffettivi = RicavoEffettivo.objects.all()
-            print(ricavieffettivi)
-            context = {"tabella_ricavieffettivi": ricavieffettivi}
-            return render(request, "RicavoEffettivo/AllRicaviEffettivi.html", context)
+            return redirect('AllRicaviEffettivi')
 
     else:
 
@@ -343,9 +305,7 @@ def viewDeleteRicavoEffettivo(request,id):
 
     ricavoefettivo = RicavoEffettivo.objects.get(id=id)
     ricavoefettivo.delete()
-    ricaviefettivi = RicavoEffettivo.objects.all()
-    context = {"tabella_ricavieffettivi": ricaviefettivi}
-    return render(request,"RicavoEffettivo/AllRicaviEffettivi.html",context)
+    return redirect('AllRicaviEffettivi')
 
 def viewUpdateRicavoEffettivo(request,id):
 
@@ -358,9 +318,7 @@ def viewUpdateRicavoEffettivo(request,id):
         if (form.is_valid()):
             print("il form è valido")
             form.save()
-            ricavieffettivi = RicavoEffettivo.objects.all()
-            context = {"tabella_ricavieffettivi": ricavieffettivi}
-            return render(request, "RicavoEffettivo/AllRicaviEffettivi.html", context)
+            return redirect('AllRicaviEffettivi')
 
     else:
         ricavoeffettivo = RicavoEffettivo.objects.get(id=id)
