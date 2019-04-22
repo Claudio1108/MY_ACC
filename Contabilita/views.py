@@ -6,7 +6,7 @@ from .models import *
 from .forms import *
 from django.db import connection
 from .filters import *
-from django.core.handlers.wsgi import WSGIRequest
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
 
@@ -20,7 +20,12 @@ def viewAllProtocols(request):
 
     protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli)
 
-    context = {'filter': protocollo_filter }
+    #paginator = Paginator(protocolli, 2)  # Show 25 contacts per page
+
+    #page = request.GET.get('page')
+    #p = paginator.get_page(page)
+
+    context = {'filter': protocollo_filter}
 
     return render(request, "Protocollo/AllProtocols.html", context)
 

@@ -106,7 +106,7 @@ class formGuadagnoUpdate(forms.ModelForm):
 
         x=rows[0]
 
-        y=int(self.data['importo'])
+        y=float(self.data['importo'])
 
         z=protocollo.parcella
 
