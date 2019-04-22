@@ -82,6 +82,17 @@
                 {% endfor %}
             </ul>
         {% endif %}
+
+        </br>
+
+        {% block content %}
+        <form method="get">
+            {{ filter.form.as_p }}
+            <button type="submit">Filtra</button>
+        </form>
+
+        </br>
+
         <table width="100%" border="1" cellpadding="10" cellspacing="0">
             <tr>
                 <th>data</th>
@@ -91,7 +102,7 @@
                 <th>protocollo</th>
                 <th colspan="2">Operation</th>
             </tr>
-            {% for b in tabella_guadagni %}
+            {% for b in filter.qs %}
             <tr>
                 <td>{{ b.data }}</td>
                 <td>{{ b.movimento }}</td>
@@ -103,6 +114,7 @@
             </tr>
             {% endfor %}
         </table>
+        {% endblock %}
     </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

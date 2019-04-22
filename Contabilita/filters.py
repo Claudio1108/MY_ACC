@@ -19,3 +19,12 @@ class SpesaGestioneFilter(django_filters.FilterSet):
             'causale': ['exact', ],
             'data': ['month','year' ],
         }
+
+class GuadagnoFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = Guadagno
+        fields = {
+            'fattura': ['exact', ],
+            'data': ['month','year' ],
+        }

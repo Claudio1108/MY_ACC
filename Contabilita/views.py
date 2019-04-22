@@ -57,7 +57,7 @@ def viewUpdateProtocol(request,id):
 
         # creiamo l'istanza del form e la popoliamo con i dati della POST request ("processo di binding")
         protocol = Protocollo.objects.get(id=id)
-        form = formProtocol(request.POST, instance=protocol)
+        form = formProtocolUpdate(request.POST, instance=protocol)
 
         if (form.is_valid()):
             print("il form è valido")
@@ -67,7 +67,7 @@ def viewUpdateProtocol(request,id):
 
     else:
         protocol = Protocollo.objects.get(id=id)
-        form = formProtocol(instance=protocol)
+        form = formProtocolUpdate(instance=protocol)
         context = {'form': form}
         return render(request, "Protocollo/UpdateProtocol.html", context)
 
@@ -76,7 +76,9 @@ def viewAllGuadagni(request):
 
     guadagni = Guadagno.objects.all()
 
-    context = { "tabella_guadagni" : guadagni }
+    guadagno_filter = GuadagnoFilter(request.GET, queryset=guadagni)
+
+    context = {'filter': guadagno_filter}
 
     return render(request, "Guadagno/AllGuadagni.html", context)
 
@@ -120,7 +122,7 @@ def viewUpdateGuadagno(request,id):
 
         # creiamo l'istanza del form e la popoliamo con i dati della POST request ("processo di binding")
         guadagno = Guadagno.objects.get(id=id)
-        form = formGuadagno(request.POST, instance=guadagno)
+        form = formGuadagnoUpdate(request.POST, instance=guadagno)
 
         if (form.is_valid()):
             print("il form è valido")
@@ -136,7 +138,7 @@ def viewUpdateGuadagno(request,id):
 
     else:
         guadagno = Guadagno.objects.get(id=id)
-        form = formGuadagno(instance=guadagno)
+        form = formGuadagnoUpdate(instance=guadagno)
         context = {'form': form}
         return render(request, "Guadagno/UpdateGuadagno.html", context)
 
@@ -181,7 +183,7 @@ def viewUpdateSpesaCommessa(request,id):
 
         # creiamo l'istanza del form e la popoliamo con i dati della POST request ("processo di binding")
         spesacommessa = SpesaCommessa.objects.get(id=id)
-        form = formSpesaCommessa(request.POST, instance=spesacommessa)
+        form = formSpesaCommessaUpdate(request.POST, instance=spesacommessa)
 
         if (form.is_valid()):
             print("il form è valido")
@@ -190,7 +192,7 @@ def viewUpdateSpesaCommessa(request,id):
 
     else:
         spesacommessa = SpesaCommessa.objects.get(id=id)
-        form = formSpesaCommessa(instance=spesacommessa)
+        form = formSpesaCommessaUpdate(instance=spesacommessa)
         context = {'form': form}
         return render(request, "SpesaCommessa/UpdateSpesaCommessa.html", context)
 
@@ -262,7 +264,7 @@ def viewUpdateSpesaGestione(request,id):
 
         # creiamo l'istanza del form e la popoliamo con i dati della POST request ("processo di binding")
         spesagestione = SpesaGestione.objects.get(id=id)
-        form = formSpesaGestione(request.POST, instance=spesagestione)
+        form = formSpesaGestioneUpdate(request.POST, instance=spesagestione)
 
         if (form.is_valid()):
             print("il form è valido")
@@ -270,7 +272,7 @@ def viewUpdateSpesaGestione(request,id):
             return redirect('AllSpeseGestione')
     else:
         spesagestione = SpesaGestione.objects.get(id=id)
-        form = formSpesaGestione(instance=spesagestione)
+        form = formSpesaGestioneUpdate(instance=spesagestione)
         context = {'form': form}
         return render(request, "SpesaGestione/UpdateSpesaGestione.html", context)
 
@@ -315,7 +317,7 @@ def viewUpdateRicavoEffettivo(request,id):
 
         # creiamo l'istanza del form e la popoliamo con i dati della POST request ("processo di binding")
         ricavoeffettivo = RicavoEffettivo.objects.get(id=id)
-        form = formRicavoEffettivo(request.POST, instance=ricavoeffettivo)
+        form = formRicavoEffettivoUpdate(request.POST, instance=ricavoeffettivo)
 
         if (form.is_valid()):
             print("il form è valido")
@@ -324,7 +326,7 @@ def viewUpdateRicavoEffettivo(request,id):
 
     else:
         ricavoeffettivo = RicavoEffettivo.objects.get(id=id)
-        form = formRicavoEffettivo(instance=ricavoeffettivo)
+        form = formRicavoEffettivoUpdate(instance=ricavoeffettivo)
         context = {'form': form}
         return render(request, "RicavoEffettivo/UpdateRicavoEffettivo.html", context)
 
