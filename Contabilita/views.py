@@ -111,7 +111,6 @@ def viewCreateGuadagno(request):
         return render(request,"Guadagno/CreateGuadagno.html",context)
 
 
-
 def viewDeleteGuadagno(request,id):
 
     guadagno = Guadagno.objects.get(id=id)
