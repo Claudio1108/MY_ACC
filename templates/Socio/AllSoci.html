@@ -75,6 +75,20 @@
                 </ul>
             </div>
         </nav>
+
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                        <font color="red"><li>{{ message }}</li></font>
+                    {% endif %}
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+                        <font color="orange"><li>{{ message }}</li></font>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+
         <table width="100%" border="1" cellpadding="10" cellspacing="0">
             <tr>
                 <th>nome</th>

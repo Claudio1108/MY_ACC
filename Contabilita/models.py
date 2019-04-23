@@ -78,9 +78,10 @@ class Socio(models.Model):
     cognome = models.CharField(max_length=25)
     percentuale = models.DecimalField(max_digits=3, decimal_places=2)
 
-    def __str__(self):
+    #def __str__(self):
 
-        return self.cognome+" | "+self.importo+"%"
+        #return self.cognome+" | "+self.importo+"%"
+        #return self.cognome + " | " + str(self.importo)
 
 class RicavoEffettivo(models.Model):
 

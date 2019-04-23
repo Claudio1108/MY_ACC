@@ -1,12 +1,8 @@
-from django.shortcuts import render,redirect, HttpResponseRedirect
-from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import render,redirect
 from django.contrib import messages
-from django.http import HttpResponse
-from .models import *
 from .forms import *
 from django.db import connection
 from .filters import *
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
 
@@ -215,11 +211,31 @@ def viewUpdateSocio(request,id):
         # creiamo l'istanza del form e la popoliamo con i dati della POST request ("processo di binding")
         socio = Socio.objects.get(id=id)
         form = formSocio(request.POST, instance=socio)
+        soci = Socio.objects.all()
+        sum=0
+        for i in range(0,len(soci),1):
+
+            if(soci[i].id != id):
+
+                sum+=soci[i].percentuale
 
         if (form.is_valid()):
             print("il form è valido")
-            form.save()
-            return redirect('AllSoci')
+
+            if(float(sum)+float(form['percentuale'].value()) < 1.00):
+
+                form.save()
+                messages.warning(request,'Le percentuali non sono distrubuite completamente')
+                return redirect('AllSoci')
+
+            else:
+
+                if (float(sum) + float(form['percentuale'].value()) > 1.00):
+                    messages.error(request,'ATTENZIONE. La percentuale inserita non è valida')
+                    return redirect('AllSoci')
+                else:
+                    form.save()
+                    return redirect('AllSoci')
 
     else:
         socio = Socio.objects.get(id=id)
