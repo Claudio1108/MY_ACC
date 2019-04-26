@@ -3,6 +3,7 @@ from django.contrib import messages
 from .forms import *
 from django.db import connection
 from .filters import *
+from django.core.paginator import Paginator
 
 # Create your views here.
 
@@ -15,11 +16,6 @@ def viewAllProtocols(request):
     protocolli = Protocollo.objects.all()
 
     protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli)
-
-    #paginator = Paginator(protocolli, 2)  # Show 25 contacts per page
-
-    #page = request.GET.get('page')
-    #p = paginator.get_page(page)
 
     context = {'filter': protocollo_filter}
 
