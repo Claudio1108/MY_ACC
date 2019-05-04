@@ -17,7 +17,13 @@ def viewAllProtocols(request):
 
     protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli)
 
-    context = {'filter': protocollo_filter}
+    sum_parcelle=0
+
+    for i in range(0,len(protocollo_filter.qs),1):
+
+        sum_parcelle=sum_parcelle+protocollo_filter.qs[i].parcella
+
+    context = {'filter': protocollo_filter, 'sum_p':sum_parcelle}
 
     return render(request, "Protocollo/AllProtocols.html", context)
 
@@ -75,7 +81,12 @@ def viewAllGuadagni(request):
 
     guadagno_filter = GuadagnoFilter(request.GET, queryset=guadagni)
 
-    context = {'filter': guadagno_filter}
+    sum_guadagni = 0
+
+    for i in range(0, len(guadagno_filter.qs), 1):
+        sum_guadagni = sum_guadagni + guadagno_filter.qs[i].importo
+
+    context = {'filter': guadagno_filter, 'sum_g':sum_guadagni}
 
     return render(request, "Guadagno/AllGuadagni.html", context)
 
@@ -143,7 +154,12 @@ def viewAllSpeseCommessa(request):
 
     spesecommessa = SpesaCommessa.objects.all()
 
-    context = { "tabella_spesecommessa" : spesecommessa }
+    sum_spesecommessa = 0
+
+    for i in range(0, len(spesecommessa), 1):
+        sum_spesecommessa = sum_spesecommessa + spesecommessa[i].importo
+
+    context = { "tabella_spesecommessa" : spesecommessa, 'sum_s': sum_spesecommessa}
 
     return render(request, "SpesaCommessa/AllSpeseCommessa.html", context)
 
@@ -244,7 +260,12 @@ def viewAllSpeseGestione(request):
 
     spesagestione_filter = SpesaGestioneFilter(request.GET, queryset=spesegestione)
 
-    context = {'filter': spesagestione_filter}
+    sum_spesegestione = 0
+
+    for i in range(0, len(spesagestione_filter.qs), 1):
+        sum_spesegestione = sum_spesegestione + spesagestione_filter.qs[i].importo
+
+    context = {'filter': spesagestione_filter, 'sum_s':sum_spesegestione}
 
     return render(request, "SpesaGestione/AllSpeseGestione.html", context)
 
@@ -296,7 +317,12 @@ def viewAllRicaviEffettivi(request):
 
     ricavieffettivi = RicavoEffettivo.objects.all()
 
-    context = { "tabella_ricavieffettivi" : ricavieffettivi }
+    sum_ricavieffettivi = 0
+
+    for i in range(0, len(ricavieffettivi), 1):
+        sum_ricavieffettivi = sum_ricavieffettivi + ricavieffettivi[i].importo
+
+    context = { "tabella_ricavieffettivi" : ricavieffettivi, 'sum_r': sum_ricavieffettivi}
 
     return render(request, "RicavoEffettivo/AllRicaviEffettivi.html", context)
 

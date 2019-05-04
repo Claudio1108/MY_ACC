@@ -3,15 +3,15 @@ from django.db import models
 # Create your models here.
 
 class Protocollo(models.Model):
-
-    identificativo = models.CharField(max_length=10)
-    cliente = models.CharField(max_length=25)
-    referente = models.CharField(max_length=25)
-    mail_cliente = models.EmailField(max_length=40)
-    tel_cliente = models.CharField(max_length=20)
-    indirizzo = models.CharField(max_length=40)
+    #public = models.BooleanField(default=True)
+    identificativo = models.CharField(max_length=10, blank=True)
+    cliente = models.CharField(max_length=25, blank=True)
+    referente = models.CharField(max_length=25, blank=True)
+    mail_cliente = models.EmailField(max_length=40, blank=True)
+    tel_cliente = models.CharField(max_length=20, blank=True)
+    indirizzo = models.CharField(max_length=40, blank=True)
     parcella = models.DecimalField(max_digits=19, decimal_places=2)
-    pratica = models.CharField(max_length=40)
+    pratica = models.CharField(max_length=40, blank=True)
     note = models.TextField(blank=True)
     data = models.DateField(auto_now=False, auto_now_add=False)
 

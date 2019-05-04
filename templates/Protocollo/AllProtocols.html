@@ -4,6 +4,38 @@
     <meta charset="UTF-8">
     <title>MYACCOUNTING|AllProtocols</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/miocss.css" />
+    <script type="text/javascript">
+			function selectAll(){
+				var items=document.getElementsByName('b1');
+				for(var i=0; i<items.length; i++){
+					if(items[i].type=='checkbox')
+						items[i].checked=true;
+				}
+			}
+
+			function UnSelectAll(){
+				var items=document.getElementsByName('b1');
+				for(var i=0; i<items.length; i++){
+					if(items[i].type=='checkbox')
+						items[i].checked=false;
+				}
+			}
+
+			function getSelected(){
+				var checks=document.getElementsByName('b1');
+				var str='';
+				var list = [];
+				for(var i=0; i<checks.length; i++){
+					if(checks[i].checked== true){
+						str+=checks[i].value+" ";
+						list.push(checks[i].value);
+					}
+				}
+				alert(str)
+				return list;
+			}
+	</script>
 </head>
 <body>
 
@@ -86,8 +118,19 @@
 
         </br>
 
+        <div align="left">
+
+            <input type="button" onclick='selectAll()' value="Select All"/>
+            <input type="button" onclick='UnSelectAll()' value="Unselect All"/>
+            <input type="button" onclick='getSelected()' value="getSelected"/>
+
+        </div>
+        <div id='loop'></div>
+        </br>
+
         <table width="100%" border="1" cellpadding="10" cellspacing="0">
             <tr>
+                <th></th>
                 <th>id_p</th>
                 <th>cliente</th>
                 <th>referente</th>
@@ -102,6 +145,9 @@
             </tr>
             {% for b in filter.qs %}
             <tr>
+                <td>
+                    <input type="checkbox" class="checks" name="b1" value={{b.id}}>
+                </td>
                 <td>{{ b.identificativo }}</td>
                 <td>{{ b.cliente }}</td>
                 <td>{{ b.referente }}</td>
@@ -113,10 +159,14 @@
                 <td style='width: 200px; overflow: auto'>{{ b.note }}</td>
                 <td>{{ b.data }}</td>
                 <td align="center"><a href="/UpdateProtocol/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">UPDATE</a></td>
-                <td align="center"><a href="/DeleteProtocol/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true">DELETE</a></td>
+                <td align="center"><a href="/DeleteProtocol/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Protocollo?')">DELETE</a></td>
             </tr>
             {% endfor %}
         </table>
+
+        <div class="alert alert-primary" role="alert">
+            Totale delle parcelle: <a href="#" class="alert-link">{{sum_p}}</a>
+        </div>
 
     {% endblock %}
 

@@ -1,0 +1,5 @@
+button.close {
+    border: 2px solid # eef5df;
+    box-shadow: 0 0 0 2px # eef5df;
+    color : red;
+}

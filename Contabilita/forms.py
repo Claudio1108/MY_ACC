@@ -5,6 +5,9 @@ from django.db import connection
 class DateInput(forms.DateInput):
     input_type = 'date'
 
+#class CheckBoxInput(forms.CheckboxInput):
+    #input_type = 'checkbox'
+
 
 class formProtocol(forms.ModelForm):
 

@@ -110,10 +110,13 @@
                 <td>{{ b.fattura }}</td>
                 <td>{{ b.protocollo }}</td>
                 <td align="center"><a href="/UpdateGuadagno/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">UPDATE</a></td>
-                <td align="center"><a href="/DeleteGuadagno/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true">DELETE</a></td>
+                <td align="center"><a href="/DeleteGuadagno/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Guadagno?')">DELETE</a></td>
             </tr>
             {% endfor %}
         </table>
+        <div class="alert alert-primary" role="alert">
+            Totale degli importi: <a href="#" class="alert-link">{{sum_g}}</a>
+        </div>
         {% endblock %}
     </div>
 

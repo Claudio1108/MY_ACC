@@ -88,10 +88,15 @@
                 <td>{{ b.importo }} €</td>
                 <td>{{ b.protocollo }}</td>
                 <td align="center"><a href="/UpdateSpesaCommessa/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">UPDATE</a></td>
-                <td align="center"><a href="/DeleteSpesaCommessa/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true">DELETE</a></td>
+                <td align="center"><a href="/DeleteSpesaCommessa/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Spesa di Commessa?')">DELETE</a></td>
             </tr>
             {% endfor %}
         </table>
+
+        <div class="alert alert-primary" role="alert">
+            Totale degli importi: <a href="#" class="alert-link">{{sum_s}}</a>
+        </div>
+
     </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
