@@ -2,8 +2,63 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>MYACCOUNTING|AllProtocols</title>
+    <title>MYACCOUNTING|AllGuadagni</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    function selectAll(){
+				var items=document.getElementsByName('b1');
+				for(var i=0; i<items.length; i++){
+					if(items[i].type=='checkbox')
+						items[i].checked=true;
+				}
+			}
+
+			function unSelectAll(){
+				var items=document.getElementsByName('b1');
+				for(var i=0; i<items.length; i++){
+					if(items[i].type=='checkbox')
+						items[i].checked=false;
+				}
+			}
+
+			function getSelected(){
+				var checks=document.getElementsByName('b1');
+				var list = new Array();
+				for(var i=0; i<checks.length; i++){
+					if(checks[i].checked== true){
+						list.push(checks[i].value);
+					}
+				}
+				return list;
+			}
+
+            function deleteGroup(){
+                  var list=getSelected();
+                  if(list.length > 0){
+                    if(confirm('Are you sure you want to delete?')== true){
+                        $.ajax({
+                            type: "POST",
+                            url: "/DeleteGuadagniGroup/",
+                            data: {
+                                'list': list,
+                                csrfmiddlewaretoken: '{{ csrf_token }}'
+                            },
+                            success: function(response) {
+                                location.reload(true);
+
+                            },
+                            error: function(response){
+                                alert("failure");
+                            }
+                        });
+
+
+                    }
+                  }
+            }
+
+    </script>
 </head>
 <body>
 
@@ -93,8 +148,18 @@
 
         </br>
 
+        <div align="left">
+
+            <input type="button" onclick='selectAll()' value="Select All"/>
+            <input type="button" onclick='unSelectAll()' value="Unselect All"/>
+            <input type="button" onclick='deleteGroup()' value="Delete Selected"/>
+
+        </div>
+
+        </br>
         <table width="100%" border="1" cellpadding="10" cellspacing="0">
             <tr>
+                <th></th>
                 <th>data</th>
                 <th>movimento</th>
                 <th>importo</th>
@@ -104,6 +169,9 @@
             </tr>
             {% for b in filter.qs %}
             <tr>
+                <td>
+                    <input type="checkbox" class="checks" name="b1" value={{b.id}}>
+                </td>
                 <td>{{ b.data }}</td>
                 <td>{{ b.movimento }}</td>
                 <td>{{ b.importo }} €</td>
@@ -120,7 +188,6 @@
         {% endblock %}
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </div>

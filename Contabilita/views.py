@@ -55,6 +55,18 @@ def viewDeleteProtocol(request,id):
     protocol.delete()
     return redirect('AllProtocols')
 
+def viewDeleteProtocolsGroup(request):
+    if request.method == "POST":
+        tasks = request.POST.getlist('list[]')
+        print(str(tasks))
+        for i in range(0,len(tasks),1):
+            protocol = Protocollo.objects.get(id=int(tasks[i]))
+            protocol.delete()
+
+        print("delete done")
+
+    return render(request, "Homepage/HomePage.html")
+
 def viewUpdateProtocol(request,id):
     if (request.method == "POST"):
 
@@ -124,6 +136,18 @@ def viewDeleteGuadagno(request,id):
     guadagno.delete()
     return redirect('AllGuadagni')
 
+def viewDeleteGuadagniGroup(request):
+    if request.method == "POST":
+        tasks = request.POST.getlist('list[]')
+        print(str(tasks))
+        for i in range(0,len(tasks),1):
+            guadagno = Guadagno.objects.get(id=int(tasks[i]))
+            guadagno.delete()
+
+        print("delete done")
+
+    return render(request, "Homepage/HomePage.html")
+
 def viewUpdateGuadagno(request,id):
     if (request.method == "POST"):
 
@@ -189,6 +213,18 @@ def viewDeleteSpesaCommessa(request,id):
     spesacommessa = SpesaCommessa.objects.get(id=id)
     spesacommessa.delete()
     return redirect('AllSpeseCommessa')
+
+def viewDeleteSpeseCommessaGroup(request):
+    if request.method == "POST":
+        tasks = request.POST.getlist('list[]')
+        print(str(tasks))
+        for i in range(0,len(tasks),1):
+            spesacommessa = SpesaCommessa.objects.get(id=int(tasks[i]))
+            spesacommessa.delete()
+
+        print("delete done")
+
+    return render(request, "Homepage/HomePage.html")
 
 def viewUpdateSpesaCommessa(request,id):
     if (request.method == "POST"):
@@ -296,6 +332,18 @@ def viewDeleteSpesaGestione(request,id):
     spesagestione.delete()
     return redirect('AllSpeseGestione')
 
+def viewDeleteSpeseGestioneGroup(request):
+    if request.method == "POST":
+        tasks = request.POST.getlist('list[]')
+        print(str(tasks))
+        for i in range(0,len(tasks),1):
+            spesagestione = SpesaGestione.objects.get(id=int(tasks[i]))
+            spesagestione.delete()
+
+        print("delete done")
+
+    return render(request, "Homepage/HomePage.html")
+
 def viewUpdateSpesaGestione(request,id):
     if (request.method == "POST"):
 
@@ -352,6 +400,18 @@ def viewDeleteRicavoEffettivo(request,id):
     ricavoefettivo = RicavoEffettivo.objects.get(id=id)
     ricavoefettivo.delete()
     return redirect('AllRicaviEffettivi')
+
+def viewDeleteRicaviEffettiviGroup(request):
+    if request.method == "POST":
+        tasks = request.POST.getlist('list[]')
+        print(str(tasks))
+        for i in range(0,len(tasks),1):
+            ricavoeffettivo = RicavoEffettivo.objects.get(id=int(tasks[i]))
+            ricavoeffettivo.delete()
+
+        print("delete done")
+
+    return render(request, "Homepage/HomePage.html")
 
 def viewUpdateRicavoEffettivo(request,id):
 
