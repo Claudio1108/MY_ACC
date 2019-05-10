@@ -35,7 +35,7 @@ class Guadagno(models.Model):
     fattura = models.CharField(max_length=2, choices=TIPO_FATTURA, default='SI')
 
     #foreign_key
-    protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="guadagni")
+    protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="guadagni", default="", null=True, blank=True)
     #reated_name = relazione inversa, dato un protocollo vedere i relativi guadagni
 
     def __str__(self):
@@ -91,3 +91,7 @@ class RicavoEffettivo(models.Model):
     def __str__(self):
 
         return self.importo
+
+class CalendarioContatore(models.Model):
+
+    count=models.IntegerField()

@@ -16,10 +16,17 @@ class formProtocol(forms.ModelForm):
         model = Protocollo
 
         fields = "__all__"
-
+        #fields=['cliente','referente','mail_cliente','tel_cliente','indirizzo','parcella','pratica','note','data']
         widgets = {
             'data': DateInput(),
+            'identificativo' : forms.HiddenInput()
         }
+
+    def set_identificativo(self,value):
+
+        data = self.data.copy()
+        data['identificativo'] = value
+        self.data = data
 
 class formProtocolUpdate(forms.ModelForm):
 
