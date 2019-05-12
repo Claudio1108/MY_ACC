@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>MYACCOUNTING|CreateGuadagno</title>
+    <title>MYACCOUNTING|UpdateGuadagnoEffettivo</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
@@ -13,7 +13,7 @@
 
         <div align="center">
 
-            <h1>Crea Nuovo Guadagno</h1>
+            <h1>Modifica Guadagno Effettivo</h1>
 
         </div>
 
@@ -36,11 +36,11 @@
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Guadagni
+                            Ricavi
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                <a class="dropdown-item" href="{% url 'AllGuadagni' %}">View All Guadagni</a>
-                                <a class="dropdown-item" href="{% url 'CreateGuadagno' %}">Add Guadagno</a>
+                                <a class="dropdown-item" href="{% url 'AllRicavi' %}">View All Ricavi</a>
+                                <a class="dropdown-item" href="{% url 'CreateRicavo' %}">Add Ricavo</a>
                             </div>
                         </li>
                         <li class="nav-item dropdown">
@@ -63,11 +63,11 @@
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink5" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Ricavi Effettivi
+                            Guadagni Effettivi
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                <a class="dropdown-item" href="{% url 'AllRicaviEffettivi' %}">View All Ricavi Effettivi</a>
-                                <a class="dropdown-item" href="{% url 'CreateRicavoEffettivo' %}">Add Ricavo Effettivi</a>
+                                <a class="dropdown-item" href="{% url 'AllGuadagniEffettivi' %}">View All Guadagni Effettivi</a>
+                                <a class="dropdown-item" href="{% url 'CreateGuadagnoEffettivo' %}">Add Guadagno Effettivi</a>
                             </div>
                         </li>
                         <li class="nav-item dropdown">
@@ -88,12 +88,11 @@
 
                 {% csrf_token %}
 
-
                 <table>
                     {{ form.as_table }}
                 </table>
 
-                <input type="submit" class="btn btn-primary" value="Crea">
+                <input type="submit" class="btn btn-primary" value="Modifica">
 
             </form>
 

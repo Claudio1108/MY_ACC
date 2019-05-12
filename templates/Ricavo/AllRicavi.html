@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>MYACCOUNTING|AllGuadagni</title>
+    <title>MYACCOUNTING|AllRicavi</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script type="text/javascript">
@@ -39,7 +39,7 @@
                     if(confirm('Are you sure you want to delete?')== true){
                         $.ajax({
                             type: "POST",
-                            url: "/DeleteGuadagniGroup/",
+                            url: "/DeleteRicaviGroup/",
                             data: {
                                 'list': list,
                                 csrfmiddlewaretoken: '{{ csrf_token }}'
@@ -65,7 +65,7 @@
 <div class="container-fluid">
 
     <div align="center">
-        <h1>TABELLA DEI GUADAGNI</h1>
+        <h1>TABELLA DEI RICAVI</h1>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <!-- Navbar content -->
             <a class="navbar-brand" href="{% url 'HomePage' %}">DASHBOARD</a>
@@ -85,11 +85,11 @@
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Guadagni
+                        Ricavi
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllGuadagni' %}">View All Guadagni</a>
-                            <a class="dropdown-item" href="{% url 'CreateGuadagno' %}">Add Guadagno</a>
+                            <a class="dropdown-item" href="{% url 'AllRicavi' %}">View All Ricavi</a>
+                            <a class="dropdown-item" href="{% url 'CreateRicavo' %}">Add Ricavo</a>
                         </div>
                     </li>
                     <li class="nav-item dropdown">
@@ -112,11 +112,11 @@
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink5" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Ricavi Effettivi
+                        Guadagni Effettivi
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllRicaviEffettivi' %}">View All Ricavi Effettivi</a>
-                            <a class="dropdown-item" href="{% url 'CreateRicavoEffettivo' %}">Add Ricavo Effettivi</a>
+                            <a class="dropdown-item" href="{% url 'AllGuadagniEffettivi' %}">View All Guadagni Effettivi</a>
+                            <a class="dropdown-item" href="{% url 'CreateGuadagnoEffettivo' %}">Add Guadagno Effettivi</a>
                         </div>
                     </li>
                     <li class="nav-item dropdown">
@@ -177,13 +177,13 @@
                 <td>{{ b.importo }} €</td>
                 <td>{{ b.fattura }}</td>
                 <td>{{ b.protocollo }}</td>
-                <td align="center"><a href="/UpdateGuadagno/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">UPDATE</a></td>
-                <td align="center"><a href="/DeleteGuadagno/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Guadagno?')">DELETE</a></td>
+                <td align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">UPDATE</a></td>
+                <td align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Ricavo?')">DELETE</a></td>
             </tr>
             {% endfor %}
         </table>
         <div class="alert alert-primary" role="alert">
-            Totale degli importi: <a href="#" class="alert-link">{{sum_g}}</a>
+            Totale degli importi: <a href="#" class="alert-link">{{sum_r}}</a>
         </div>
         {% endblock %}
     </div>

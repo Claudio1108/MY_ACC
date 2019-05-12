@@ -29,12 +29,12 @@ urlpatterns = [
     path('DeleteProtocol/<int:id>', contviews.viewDeleteProtocol, name='DeleteProtocol'),
     url(r'^DeleteProtocolsGroup/$', contviews.viewDeleteProtocolsGroup, name='DeleteProtocolsGroup'),
     path('UpdateProtocol/<int:id>', contviews.viewUpdateProtocol, name='UpdateProtocol'),
-    #Guadagno
-    path('AllGuadagni/', contviews.viewAllGuadagni, name='AllGuadagni'),
-    path('CreateGuadagno/', contviews.viewCreateGuadagno, name='CreateGuadagno'),
-    path('DeleteGuadagno/<int:id>', contviews.viewDeleteGuadagno, name='DeleteGuadagno'),
-    url(r'^DeleteGuadagniGroup/$', contviews.viewDeleteGuadagniGroup, name='DeleteGuadagniGroup'),
-    path('UpdateGuadagno/<int:id>', contviews.viewUpdateGuadagno, name='UpdateGuadagno'),
+    #Ricavo
+    path('AllRicavi/', contviews.viewAllRicavi, name='AllRicavi'),
+    path('CreateRicavo/', contviews.viewCreateRicavo, name='CreateRicavo'),
+    path('DeleteRicavo/<int:id>', contviews.viewDeleteRicavo, name='DeleteRicavo'),
+    url(r'^DeleteRicaviGroup/$', contviews.viewDeleteRicaviGroup, name='DeleteRicaviGroup'),
+    path('UpdateRicavo/<int:id>', contviews.viewUpdateRicavo, name='UpdateRicavo'),
     #SpesaCommessa
     path('AllSpeseCommessa/', contviews.viewAllSpeseCommessa, name='AllSpeseCommessa'),
     path('CreateSpesaCommessa/', contviews.viewCreateSpesaCommessa, name='CreateSpesaCommessa'),
@@ -44,23 +44,23 @@ urlpatterns = [
     #Socio
     path('AllSoci/', contviews.viewAllSoci, name='AllSoci'),
     path('UpdateSocio/<int:id>', contviews.viewUpdateSocio, name='UpdateSocio'),
-    #SpeseGestione
+    #SpesaGestione
     path('AllSpeseGestione/', contviews.viewAllSpeseGestione, name='AllSpeseGestione'),
     path('CreateSpesaGestione/', contviews.viewCreateSpesaGestione, name='CreateSpesaGestione'),
     path('DeleteSpesaGestione/<int:id>', contviews.viewDeleteSpesaGestione, name='DeleteSpesaGestione'),
     url(r'^DeleteSpeseGestioneGroup/$', contviews.viewDeleteSpeseGestioneGroup, name='DeleteSpeseGestioneGroup'),
     path('UpdateSpesaGestione/<int:id>', contviews.viewUpdateSpesaGestione, name='UpdateSpesaGestione'),
-    #RicaviEffettivi
-    path('AllRIcaviEffettivi/', contviews.viewAllRicaviEffettivi, name='AllRicaviEffettivi'),
-    path('CreateRicavoEffettivo/', contviews.viewCreateRicavoEffettivo, name='CreateRicavoEffettivo'),
-    path('DeleteRicavoEffettivo/<int:id>', contviews.viewDeleteRicavoEffettivo, name='DeleteRicavoEffettivo'),
-    url(r'^DeleteRicaviEffettiviGroup/$', contviews.viewDeleteRicaviEffettiviGroup, name='DeleteRicaviEffettiviGroup'),
-    path('UpdateRicavoEffettivo/<int:id>', contviews.viewUpdateRicavoEffettivo, name='UpdateRicavoEffettivo'),
+    #GuadagnoEffettivo
+    path('AllGuadagnoEffettivi/', contviews.viewAllGuadagniEffettivi, name='AllGuadagniEffettivi'),
+    path('CreateGuadagnoEffettivo/', contviews.viewCreateGuadagnoEffettivo, name='CreateGuadagnoEffettivo'),
+    path('DeleteGuadagnoEffettivo/<int:id>', contviews.viewDeleteGuadagnoEffettivo, name='DeleteGuadagnoEffettivo'),
+    url(r'^DeleteGuadagniEffettiviGroup/$', contviews.viewDeleteGuadagniEffettiviGroup, name='DeleteGuadagniEffettiviGroup'),
+    path('UpdateGuadagnoEffettivo/<int:id>', contviews.viewUpdateGuadagnoEffettivo, name='UpdateGuadagnoEffettivo'),
 
     #Output
     path('ResocontoSpeseGestione/', contviews.viewResocontoSpeseGestione, name='ResocontoSpeseGestione'),
-    path('ResocontoGuadagni/', contviews.viewResocontoGuadagni, name='ResocontoGuadagni'),
-    path('GestioneRicavi/', contviews.viewGestioneRicavi, name='GestioneRicavi'),
+    path('ResocontoRicavi/', contviews.viewResocontoRicavi, name='ResocontoRicavi'),
+    path('GestioneGuadagniEffettivi/', contviews.viewGestioneGuadagniEffettivi, name='GestioneGuadagniEffettivi'),
     path('ContabilitaProtocolli/', contviews.viewContabilitaProtocolli, name='ContabilitaProtocolli'),
 
 ]

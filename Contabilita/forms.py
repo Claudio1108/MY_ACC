@@ -41,11 +41,11 @@ class formProtocolUpdate(forms.ModelForm):
         }
 
 
-class formGuadagno(forms.ModelForm):
+class formRicavo(forms.ModelForm):
 
     class Meta:
 
-        model = Guadagno
+        model = Ricavo
 
         fields = "__all__"
 
@@ -60,11 +60,11 @@ class formGuadagno(forms.ModelForm):
         protocollo = Protocollo.objects.get(id=id_protocollo)
 
 
-        query="""SELECT coalesce(sum(g.importo),0) as tot
+        query="""SELECT coalesce(sum(r.importo),0) as tot
 
-                 FROM Contabilita_guadagno g
+                 FROM Contabilita_ricavo r
 
-                 WHERE g.protocollo_id="""+str(id_protocollo)
+                 WHERE r.protocollo_id="""+str(id_protocollo)
 
         cursor = connection.cursor()
         cursor.execute(query);
@@ -84,11 +84,11 @@ class formGuadagno(forms.ModelForm):
 
             return False
 
-class formGuadagnoUpdate(forms.ModelForm):
+class formRicavoUpdate(forms.ModelForm):
 
     class Meta:
 
-        model = Guadagno
+        model = Ricavo
 
         fields = "__all__"
 
@@ -103,11 +103,11 @@ class formGuadagnoUpdate(forms.ModelForm):
         protocollo = Protocollo.objects.get(id=id_protocollo)
 
 
-        query="""SELECT coalesce(sum(g.importo),0) as tot
+        query="""SELECT coalesce(sum(r.importo),0) as tot
 
-                 FROM Contabilita_guadagno g
+                 FROM Contabilita_ricavo r
 
-                 WHERE g.protocollo_id="""+str(id_protocollo)
+                 WHERE r.protocollo_id="""+str(id_protocollo)
 
         cursor = connection.cursor()
         cursor.execute(query);
@@ -183,11 +183,11 @@ class formSpesaGestioneUpdate(forms.ModelForm):
             'data': forms.DateInput(attrs={'class':'datepicker'}),
         }
 
-class formRicavoEffettivo(forms.ModelForm):
+class formGuadagnoEffettivo(forms.ModelForm):
 
     class Meta:
 
-        model = RicavoEffettivo
+        model = GuadagnoEffettivo
 
         fields = "__all__"
 
@@ -195,11 +195,11 @@ class formRicavoEffettivo(forms.ModelForm):
             'data': DateInput(),
         }
 
-class formRicavoEffettivoUpdate(forms.ModelForm):
+class formGuadagnoEffettivoUpdate(forms.ModelForm):
 
     class Meta:
 
-        model = RicavoEffettivo
+        model = GuadagnoEffettivo
 
         fields = "__all__"
 
@@ -212,11 +212,11 @@ class formResocontoSpeseGestione(forms.Form):
     year = forms.IntegerField()
 
 
-class formResocontoGuadagni(forms.Form):
+class formResocontoRicavi(forms.Form):
 
     year = forms.IntegerField()
 
-class formGestioneRicavi(forms.Form):
+class formGestioneGuadagniEffettivi(forms.Form):
 
     year = forms.IntegerField()
 

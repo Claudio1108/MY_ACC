@@ -6,8 +6,8 @@ class ProtocolloFilter(django_filters.FilterSet):
     class Meta:
         model = Protocollo
         fields = {
-            'cliente': ['exact', ],
-            'referente': [ 'exact', ],
+            'cliente': ['contains', ],
+            'referente': [ 'contains', ],
             'data': ['month','year' ],
         }
 
@@ -16,15 +16,15 @@ class SpesaGestioneFilter(django_filters.FilterSet):
     class Meta:
         model = SpesaGestione
         fields = {
-            'causale': ['exact', ],
+            'causale': ['contains', ],
             'data': ['month','year' ],
         }
 
-class GuadagnoFilter(django_filters.FilterSet):
+class RicavoFilter(django_filters.FilterSet):
 
     class Meta:
-        model = Guadagno
+        model = Ricavo
         fields = {
-            'fattura': ['exact', ],
+            'fattura': ['contains', ],
             'data': ['month','year' ],
         }
