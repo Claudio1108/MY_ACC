@@ -196,15 +196,16 @@ def viewUpdateRicavo(request,id):
 
 
 def viewAllSpeseCommessa(request):
-
     spesecommessa = SpesaCommessa.objects.all()
+
+    spesacommessa_filter = SpesaCommessaFilter(request.GET, queryset=spesecommessa)
 
     sum_spesecommessa = 0
 
-    for i in range(0, len(spesecommessa), 1):
-        sum_spesecommessa = sum_spesecommessa + spesecommessa[i].importo
+    for i in range(0, len(spesacommessa_filter.qs), 1):
+        sum_spesecommessa = sum_spesecommessa + spesacommessa_filter.qs[i].importo
 
-    context = { "tabella_spesecommessa" : spesecommessa, 'sum_s': sum_spesecommessa}
+    context = {'filter': spesacommessa_filter, 'sum_s': sum_spesecommessa}
 
     return render(request, "SpesaCommessa/AllSpeseCommessa.html", context)
 
@@ -386,13 +387,14 @@ def viewAllGuadagniEffettivi(request):
 
     guadagnieffettivi = GuadagnoEffettivo.objects.all()
 
+    guadagnoeffettivo_filter = GuadagnoEffettivoFilter(request.GET, queryset=guadagnieffettivi)
+
     sum_guadagnieffettivi = 0
 
-    for i in range(0, len(guadagnieffettivi), 1):
-        print(str(guadagnieffettivi[i].importo))
-        sum_guadagnieffettivi = sum_guadagnieffettivi + guadagnieffettivi[i].importo
-    print(str(sum_guadagnieffettivi))
-    context = { "tabella_guadagniffettivi" : guadagnieffettivi, 'sum_g': sum_guadagnieffettivi}
+    for i in range(0, len(guadagnoeffettivo_filter.qs), 1):
+        sum_guadagnieffettivi = sum_guadagnieffettivi + guadagnoeffettivo_filter.qs[i].importo
+
+    context = { "filter" : guadagnoeffettivo_filter, 'sum_g': sum_guadagnieffettivi}
 
     return render(request, "GuadagnoEffettivo/AllGuadagniEffettivi.html", context)
 

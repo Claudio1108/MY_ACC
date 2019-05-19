@@ -135,15 +135,8 @@
 
         {% block content %}
         <form method="get">
-             <!-- {{ filter.form.as_table }}</br>-->
-            <table>
-            {% for field in filter.form %}
-                <tr>
-                    {{ field.label }} {{ field }}
-                </tr>
-
-            {% endfor %}
-            </table></br>
+            {{ filter.form.as_table }}
+            </br>
             <button type="submit">Filtra</button>
         </form>
 
@@ -162,6 +155,7 @@
                 <th>data</th>
                 <th>importo</th>
                 <th>fattura</th>
+                <th>intestatario fattura</th>
                 <th>causale</th>
                 <th colspan="2">Operation</th>
             </tr>
@@ -173,6 +167,7 @@
                 <td>{{ b.data }}</td>
                 <td>{{ b.importo }} €</td>
                 <td>{{ b.fattura }}</td>
+                <td>{{ b.intestatario_fattura }}</td>
                 <td>{{ b.causale }}</td>
                 <td align="center"><a href="/UpdateSpesaGestione/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">UPDATE</a></td>
                 <td align="center"><a href="/DeleteSpesaGestione/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Spesa di Gestione?')">DELETE</a></td>

@@ -132,6 +132,13 @@
                 </div>
             </nav>
         </br>
+        {% block content %}
+        <form method="get">
+             {{ filter.form.as_table }}
+            </br>
+            <button type="submit">Filtra</button>
+        </form>
+        </br>
         <div align="left">
 
             <input type="button" onclick='selectAll()' value="Select All"/>
@@ -148,7 +155,7 @@
                 <th>protocollo</th>
                 <th colspan="2">Operation</th>
             </tr>
-            {% for b in tabella_spesecommessa %}
+            {% for b in filter.qs %}
             <tr>
                 <td>
                     <input type="checkbox" class="checks" name="b1" value={{b.id}}>
@@ -165,7 +172,7 @@
         <div class="alert alert-primary" role="alert">
             Totale degli importi: <a href="#" class="alert-link">{{sum_s}}</a>
         </div>
-
+        {% endblock %}
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>

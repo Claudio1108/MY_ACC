@@ -142,15 +142,8 @@
 
         {% block content %}
         <form method="get">
-             <!-- {{ filter.form.as_table }}</br>-->
-            <table>
-            {% for field in filter.form %}
-                <tr>
-                    {{ field.label }} {{ field }}
-                </tr>
-
-            {% endfor %}
-            </table></br>
+             {{ filter.form.as_table }}
+            </br>
             <button type="submit">Filtra</button>
         </form>
 
@@ -172,6 +165,7 @@
                 <th>movimento</th>
                 <th>importo</th>
                 <th>fattura</th>
+                <th>intestatario fattura</th>
                 <th>protocollo</th>
                 <th colspan="2">Operation</th>
             </tr>
@@ -184,6 +178,7 @@
                 <td>{{ b.movimento }}</td>
                 <td>{{ b.importo }} €</td>
                 <td>{{ b.fattura }}</td>
+                <td>{{ b.intestatario_fattura }}</td>
                 <td>{{ b.protocollo }}</td>
                 <td align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">UPDATE</a></td>
                 <td align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Ricavo?')">DELETE</a></td>
