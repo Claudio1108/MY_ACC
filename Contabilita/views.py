@@ -386,8 +386,6 @@ def viewAllGuadagniEffettivi(request):
 
     guadagnieffettivi = GuadagnoEffettivo.objects.all()
 
-
-
     sum_guadagnieffettivi = 0
 
     for i in range(0, len(guadagnieffettivi), 1):

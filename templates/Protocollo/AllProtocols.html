@@ -137,7 +137,15 @@
 
         {% block content %}
         <form method="get">
-            {{ filter.form.as_p }}
+            <!-- {{ filter.form.as_table }}</br>-->
+            <table>
+            {% for field in filter.form %}
+                <tr>
+                    {{ field.label }} {{ field }}
+                </tr>
+
+            {% endfor %}
+            </table></br>
             <button type="submit">Filtra</button>
         </form>
 

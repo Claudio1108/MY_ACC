@@ -7,8 +7,8 @@ class ProtocolloFilter(django_filters.FilterSet):
         model = Protocollo
         fields = {
             'cliente': ['contains', ],
-            'referente': [ 'contains', ],
-            'data': ['month','year' ],
+            'referente': ['contains', ],
+            'data': ['month','year'],
         }
 
 class SpesaGestioneFilter(django_filters.FilterSet):
