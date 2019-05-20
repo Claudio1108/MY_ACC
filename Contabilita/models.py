@@ -3,7 +3,6 @@ from django.db import models
 # Create your models here.
 
 class Protocollo(models.Model):
-    #public = models.BooleanField(default=True)
     identificativo = models.CharField(max_length=10, blank=True)
     cliente = models.CharField(max_length=25, blank=True)
     referente = models.CharField(max_length=25, blank=True)

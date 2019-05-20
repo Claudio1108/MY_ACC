@@ -7,9 +7,9 @@ class ProtocolloFilter(django_filters.FilterSet):
         model = Protocollo
         fields = {
             'cliente': ['contains', ],
-            'referente': ['contains', ],
             'indirizzo':['contains', ],
             'pratica': ['contains', ],
+            'referente': ['contains', ],
             'data': ['month','year'],
         }
 
