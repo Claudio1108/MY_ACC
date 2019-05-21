@@ -16,7 +16,7 @@ class Protocollo(models.Model):
 
     def __str__(self):
 
-        return str(self.identificativo)+" "+str(self.indirizzo)
+        return str(self.identificativo)+" | "+str(self.indirizzo)
 
 class Socio(models.Model):
 

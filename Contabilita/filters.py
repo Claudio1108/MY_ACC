@@ -19,7 +19,7 @@ class SpesaGestioneFilter(django_filters.FilterSet):
         model = SpesaGestione
         fields = {
             'data': ['month','year' ],
-            'fattura': ['contains', ],
+            'fattura': ['exact',  ],
             'intestatario_fattura': ['exact', ],
             'causale': ['contains', ],
         }
@@ -38,7 +38,7 @@ class RicavoFilter(django_filters.FilterSet):
     class Meta:
         model = Ricavo
         fields = {
-            'fattura': ['contains', ],
+            'fattura': ['exact',  ],
             'intestatario_fattura': ['exact', ],
             'protocollo': ['exact', ],
             'data': ['month','year' ],

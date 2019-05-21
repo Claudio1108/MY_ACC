@@ -37,7 +37,7 @@
             function deleteGroup(){
                   var list=getSelected();
                   if(list.length > 0){
-                    if(confirm('Are you sure you want to delete?')== true){
+                    if(confirm('Are you sure you want to delete this Protocolli?')== true){
                         $.ajax({
                             type: "POST",
                             url: "/DeleteProtocolsGroup/",
@@ -143,7 +143,7 @@
                 {% if forloop.counter|divisibleby:"3" %}
                     <tr>{{ field.label }} {{ field }}</tr></br></br>
                 {% else %}
-                    <tr>{{ field.label }} {{ field }}</tr>
+                    <tr>{{ field.label }} {{ field }}</tr>&nbsp;&nbsp;&nbsp;
                 {% endif %}
 
 
