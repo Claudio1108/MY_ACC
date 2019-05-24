@@ -59,6 +59,58 @@
                   }
             }
 
+            $(document).ready(function () {
+                      $('input[type=checkbox]').click(function () {
+                        var state = $(this)[0].checked,
+                            g = $(this).data('group');
+                         $(this).siblings()
+                         .each(function () {
+                 $(this)[0].checked = g==$(this).data('group')&&state ? false : $(this)[0].checked;
+                         });
+              });
+             })
+
+            function OrderById(){
+
+                $.ajax({
+                            type: "POST",
+                            url: "/AllProtocols/",
+                            data: {
+                                'order': 'id',
+                                csrfmiddlewaretoken: '{{ csrf_token }}'
+                            },
+                            success: function(response) {
+                                //window.location.href = "/HomePage"
+                            },
+                            error: function(response){
+                                alert("failure");
+                            }
+                        });
+
+                 return false;
+
+            }
+
+            function OrderByParcella(){
+
+                $.ajax({
+                            type: "POST",
+                            url: "/AllProtocols/",
+                            data: {
+                                'order': 'parcella',
+                                csrfmiddlewaretoken: '{{ csrf_token }}'
+                            },
+                            success: function(response) {
+
+                            },
+                            error: function(response){
+                                alert("failure");
+                            }
+                        });
+
+            }
+
+
 
 	</script>
 </head>
@@ -149,16 +201,20 @@
 
             {% endfor %}
             </table>
-            <button type="submit">Filtra</button>
         </form>
 
         </br>
 
-        <div align="left">
+        <div  align="left">
 
             <input type="button" onclick='selectAll()' value="Select All"/>
             <input type="button" onclick='unSelectAll()' value="Unselect All"/>
-            <input type="button" onclick='deleteGroup()' value="Delete Selected"/>
+            <input type="button" onclick='deleteGroup()' value="Delete Selected"/>&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            Order By : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+            <input type="checkbox" data-group='orderState' onchange="OrderById()" value="id_order"/> id &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="checkbox" data-group='orderState' onchange="OrderByParcella()" value="parcella_order"/> parcella
 
         </div>
 

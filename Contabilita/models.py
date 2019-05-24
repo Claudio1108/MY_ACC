@@ -35,7 +35,7 @@ class Ricavo(models.Model):
         ('ACCONTO', 'ACCONTO'),
         ('SALDO', 'SALDO')
     )
-    movimento = models.CharField(max_length=10, choices=TIPO_MOVIMENTO, default='A')
+    movimento = models.CharField(max_length=10, choices=TIPO_MOVIMENTO,null=True, blank=True)
     importo = models.DecimalField(max_digits=19, decimal_places=2)
     TIPO_FATTURA = (
         ('SI', 'SI'),
@@ -43,6 +43,7 @@ class Ricavo(models.Model):
 
     )
     fattura = models.CharField(max_length=2, choices=TIPO_FATTURA, default='NO')
+    causale = models.CharField(max_length=120,default="", null=True, blank=True)
     #foreign_key
     intestatario_fattura = models.ForeignKey(Socio, on_delete=models.CASCADE, related_name="sociofatturaricavo", default="", null=True, blank=True)
     #foreign_key
@@ -79,7 +80,7 @@ class SpesaGestione(models.Model):
     fattura = models.CharField(max_length=2, choices=TIPO_FATTURA, default='NO')
     # foreign_key
     intestatario_fattura = models.ForeignKey(Socio, on_delete=models.CASCADE, related_name="sociofatturaspesagestione", default="", null=True, blank=True)
-    causale = models.CharField(max_length=120)
+    causale = models.CharField(max_length=120, default="", null=True, blank=True)
 
     def __str__(self):
 

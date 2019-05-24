@@ -3,6 +3,12 @@ from django.contrib import messages
 from .forms import *
 from django.db import connection
 from .filters import *
+from django.shortcuts import render_to_response
+from django.template import loader, RequestContext
+from django.http import HttpResponse
+import json
+from django.template.loader import render_to_string
+from django.http.response import JsonResponse
 from django.core.paginator import Paginator
 
 # Create your views here.
@@ -15,17 +21,38 @@ def viewAllProtocols(request):
 
     protocolli = Protocollo.objects.all()
 
-    protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli.order_by("-identificativo","-parcella"))
+    sum_parcelle = 0
 
-    sum_parcelle=0
+    if request.method == 'POST':
+        order = request.POST.get('order')
+        print(str(order))
+        if order=='id':
+            protocollo_filter = ProtocolloFilter(request.GET,queryset=protocolli.order_by("identificativo"))
+        else:
+            protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli.order_by("parcella"))
+
+    else:
+
+        protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli.order_by("-identificativo"))
+    print("-------------   "+str(protocollo_filter.qs))
 
     for i in range(0,len(protocollo_filter.qs),1):
-
+        print(str(protocollo_filter.qs[i]))
         sum_parcelle=sum_parcelle+protocollo_filter.qs[i].parcella
+
+    print(str(sum_parcelle))
 
     context = {'filter': protocollo_filter, 'sum_p':sum_parcelle}
 
-    return render(request, "Protocollo/AllProtocols.html", context)
+    if request.method == 'POST':
+        print("POST")
+        print(str(request))
+        return render(request, "Protocollo/AllProtocols.html", context)
+
+    else:
+        print("GET")
+        print(str(request))
+        return render(request, "Protocollo/AllProtocols.html", context)
 
 def viewCreateProtocol(request):
 
@@ -49,7 +76,7 @@ def viewCreateProtocol(request):
         print(query2)
         cursor = connection.cursor()
         cursor.execute(query2)
-        form.set_identificativo(str(val)+"-"+anno[2:4])
+        form.set_identificativo(str('{0:04}'.format(val))+"-"+anno[2:4])
 
         if(form.is_valid()):
 
@@ -820,7 +847,7 @@ def viewGestioneGuadagniEffettivi(request):
 
 
 def viewContabilitaProtocolli(request):
-    query = """SELECT t1.identificativo, t1.cliente,t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
+    query = """SELECT t1.identificativo, t1.cliente, t1.referente, t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
                                             (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as uscite,
                                             t1.parcella-(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id)+
                                             (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as saldo
@@ -828,7 +855,7 @@ def viewContabilitaProtocolli(request):
                 
                 union
                 
-                SELECT t1.identificativo, t1.cliente,t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
+                SELECT t1.identificativo, t1.cliente, t1.referente, t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
                                                             (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as uscite,
                                                             t1.parcella-(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id)+
                                                             (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as saldo

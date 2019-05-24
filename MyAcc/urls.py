@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     #Protocollo
     path('HomePage', contviews.viewhomepage, name='HomePage'),
+    #url(r'^AllProtocols/\?order=(?P<order>.*)&csrfmiddlewaretoken=(?P<csrfmiddlewaretoken>.*)$', contviews.viewAllProtocols, name='AllProtocols'),
     path('AllProtocols/', contviews.viewAllProtocols, name='AllProtocols'),
     path('CreateProtocol/', contviews.viewCreateProtocol, name='CreateProtocol'),
     path('DeleteProtocol/<int:id>', contviews.viewDeleteProtocol, name='DeleteProtocol'),
