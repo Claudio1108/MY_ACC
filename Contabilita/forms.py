@@ -14,9 +14,18 @@ class formProtocol(forms.ModelForm):
     class Meta:
 
         model = Protocollo
-
         fields = "__all__"
-        #fields=['cliente','referente','mail_cliente','tel_cliente','indirizzo','parcella','pratica','note','data']
+        labels = {
+            "cliente": "Cliente ",
+            "referente": "Referente ",
+            "mail_cliente": "Mail Cliente ",
+            "tel_cliente": "Tel Cliente ",
+            "indirizzo": "Indirizzo ",
+            "parcella": "Parcella* ",
+            "pratica": "Pratica ",
+            "note": "Note ",
+            "data": "Data* ",
+        }
         widgets = {
             'data': DateInput(),
             'identificativo' : forms.HiddenInput()
@@ -48,7 +57,15 @@ class formRicavo(forms.ModelForm):
         model = Ricavo
 
         fields = "__all__"
-
+        labels = {
+            "data": "Data* ",
+            "movimento": "Movimento ",
+            "importo": "Importo* ",
+            "fattura": "Fattura ",
+            "causale": "Causale ",
+            "intestatario_fattura": "Intestatario Fattura ",
+            "protocollo": "Protocollo ",
+        }
         widgets = {
             'data': DateInput(),
         }
@@ -134,7 +151,11 @@ class formSpesaCommessa(forms.ModelForm):
         model = SpesaCommessa
 
         fields = "__all__"
-
+        labels = {
+            "data": "Data* ",
+            "importo": "Importo* ",
+            "protocollo": "Protocollo ",
+        }
         widgets = {
             'data': DateInput(),
         }
@@ -166,7 +187,13 @@ class formSpesaGestione(forms.ModelForm):
         model = SpesaGestione
 
         fields = "__all__"
-
+        labels = {
+            "data": "Data* ",
+            "importo": "Importo* ",
+            "fattura": "Fattura ",
+            "intestatario_fattura": "Intestatario Fattura ",
+            "causale": "Causale ",
+        }
         widgets = {
             'data': DateInput(),
         }
@@ -190,7 +217,10 @@ class formGuadagnoEffettivo(forms.ModelForm):
         model = GuadagnoEffettivo
 
         fields = "__all__"
-
+        labels = {
+            "data": "Data* ",
+            "importo": "Importo* ",
+        }
         widgets = {
             'data': DateInput(),
         }
@@ -219,7 +249,3 @@ class formResocontoRicavi(forms.Form):
 class formGestioneGuadagniEffettivi(forms.Form):
 
     year = forms.IntegerField()
-
-
-
-

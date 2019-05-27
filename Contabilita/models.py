@@ -9,14 +9,20 @@ class Protocollo(models.Model):
     mail_cliente = models.EmailField(max_length=40, blank=True)
     tel_cliente = models.CharField(max_length=20, blank=True)
     indirizzo = models.CharField(max_length=40, blank=True)
-    parcella = models.DecimalField(max_digits=19, decimal_places=2)
+    parcella = models.DecimalField(max_digits=19, decimal_places=2) #obbligatorio
     pratica = models.CharField(max_length=40, blank=True)
     note = models.TextField(blank=True)
-    data = models.DateField(auto_now=False, auto_now_add=False)
+    data = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
 
     def __str__(self):
 
-        return str(self.identificativo)+" | "+str(self.indirizzo)
+        if(str(self.indirizzo) != ''):
+            return str(self.identificativo)+" | "+str(self.indirizzo)
+        else:
+            return str(self.identificativo)+" | Not Specific Address"
+
+    class Meta:
+        ordering = ['-identificativo']
 
 class Socio(models.Model):
 
@@ -30,13 +36,13 @@ class Socio(models.Model):
 
 class Ricavo(models.Model):
 
-    data = models.DateField(auto_now=False, auto_now_add=False)
+    data = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
     TIPO_MOVIMENTO = (
         ('ACCONTO', 'ACCONTO'),
         ('SALDO', 'SALDO')
     )
     movimento = models.CharField(max_length=10, choices=TIPO_MOVIMENTO,null=True, blank=True)
-    importo = models.DecimalField(max_digits=19, decimal_places=2)
+    importo = models.DecimalField(max_digits=19, decimal_places=2) #obbligatorio
     TIPO_FATTURA = (
         ('SI', 'SI'),
         ('NO', 'NO')
@@ -57,8 +63,8 @@ class Ricavo(models.Model):
 
 class SpesaCommessa(models.Model):
 
-    data = models.DateField(auto_now=False, auto_now_add=False)
-    importo = models.DecimalField(max_digits=19, decimal_places=2)
+    data = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
+    importo = models.DecimalField(max_digits=19, decimal_places=2) #obbligatorio
 
     # foreign_key
     protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="spesecommessa")
@@ -71,8 +77,8 @@ class SpesaCommessa(models.Model):
 
 class SpesaGestione(models.Model):
 
-    data = models.DateField(auto_now=False, auto_now_add=False)
-    importo = models.DecimalField(max_digits=19, decimal_places=2)
+    data = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
+    importo = models.DecimalField(max_digits=19, decimal_places=2) #obbligatorio
     TIPO_FATTURA = (
         ('SI', 'SI'),
         ('NO', 'NO')
@@ -89,8 +95,8 @@ class SpesaGestione(models.Model):
 
 class GuadagnoEffettivo(models.Model):
 
-    data = models.DateField(auto_now=False, auto_now_add=False)
-    importo = models.DecimalField(max_digits=19, decimal_places=2)
+    data = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
+    importo = models.DecimalField(max_digits=19, decimal_places=2) #obbligatorio
 
     def __str__(self):
 
@@ -98,4 +104,4 @@ class GuadagnoEffettivo(models.Model):
 
 class CalendarioContatore(models.Model):
 
-    count=models.IntegerField()
+    count = models.IntegerField()

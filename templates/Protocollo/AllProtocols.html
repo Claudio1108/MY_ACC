@@ -73,11 +73,11 @@
             function OrderById(){
 
                 $.ajax({
-                            type: "POST",
+                            type: "GET",
                             url: "/AllProtocols/",
                             data: {
                                 'order': 'id',
-                                csrfmiddlewaretoken: '{{ csrf_token }}'
+                                'csrfmiddlewaretoken': '{{ csrf_token }}'
                             },
                             success: function(response) {
                                 //window.location.href = "/HomePage"
@@ -87,18 +87,16 @@
                             }
                         });
 
-                 return false;
-
             }
 
             function OrderByParcella(){
 
                 $.ajax({
-                            type: "POST",
-                            url: "/AllProtocols/",
+                            type: 'GET',
+                            url: '/AllProtocols/',
                             data: {
                                 'order': 'parcella',
-                                csrfmiddlewaretoken: '{{ csrf_token }}'
+                                'csrfmiddlewaretoken': '{{ csrf_token }}'
                             },
                             success: function(response) {
 
@@ -109,8 +107,6 @@
                         });
 
             }
-
-
 
 	</script>
 </head>
@@ -197,10 +193,9 @@
                 {% else %}
                     <tr>{{ field.label }} {{ field }}</tr>&nbsp;&nbsp;&nbsp;
                 {% endif %}
-
-
             {% endfor %}
-            </table>
+            </table></br>
+            <button type="submit">Filtra</button>
         </form>
 
         </br>
@@ -211,10 +206,10 @@
             <input type="button" onclick='unSelectAll()' value="Unselect All"/>
             <input type="button" onclick='deleteGroup()' value="Delete Selected"/>&nbsp;&nbsp;&nbsp;&nbsp;
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            Order By : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <!--Order By : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
             <input type="checkbox" data-group='orderState' onchange="OrderById()" value="id_order"/> id &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <input type="checkbox" data-group='orderState' onchange="OrderByParcella()" value="parcella_order"/> parcella
+            <input type="checkbox" data-group='orderState' onchange="OrderByParcella()" value="parcella_order"/> parcella-->
 
         </div>
 

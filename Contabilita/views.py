@@ -10,6 +10,8 @@ import json
 from django.template.loader import render_to_string
 from django.http.response import JsonResponse
 from django.core.paginator import Paginator
+from django.urls import reverse
+
 
 # Create your views here.
 
@@ -17,42 +19,47 @@ def viewhomepage(request):
 
     return render(request, "Homepage/HomePage.html")
 
+#def viewAllProtocols(request, order, csrfmiddlewaretoken):
+
 def viewAllProtocols(request):
 
     protocolli = Protocollo.objects.all()
 
     sum_parcelle = 0
 
-    if request.method == 'POST':
-        order = request.POST.get('order')
-        print(str(order))
-        if order=='id':
-            protocollo_filter = ProtocolloFilter(request.GET,queryset=protocolli.order_by("identificativo"))
-        else:
-            protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli.order_by("parcella"))
+    protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli.order_by("-identificativo"))
 
-    else:
+    #if request.method == 'POST':
+        #order = request.POST.get('order')
+        #print(str(order))
+        #if order=='id':
+            #protocollo_filter = ProtocolloFilter(request.GET,queryset=protocolli.order_by("identificativo"))
+        #else:
+            #protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli.order_by("parcella"))
 
-        protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli.order_by("-identificativo"))
-    print("-------------   "+str(protocollo_filter.qs))
+    #else:
+
+        #protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli.order_by("-identificativo"))
+
+    #order = request.GET.get('order')
+    #print("order: "+str(order))
+
+    #csrfmiddlewaretoken = request.GET.get('csrfmiddlewaretoken')
+    #print("csrfmiddlewaretoken: " + str(csrfmiddlewaretoken))
+    #if order=='id':
+        #protocollo_filter = ProtocolloFilter(request.GET,queryset=protocolli.order_by("identificativo"))
+    #else:
+        #protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli.order_by("parcella"))
+
+    #print("-------------   "+str(protocollo_filter.qs))
 
     for i in range(0,len(protocollo_filter.qs),1):
         print(str(protocollo_filter.qs[i]))
         sum_parcelle=sum_parcelle+protocollo_filter.qs[i].parcella
 
-    print(str(sum_parcelle))
-
     context = {'filter': protocollo_filter, 'sum_p':sum_parcelle}
 
-    if request.method == 'POST':
-        print("POST")
-        print(str(request))
-        return render(request, "Protocollo/AllProtocols.html", context)
-
-    else:
-        print("GET")
-        print(str(request))
-        return render(request, "Protocollo/AllProtocols.html", context)
+    return render(request, "Protocollo/AllProtocols.html", context)
 
 def viewCreateProtocol(request):
 
@@ -135,7 +142,7 @@ def viewAllRicavi(request):
 
     ricavi = Ricavo.objects.all()
 
-    ricavo_filter = RicavoFilter(request.GET, queryset=ricavi)
+    ricavo_filter = RicavoFilter(request.GET, queryset=ricavi.order_by("-data"))
 
     sum_ricavi = 0
 
@@ -225,7 +232,7 @@ def viewUpdateRicavo(request,id):
 def viewAllSpeseCommessa(request):
     spesecommessa = SpesaCommessa.objects.all()
 
-    spesacommessa_filter = SpesaCommessaFilter(request.GET, queryset=spesecommessa)
+    spesacommessa_filter = SpesaCommessaFilter(request.GET, queryset=spesecommessa.order_by("-data"))
 
     sum_spesecommessa = 0
 
@@ -343,7 +350,7 @@ def viewAllSpeseGestione(request):
 
     spesegestione = SpesaGestione.objects.all()
 
-    spesagestione_filter = SpesaGestioneFilter(request.GET, queryset=spesegestione)
+    spesagestione_filter = SpesaGestioneFilter(request.GET, queryset=spesegestione.order_by("-data"))
 
     sum_spesegestione = 0
 
@@ -414,7 +421,7 @@ def viewAllGuadagniEffettivi(request):
 
     guadagnieffettivi = GuadagnoEffettivo.objects.all()
 
-    guadagnoeffettivo_filter = GuadagnoEffettivoFilter(request.GET, queryset=guadagnieffettivi)
+    guadagnoeffettivo_filter = GuadagnoEffettivoFilter(request.GET, queryset=guadagnieffettivi.order_by("-data"))
 
     sum_guadagnieffettivi = 0
 

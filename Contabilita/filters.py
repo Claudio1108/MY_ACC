@@ -11,6 +11,7 @@ class ProtocolloFilter(django_filters.FilterSet):
     class Meta:
         model = Protocollo
         fields = {
+            'identificativo': ['contains', ],
             'cliente': ['contains', ],
             'indirizzo':['contains', ],
             'pratica': ['contains', ],
