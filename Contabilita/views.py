@@ -859,6 +859,7 @@ def viewContabilitaProtocolli(request):
                                             t1.parcella-(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id)+
                                             (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as saldo
                 FROM   Contabilita_protocollo t1
+                WHERE saldo != 0
                 
                 union
                 
@@ -866,7 +867,8 @@ def viewContabilitaProtocolli(request):
                                                             (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as uscite,
                                                             t1.parcella-(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id)+
                                                             (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as saldo
-                FROM   Contabilita_protocollo t1"""
+                FROM   Contabilita_protocollo t1
+                WHERE saldo != 0"""
 
     print(query)
     cursor = connection.cursor()

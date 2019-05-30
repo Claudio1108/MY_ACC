@@ -56,7 +56,7 @@ class formRicavo(forms.ModelForm):
 
         model = Ricavo
 
-        fields = "__all__"
+        fields = ('data','movimento','importo','fattura','intestatario_fattura','causale','protocollo')
         labels = {
             "data": "Data* ",
             "movimento": "Movimento ",
