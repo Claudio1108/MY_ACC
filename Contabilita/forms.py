@@ -5,14 +5,8 @@ from django.db import connection
 class DateInput(forms.DateInput):
     input_type = 'date'
 
-#class CheckBoxInput(forms.CheckboxInput):
-    #input_type = 'checkbox'
-
-
 class formProtocol(forms.ModelForm):
-
     class Meta:
-
         model = Protocollo
         fields = "__all__"
         labels = {
@@ -24,38 +18,26 @@ class formProtocol(forms.ModelForm):
             "parcella": "Parcella* ",
             "pratica": "Pratica ",
             "note": "Note ",
-            "data": "Data* ",
-        }
+            "data": "Data* "}
         widgets = {
             'data': DateInput(),
-            'identificativo' : forms.HiddenInput()
-        }
+            'identificativo' : forms.HiddenInput()}
 
     def set_identificativo(self,value):
-
         data = self.data.copy()
         data['identificativo'] = value
         self.data = data
 
 class formProtocolUpdate(forms.ModelForm):
-
     class Meta:
-
         model = Protocollo
-
         fields = "__all__"
-
         widgets = {
-            'data': forms.DateInput(attrs={'class':'datepicker'}),
-        }
-
+            'data': forms.DateInput(attrs={'class':'datepicker'})}
 
 class formRicavo(forms.ModelForm):
-
     class Meta:
-
         model = Ricavo
-
         fields = ('data','movimento','importo','fattura','intestatario_fattura','causale','protocollo')
         labels = {
             "data": "Data* ",
@@ -64,188 +46,114 @@ class formRicavo(forms.ModelForm):
             "fattura": "Fattura ",
             "causale": "Causale ",
             "intestatario_fattura": "Intestatario Fattura ",
-            "protocollo": "Protocollo ",
-        }
+            "protocollo": "Protocollo "}
         widgets = {
-            'data': DateInput(),
-        }
+            'data': DateInput()}
 
     def Check1(self):
-
         id_protocollo = self.data['protocollo']
-
         protocollo = Protocollo.objects.get(id=id_protocollo)
-
-
         query="""SELECT coalesce(sum(r.importo),0) as tot
-
                  FROM Contabilita_ricavo r
-
-                 WHERE r.protocollo_id="""+str(id_protocollo)
+                 WHERE r.protocollo_id={}""".format(str(id_protocollo))
 
         cursor = connection.cursor()
-        cursor.execute(query);
+        cursor.execute(query)
         rows = cursor.fetchone()
 
         x=rows[0]
-
         y=int(self.data['importo'])
-
         z=protocollo.parcella
-
         if(x+y<=z):
-
             return True
-
         else:
-
             return False
 
 class formRicavoUpdate(forms.ModelForm):
-
     class Meta:
-
         model = Ricavo
-
         fields = "__all__"
-
         widgets = {
-            'data': forms.DateInput(attrs={'class':'datepicker'}),
-        }
+            'data': forms.DateInput(attrs={'class':'datepicker'})}
 
     def Check1(self):
-
         id_protocollo = self.data['protocollo']
-
         protocollo = Protocollo.objects.get(id=id_protocollo)
-
-
         query="""SELECT coalesce(sum(r.importo),0) as tot
-
                  FROM Contabilita_ricavo r
-
-                 WHERE r.protocollo_id="""+str(id_protocollo)
+                 WHERE r.protocollo_id={}""".format(str(id_protocollo))
 
         cursor = connection.cursor()
         cursor.execute(query);
         rows = cursor.fetchone()
 
         x=rows[0]
-
         y=float(self.data['importo'])
-
         z=protocollo.parcella
-
         if(x+y<=z):
-
             return True
-
         else:
-
             return False
 
 class formSpesaCommessa(forms.ModelForm):
-
     class Meta:
-
         model = SpesaCommessa
-
         fields = "__all__"
         labels = {
             "data": "Data* ",
             "importo": "Importo* ",
-            "protocollo": "Protocollo ",
-        }
+            "protocollo": "Protocollo "}
         widgets = {
-            'data': DateInput(),
-        }
+            'data': DateInput()}
 
 class formSpesaCommessaUpdate(forms.ModelForm):
-
     class Meta:
-
         model = SpesaCommessa
-
         fields = "__all__"
-
         widgets = {
-            'data': forms.DateInput(attrs={'class':'datepicker'}),
-        }
+            'data': forms.DateInput(attrs={'class':'datepicker'})}
 
 class formSocio(forms.ModelForm):
-
     class Meta:
-
         model = Socio
-
         fields = ["percentuale"]
 
 class formSpesaGestione(forms.ModelForm):
-
     class Meta:
-
         model = SpesaGestione
-
         fields = "__all__"
         labels = {
             "data": "Data* ",
             "importo": "Importo* ",
             "fattura": "Fattura ",
             "intestatario_fattura": "Intestatario Fattura ",
-            "causale": "Causale ",
-        }
+            "causale": "Causale "}
         widgets = {
-            'data': DateInput(),
-        }
+            'data': DateInput()}
 
 class formSpesaGestioneUpdate(forms.ModelForm):
-
     class Meta:
-
         model = SpesaGestione
-
         fields = "__all__"
-
         widgets = {
-            'data': forms.DateInput(attrs={'class':'datepicker'}),
-        }
+            'data': forms.DateInput(attrs={'class':'datepicker'})}
 
 class formGuadagnoEffettivo(forms.ModelForm):
-
     class Meta:
-
         model = GuadagnoEffettivo
-
         fields = "__all__"
         labels = {
             "data": "Data* ",
-            "importo": "Importo* ",
-        }
+            "importo": "Importo* "}
         widgets = {
-            'data': DateInput(),
-        }
+            'data': DateInput()}
 
 class formGuadagnoEffettivoUpdate(forms.ModelForm):
-
     class Meta:
-
         model = GuadagnoEffettivo
-
         fields = "__all__"
-
         widgets = {
-            'data': forms.DateInput(attrs={'class':'datepicker'}),
-        }
+            'data': forms.DateInput(attrs={'class':'datepicker'})}
 
-class formResocontoSpeseGestione(forms.Form):
-
-    year = forms.IntegerField()
-
-
-class formResocontoRicavi(forms.Form):
-
-    year = forms.IntegerField()
-
-class formGestioneGuadagniEffettivi(forms.Form):
-
+class form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(forms.Form):
     year = forms.IntegerField()

@@ -1,9 +1,11 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>MYACCOUNTING | AllRicavi</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AllRicavi{% endblock title %}
+
+{% block name %}TABELLA DEI RICAVI{% endblock %}
+
+{% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script type="text/javascript">
     function selectAll(){
@@ -57,77 +59,10 @@
             }
 
     </script>
-</head>
-<body>
+{% endblock %}
 
-<div class="container-fluid">
+{% block content %}
 
-    <div align="center">
-        <h1>TABELLA DEI RICAVI</h1>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <!-- Navbar content -->
-            <a class="navbar-brand" href="{% url 'HomePage' %}">DASHBOARD</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink1" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Protocolli
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllProtocols' %}">View All Protocolli</a>
-                            <a class="dropdown-item" href="{% url 'CreateProtocol' %}">Add Protocollo</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Ricavi
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllRicavi' %}">View All Ricavi</a>
-                            <a class="dropdown-item" href="{% url 'CreateRicavo' %}">Add Ricavo</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink3" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Spese di Commessa
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllSpeseCommessa' %}">View All Spese di Commessa</a>
-                            <a class="dropdown-item" href="{% url 'CreateSpesaCommessa' %}">Add Spesa di Commessa</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink4" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Spese di Gestione
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllSpeseGestione' %}">View All Spese di Gestione</a>
-                            <a class="dropdown-item" href="{% url 'CreateSpesaGestione' %}">Add Spesa di Gestione</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink5" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Guadagni Effettivi
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllGuadagniEffettivi' %}">View All Guadagni Effettivi</a>
-                            <a class="dropdown-item" href="{% url 'CreateGuadagnoEffettivo' %}">Add Guadagno Effettivi</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink6" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Soci
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllSoci' %}">View All Soci</a>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </nav>
         {% if messages %}
             <ul class="messages">
                 {% for message in messages %}
@@ -136,7 +71,7 @@
             </ul>
         {% endif %}
         </br>
-        {% block content %}
+
         <form method="get">
             <!--{{ filter.form.as_table }}-->
             <table border="5">
@@ -193,11 +128,4 @@
         <div class="alert alert-primary" role="alert">
             Totale degli importi: <a href="#" class="alert-link">{{sum_r}}</a>
         </div>
-        {% endblock %}
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-</div>
-</body>
-</html>
+{% endblock %}
