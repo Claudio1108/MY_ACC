@@ -433,7 +433,7 @@ def viewResocontoRicavi(request):
                     
                     ORDER BY mese ASC;""".format(d={'year':anno})
             cursor = connection.cursor()
-            cursor.execute(query);
+            cursor.execute(query)
             rows = cursor.fetchall()
             return render(request, "ResocontoRicavi.html", {'form': form, 'tabella_output2':rows})
     else:
@@ -588,7 +588,7 @@ def viewGestioneGuadagniEffettivi(request):
                         
                         ORDER BY mese ASC;""".format(d={'year':anno})
             cursor = connection.cursor()
-            cursor.execute(query);
+            cursor.execute(query)
             rows = cursor.fetchall()
             return render(request, "GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': rows})
     else:
@@ -612,6 +612,6 @@ def viewContabilitaProtocolli(request):
                 FROM   Contabilita_protocollo t1
                 WHERE saldo != 0"""
     cursor = connection.cursor()
-    cursor.execute(query);
+    cursor.execute(query)
     rows = cursor.fetchall()
     return render(request, "ContabilitaProtocolli.html", {'tabella_output4': rows})
