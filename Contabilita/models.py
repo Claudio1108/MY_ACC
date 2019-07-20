@@ -10,7 +10,10 @@ class Protocollo(models.Model):
     parcella = models.DecimalField(max_digits=19, decimal_places=2) #obbligatorio
     pratica = models.CharField(max_length=40, blank=True)
     note = models.TextField(blank=True)
-    data = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
+    data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
+    data_concordata = models.DateField(auto_now=False, auto_now_add=False, default=None) #obbligatorio
+    data_effettiva = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
+    status = models.IntegerField(default=None)
 
     def __str__(self):
         if(str(self.indirizzo) != ''):

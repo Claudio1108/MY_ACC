@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}AllProtocols{% endblock title %}
+{% block title %}AllClosedProtocols{% endblock title %}
 
 {% block name %}TABELLA DEI PROTOCOLLI{% endblock %}
 
@@ -154,27 +154,99 @@
                 <th>parcella</th>
                 <th>pratica</th>
                 <th>note</th>
-                <th>data</th>
+                <th>data_registrazione</th>
+                <th>data_concordata</th>
+                <th>data_effettiva</th>
                 <th colspan="2">Operation</th>
             </tr>
             {% for b in filter.qs %}
-            <tr>
-                <td>
-                    <input type="checkbox" class="checks" name="b1" value={{b.id}}>
-                </td>
-                <td>{{ b.identificativo }}</td>
-                <td>{{ b.cliente }}</td>
-                <td>{{ b.referente }}</td>
-                <td>{{ b.mail_cliente }}</td>
-                <td>{{ b.tel_cliente }}</td>
-                <td>{{ b.indirizzo }}</td>
-                <td>{{ b.parcella }}€</td>
-                <td>{{ b.pratica }}</td>
-                <td style='width: 200px; overflow: auto'>{{ b.note }}</td>
-                <td>{{ b.data }}</td>
-                <td align="center"><a href="/UpdateProtocol/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">UPDATE</a></td>
-                <td align="center"><a href="/DeleteProtocol/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Protocollo?')">DELETE</a></td>
-            </tr>
+
+                {% if b.status is None %}
+                    <tr style="background-color:white">
+                        <td>
+                            <input type="checkbox" class="checks" name="b1" value={{b.id}}>
+                        </td>
+                        <td>{{ b.identificativo }}</td>
+                        <td>{{ b.cliente }}</td>
+                        <td>{{ b.referente }}</td>
+                        <td>{{ b.mail_cliente }}</td>
+                        <td>{{ b.tel_cliente }}</td>
+                        <td>{{ b.indirizzo }}</td>
+                        <td>{{ b.parcella }}€</td>
+                        <td>{{ b.pratica }}</td>
+                        <td style='width: 200px; overflow: auto'>{{ b.note }}</td>
+                        <td>{{ b.data_registrazione }}</td>
+                        <td>{{ b.data_concordata }}</td>
+                        <td>{{ b.data_effettiva }}</td>
+                        <td align="center"><a href="/UpdateProtocol/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">UPDATE</a></td>
+                        <td align="center"><a href="/DeleteProtocol/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Protocollo?')">DELETE</a></td>
+                    </tr>
+                {% else %}
+                    {% if b.status < 0 %}
+                        <tr style="background-color:red">
+                            <td>
+                                <input type="checkbox" class="checks" name="b1" value={{b.id}}>
+                            </td>
+                            <td>{{ b.identificativo }}</td>
+                            <td>{{ b.cliente }}</td>
+                            <td>{{ b.referente }}</td>
+                            <td>{{ b.mail_cliente }}</td>
+                            <td>{{ b.tel_cliente }}</td>
+                            <td>{{ b.indirizzo }}</td>
+                            <td>{{ b.parcella }}€</td>
+                            <td>{{ b.pratica }}</td>
+                            <td style='width: 200px; overflow: auto'>{{ b.note }}</td>
+                            <td>{{ b.data_registrazione }}</td>
+                            <td>{{ b.data_concordata }}</td>
+                            <td>{{ b.data_effettiva }}</td>
+                            <td align="center"><a href="/UpdateProtocol/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">UPDATE</a></td>
+                            <td align="center"><a href="/DeleteProtocol/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Protocollo?')">DELETE</a></td>
+                        </tr>
+                    {% else %}
+                        {% if b.status >= 0 and b.status <= 3 %}
+                            <tr style="background-color:yellow">
+                                <td>
+                                    <input type="checkbox" class="checks" name="b1" value={{b.id}}>
+                                </td>
+                                <td>{{ b.identificativo }}</td>
+                                <td>{{ b.cliente }}</td>
+                                <td>{{ b.referente }}</td>
+                                <td>{{ b.mail_cliente }}</td>
+                                <td>{{ b.tel_cliente }}</td>
+                                <td>{{ b.indirizzo }}</td>
+                                <td>{{ b.parcella }}€</td>
+                                <td>{{ b.pratica }}</td>
+                                <td style='width: 200px; overflow: auto'>{{ b.note }}</td>
+                                <td>{{ b.data_registrazione }}</td>
+                                <td>{{ b.data_concordata }}</td>
+                                <td>{{ b.data_effettiva }}</td>
+                                <td align="center"><a href="/UpdateProtocol/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">UPDATE</a></td>
+                                <td align="center"><a href="/DeleteProtocol/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Protocollo?')">DELETE</a></td>
+                            </tr>
+                        {% else %}
+                            <tr style="background-color:green">
+                                <td>
+                                    <input type="checkbox" class="checks" name="b1" value={{b.id}}>
+                                </td>
+                                <td>{{ b.identificativo }}</td>
+                                <td>{{ b.cliente }}</td>
+                                <td>{{ b.referente }}</td>
+                                <td>{{ b.mail_cliente }}</td>
+                                <td>{{ b.tel_cliente }}</td>
+                                <td>{{ b.indirizzo }}</td>
+                                <td>{{ b.parcella }}€</td>
+                                <td>{{ b.pratica }}</td>
+                                <td style='width: 200px; overflow: auto'>{{ b.note }}</td>
+                                <td>{{ b.data_registrazione }}</td>
+                                <td>{{ b.data_concordata }}</td>
+                                <td>{{ b.data_effettiva }}</td>
+                                <td align="center"><a href="/UpdateProtocol/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">UPDATE</a></td>
+                                <td align="center"><a href="/DeleteProtocol/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Protocollo?')">DELETE</a></td>
+                            </tr>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
             {% endfor %}
         </table>
 

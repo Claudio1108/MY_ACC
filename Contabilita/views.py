@@ -3,6 +3,7 @@ from django.contrib import messages
 from .forms import *
 from django.db import connection
 from .filters import *
+from datetime import date,datetime
 
 def viewhomepage(request):
     return render(request, "Homepage/HomePage.html")
@@ -11,17 +12,25 @@ def viewAllProtocols(request):
     protocolli = Protocollo.objects.all()
     sum_parcelle = 0
     protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli.order_by("-identificativo"))
-
+    today = date.today()
     for proto in protocollo_filter.qs:
+        d = datetime.strptime(str(proto.data_concordata), "%Y-%m-%d")
+        data_concordata = d.date()
+        if proto.data_effettiva != None:
+            proto.status = None
+        else:
+            proto.status = (data_concordata - today).days
+            cursor = connection.cursor()
+            cursor.execute("""update Contabilita_protocollo set status = {} where identificativo = '{}'""".format(proto.status,proto.identificativo))
         sum_parcelle=sum_parcelle+proto.parcella
 
     context = {'filter': protocollo_filter, 'sum_p':sum_parcelle}
     return render(request, "Protocollo/AllProtocols.html", context)
 
 def viewCreateProtocol(request):
-    if(request.method is "POST"):
+    if(request.method == "POST"):
         form = formProtocol(request.POST)
-        anno=form['data'].value()[0:4]
+        anno=form['data_registrazione'].value()[0:4]
         cursor = connection.cursor()
         cursor.execute("""select count from Contabilita_calendariocontatore as c where c.id={}""".format(anno))
         rows = cursor.fetchone()
@@ -30,10 +39,17 @@ def viewCreateProtocol(request):
         cursor = connection.cursor()
         cursor.execute("""update Contabilita_calendariocontatore  set count={} where id={}""".format(str(val),anno))
         form.set_identificativo(str('{0:04}'.format(val))+"-"+anno[2:4])
+        today = date.today()
+        d = datetime.strptime(form['data_concordata'].value(), "%Y-%m-%d")
+        data_concordata = d.date()
+        if form['data_effettiva'].value() != '':
+            form.set_status(0)
+        else:
+            form.set_status((data_concordata - today).days)
 
         if(form.is_valid()):
             form.save()
-            return redirect ('AllProtocols')
+            return redirect('AllProtocols')
     else:
         form = formProtocol()
         return render(request,"Protocollo/CreateProtocol.html", {'form':form})
@@ -73,7 +89,7 @@ def viewAllRicavi(request):
     return render(request, "Ricavo/AllRicavi.html", {'filter': ricavo_filter, 'sum_r':sum_ricavi})
 
 def viewCreateRicavo(request):
-    if(request.method is "POST"):
+    if(request.method == "POST"):
         form = formRicavo(request.POST)
         if(form.is_valid()):
             if(form['protocollo'].value()!=""):
@@ -97,7 +113,7 @@ def viewDeleteRicavo(request,id):
     return redirect('AllRicavi')
 
 def viewDeleteRicaviGroup(request):
-    if request.method is "POST":
+    if request.method == "POST":
         tasks = request.POST.getlist('list[]')
         for task in tasks:
             ricavo = Ricavo.objects.get(id=int(task))
@@ -106,7 +122,7 @@ def viewDeleteRicaviGroup(request):
     return render(request, "Homepage/HomePage.html")
 
 def viewUpdateRicavo(request,id):
-    if (request.method is "POST"):
+    if (request.method == "POST"):
         ricavo = Ricavo.objects.get(id=id)
         form = formRicavoUpdate(request.POST, instance=ricavo)
         if (form.is_valid()):
@@ -132,7 +148,7 @@ def viewAllSpeseCommessa(request):
     return render(request, "SpesaCommessa/AllSpeseCommessa.html", {'filter': spesacommessa_filter, 'sum_s': sum_spesecommessa})
 
 def viewCreateSpesaCommessa(request):
-    if(request.method is "POST"):
+    if(request.method == "POST"):
         form = formSpesaCommessa(request.POST)
         if(form.is_valid()):
             form.save()
@@ -147,7 +163,7 @@ def viewDeleteSpesaCommessa(request,id):
     return redirect('AllSpeseCommessa')
 
 def viewDeleteSpeseCommessaGroup(request):
-    if request.method is "POST":
+    if request.method == "POST":
         tasks = request.POST.getlist('list[]')
         for task in tasks:
             spesacommessa = SpesaCommessa.objects.get(id=int(task))
@@ -156,7 +172,7 @@ def viewDeleteSpeseCommessaGroup(request):
     return render(request, "Homepage/HomePage.html")
 
 def viewUpdateSpesaCommessa(request,id):
-    if (request.method is "POST"):
+    if (request.method == "POST"):
         spesacommessa = SpesaCommessa.objects.get(id=id)
         form = formSpesaCommessaUpdate(request.POST, instance=spesacommessa)
         if (form.is_valid()):
@@ -172,7 +188,7 @@ def viewAllSoci(request):
     return render(request, "Socio/AllSoci.html", { "tabella_soci" : soci })
 
 def viewUpdateSocio(request,id):
-    if (request.method is "POST"):
+    if (request.method == "POST"):
         socio = Socio.objects.get(id=id)
         form = formSocio(request.POST, instance=socio)
         soci = Socio.objects.all()
@@ -206,7 +222,7 @@ def viewAllSpeseGestione(request):
     return render(request, "SpesaGestione/AllSpeseGestione.html", {'filter': spesagestione_filter, 'sum_s':sum_spesegestione})
 
 def viewCreateSpesaGestione(request):
-    if(request.method is "POST"):
+    if(request.method == "POST"):
         form = formSpesaGestione(request.POST)
         if(form.is_valid()):
             form.save()
@@ -221,7 +237,7 @@ def viewDeleteSpesaGestione(request,id):
     return redirect('AllSpeseGestione')
 
 def viewDeleteSpeseGestioneGroup(request):
-    if request.method is "POST":
+    if request.method == "POST":
         tasks = request.POST.getlist('list[]')
         for task in tasks:
             spesagestione = SpesaGestione.objects.get(id=int(task))
@@ -230,7 +246,7 @@ def viewDeleteSpeseGestioneGroup(request):
     return render(request, "Homepage/HomePage.html")
 
 def viewUpdateSpesaGestione(request,id):
-    if (request.method is "POST"):
+    if (request.method == "POST"):
         spesagestione = SpesaGestione.objects.get(id=id)
         form = formSpesaGestioneUpdate(request.POST, instance=spesagestione)
         if (form.is_valid()):
@@ -250,7 +266,7 @@ def viewAllGuadagniEffettivi(request):
     return render(request, "GuadagnoEffettivo/AllGuadagniEffettivi.html", { "filter" : guadagnoeffettivo_filter, 'sum_g': sum_guadagnieffettivi})
 
 def viewCreateGuadagnoEffettivo(request):
-    if(request.method is "POST"):
+    if(request.method == "POST"):
         form = formGuadagnoEffettivo(request.POST)
         if(form.is_valid()):
             form.save()
@@ -265,7 +281,7 @@ def viewDeleteGuadagnoEffettivo(request,id):
     return redirect('AllGuadagniEffettivi')
 
 def viewDeleteGuadagniEffettiviGroup(request):
-    if request.method is "POST":
+    if request.method == "POST":
         tasks = request.POST.getlist('list[]')
         for task in tasks:
             guadagnoeffettivo = GuadagnoEffettivo.objects.get(id=int(task))
@@ -274,7 +290,7 @@ def viewDeleteGuadagniEffettiviGroup(request):
     return render(request, "Homepage/HomePage.html")
 
 def viewUpdateGuadagnoEffettivo(request,id):
-    if (request.method is "POST"):
+    if (request.method == "POST"):
         guadagnoeffettivo = GuadagnoEffettivo.objects.get(id=id)
         form = formGuadagnoEffettivoUpdate(request.POST, instance=guadagnoeffettivo)
         if (form.is_valid()):
@@ -286,7 +302,7 @@ def viewUpdateGuadagnoEffettivo(request,id):
         return render(request, "GuadagnoEffettivo/UpdateGuadagnoEffettivo.html", {'form': form})
 
 def viewResocontoSpeseGestione(request):
-    if (request.method is "POST"):
+    if (request.method == "POST"):
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
         if (form.is_valid()):
             anno=str(form['year'].value())
@@ -351,7 +367,7 @@ def viewResocontoSpeseGestione(request):
         return render(request, "ResocontoSpeseGestione.html", {'form': form, 'tabella_output1':[]})
 
 def viewResocontoRicavi(request):
-    if (request.method is "POST"):
+    if (request.method == "POST"):
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
         if (form.is_valid()):
             anno=str(form['year'].value())
@@ -441,7 +457,7 @@ def viewResocontoRicavi(request):
         return render(request, "ResocontoRicavi.html", {'form': form, 'tabella_output2':[]})
 
 def viewGestioneGuadagniEffettivi(request):
-    if (request.method is "POST"):
+    if (request.method == "POST"):
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
         if (form.is_valid()):
             anno = str(form['year'].value())

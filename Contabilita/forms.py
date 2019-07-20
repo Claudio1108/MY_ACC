@@ -18,22 +18,33 @@ class formProtocol(forms.ModelForm):
             "parcella": "Parcella* ",
             "pratica": "Pratica ",
             "note": "Note ",
-            "data": "Data* "}
+            "data_registrazione": "Data Registrazione* ",
+            "data_concordata": "Data Concordata* ",
+            "data_effettiva": "Data Effettiva "}
         widgets = {
-            'data': DateInput(),
-            'identificativo' : forms.HiddenInput()}
+            'data_registrazione': DateInput(),
+            'data_concordata': DateInput(),
+            'data_effettiva': DateInput(),
+            'identificativo' : forms.HiddenInput(),
+            'status' : forms.HiddenInput()}
 
     def set_identificativo(self,value):
         data = self.data.copy()
         data['identificativo'] = value
         self.data = data
 
+    def set_status(self,value):
+        data = self.data.copy()
+        data['status'] = value
+        self.data = data
+
+
 class formProtocolUpdate(forms.ModelForm):
     class Meta:
         model = Protocollo
         fields = "__all__"
         widgets = {
-            'data': forms.DateInput(attrs={'class':'datepicker'})}
+            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
 
 class formRicavo(forms.ModelForm):
     class Meta:
