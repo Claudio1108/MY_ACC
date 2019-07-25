@@ -1,9 +1,14 @@
 from django.shortcuts import render,redirect
 from django.contrib import messages
+import re
+
 from .forms import *
 from django.db import connection
 from .filters import *
 from datetime import date,datetime
+import xlwt
+from django.http import HttpResponse
+
 
 def viewhomepage(request):
     return render(request, "Homepage/HomePage.html")
@@ -631,3 +636,27 @@ def viewContabilitaProtocolli(request):
     cursor.execute(query)
     rows = cursor.fetchall()
     return render(request, "ContabilitaProtocolli.html", {'tabella_output4': rows})
+
+def export_protocols_xlsx(request,list):
+    name_file = request.POST.get("fname") or 'default_name'
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="{}.xlsx"'.format(name_file)
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Protocolli_{}'.format(name_file))
+    # Sheet header, first row
+    row_num = 0
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+    columns = ['Identificativo', 'Cliente', 'Referente', 'Mail Cliente', 'Tel Cliente', 'Indirizzo', 'Parcella', 'Pratica', 'Note', 'Data Registrazione', 'Data Concordata', 'Data Effettiva']
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], font_style)
+
+    # Sheet body, remaining rows
+    font_style = xlwt.XFStyle()
+    rows = Protocollo.objects.filter(identificativo__in = re.findall("(\d+-\d+)",list)).values_list('identificativo', 'cliente', 'referente', 'mail_cliente', 'tel_cliente', 'indirizzo', 'parcella', 'pratica', 'note', 'data_registrazione','data_concordata' , 'data_effettiva')
+    for row in rows:
+        row_num += 1
+        for col_num in range(len(row)):
+            ws.write(row_num, col_num, str(row[col_num]), font_style)
+    wb.save(response)
+    return response

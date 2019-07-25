@@ -64,4 +64,7 @@ urlpatterns = [
     path('GestioneGuadagniEffettivi/', contviews.viewGestioneGuadagniEffettivi, name='GestioneGuadagniEffettivi'),
     path('ContabilitaProtocolli/', contviews.viewContabilitaProtocolli, name='ContabilitaProtocolli'),
 
+    #Reporter
+    url(r'^export/xls/\?list=(?P<list>.*)/$', contviews.export_protocols_xlsx, name='export_protocols_xlsx')
+
 ]
