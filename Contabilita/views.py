@@ -466,7 +466,7 @@ def viewResocontoRicavi(request):
     if (request.method == "POST"):
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
         if (form.is_valid()):
-            return render(request, "ResocontoRicavi.html", {'form': form, 'tabella_output2': execute_query_2(form['year'].value())})
+            return render(request, "ResocontoRicavi.html", {'form': form, 'tabella_output2': execute_query_2(form['year'].value()), 'year': form['year'].value()})
     else:
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi()
         return render(request, "ResocontoRicavi.html", {'form': form, 'tabella_output2':[]})
@@ -625,7 +625,7 @@ def viewGestioneGuadagniEffettivi(request):
     if (request.method == "POST"):
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
         if (form.is_valid()):
-            return render(request, "GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': execute_query_3(form['year'].value())})
+            return render(request, "GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': execute_query_3(form['year'].value()), 'year': form['year'].value()})
     else:
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi()
         return render(request, "GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': []})
