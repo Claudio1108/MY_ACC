@@ -7,19 +7,34 @@
 
 {% block content %}
 
-    <form method="post">
-
-
-        {% csrf_token %}
-
-
-        <table>
-            {{ form.as_table }}
-        </table>
-
-        <input type="submit" class="btn btn-primary" value="Crea">
-
-    </form>
+    <table align="left" style="width:100%">
+        <tr>
+            <td>
+                <form method="post">
+                    {% csrf_token %}
+                    <table>
+                        <tr>
+                            <td>
+                                {{ form.as_table }}
+                            </td>
+                            <td>
+                                <input type="submit" class="btn btn-primary" value="Crea">
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </td>
+            <td >
+                <div align="right">
+                <form method="post" action="{% url 'export_output_table_xlsx' numquery=3 year=year %}">
+                    {% csrf_token %}
+                     <input type="text" name="fname" placeholder="<FileName>.xlsx">
+                    <button type="submit">EXPORT TABLE</button>
+                </form>
+                </div>
+            </td>
+        </tr>
+    </table>
 
     <table width="100%" border="1" cellpadding="10" cellspacing="0">
         <tr>

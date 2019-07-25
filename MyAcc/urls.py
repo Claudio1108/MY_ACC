@@ -65,6 +65,7 @@ urlpatterns = [
     path('ContabilitaProtocolli/', contviews.viewContabilitaProtocolli, name='ContabilitaProtocolli'),
 
     #Reporter
-    url(r'^export/xls/\?list=(?P<list>.*)/$', contviews.export_protocols_xlsx, name='export_protocols_xlsx')
+    url(r'^export_input_table/xlsx/\?list=(?P<list>.*)/\?model=(?P<model>.*)$', contviews.export_input_table_xlsx, name='export_input_table_xlsx'),
+    url(r'^export_output_table/xlsx/\?numquery=(?P<numquery>.*)/\?year=(?P<year>.*)$', contviews.export_output_table_xlsx, name='export_output_table_xlsx')
 
 ]

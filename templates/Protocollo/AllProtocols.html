@@ -137,7 +137,7 @@
                 </td>
                 <td >
                     <div align="right">
-                    <form method="post" action="{% url 'export_protocols_xlsx' list=filter.qs %}">
+                    <form method="post" action="{% url 'export_input_table_xlsx' list=filter.qs model='protocollo' %}">
                         {% csrf_token %}
                          <input type="text" name="fname" placeholder="<FileName>.xlsx">
                         <button type="submit">EXPORT TABLE</button>

@@ -7,17 +7,31 @@
 
 {% block content %}
 
+        <table align="left" style="width:100%">
+            <tr>
+                <td >
+                    <div align="right">
+                    <form method="post" action="{% url 'export_output_table_xlsx' numquery=4 year='' %}">
+                        {% csrf_token %}
+                         <input type="text" name="fname" placeholder="<FileName>.xlsx">
+                        <button type="submit">EXPORT TABLE</button>
+                    </form>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
         <table width="100%" border="1" cellpadding="10" cellspacing="0">
             <tr>
-                <th>id</th>
-                <th>cliente</th>
-                <th>referente</th>
-                <th>indirizzo</th>
-                <th>pratica</th>
-                <th>parcella</th>
-                <th>entrate</th>
-                <th>uscite</th>
-                <th>saldo</th>
+                <th>Identificativo</th>
+                <th>Cliente</th>
+                <th>Referente</th>
+                <th>Indirizzo</th>
+                <th>Pratica</th>
+                <th>Parcella</th>
+                <th>Entrate</th>
+                <th>Uscite</th>
+                <th>Saldo</th>
             </tr>
             {% for item in tabella_output4 %}
             <tr>

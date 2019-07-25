@@ -47,7 +47,7 @@ class Ricavo(models.Model):
     #reated_name = relazione inversa, dato un protocollo vedere i relativi guadagni
 
     def __str__(self):
-        return self.importo
+        return "id: "+str(self.id)
 
 class SpesaCommessa(models.Model):
 
@@ -58,7 +58,7 @@ class SpesaCommessa(models.Model):
     # reated_name = relazione inversa, dato un protocollo vedere i relativi guadagni
 
     def __str__(self):
-        return self.importo
+        return "id: "+str(self.id)
 
 class SpesaGestione(models.Model):
     data = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
@@ -70,14 +70,14 @@ class SpesaGestione(models.Model):
     causale = models.CharField(max_length=120, default="", null=True, blank=True)
 
     def __str__(self):
-        return self.importo
+        return "id: "+str(self.id)
 
 class GuadagnoEffettivo(models.Model):
     data = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
     importo = models.DecimalField(max_digits=19, decimal_places=2) #obbligatorio
 
     def __str__(self):
-        return self.importo
+        return "id: "+str(self.id)
 
 class CalendarioContatore(models.Model):
     count = models.IntegerField()

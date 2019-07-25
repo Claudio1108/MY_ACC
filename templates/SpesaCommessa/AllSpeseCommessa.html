@@ -73,14 +73,26 @@
         <button type="submit">Filtra</button>
     </form>
     </br>
-    <div align="left">
+    <table align="left" style="width:100%">
+        <tr>
+            <td >
+                <input type="button" onclick='selectAll()' value="Select All"/>
+                <input type="button" onclick='unSelectAll()' value="Unselect All"/>
+                <input type="button" onclick='deleteGroup()' value="Delete Selected"/>
+            </td>
+            <td >
+                <div align="right">
+                <form method="post" action="{% url 'export_input_table_xlsx' list=filter.qs model='spesacommessa' %}">
+                    {% csrf_token %}
+                     <input type="text" name="fname" placeholder="<FileName>.xlsx">
+                    <button type="submit">EXPORT TABLE</button>
+                </form>
+                </div>
+            </td>
+        </tr>
+    </table>
 
-        <input type="button" onclick='selectAll()' value="Select All"/>
-        <input type="button" onclick='unSelectAll()' value="Unselect All"/>
-        <input type="button" onclick='deleteGroup()' value="Delete Selected"/>
 
-    </div>
-    </br>
     <table width="100%" border="1" cellpadding="10" cellspacing="0">
         <tr>
             <th></th>
