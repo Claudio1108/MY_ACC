@@ -167,4 +167,4 @@ class formGuadagnoEffettivoUpdate(forms.ModelForm):
             'data': forms.DateInput(attrs={'class':'datepicker'})}
 
 class form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(forms.Form):
-    year = forms.IntegerField()
+    year = forms.IntegerField(required = True)

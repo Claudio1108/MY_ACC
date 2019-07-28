@@ -649,8 +649,6 @@ def execute_query_4():
     cursor = connection.cursor()
     cursor.execute(query)
     rows = cursor.fetchall()
-    print(type(rows))
-    print(rows)
     return rows
 
 def viewContabilitaProtocolli(request):
@@ -662,11 +660,11 @@ def export_input_table_xlsx(request,list,model):
                       'spesacommessa' : ['Data','Importo','Protocollo'],
                       'spesagestione' : ['Data', 'Importo', 'Fattura', 'Intestatario Fattura', 'Causale'],
                       'guadagnoeffettivo' : ['Data', 'Importo']}
-    name_file = request.POST.get("fname") or 'default_name_{}'.format(model)
+    name_file = request.POST.get("fname")
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename="{}.xlsx"'.format(name_file)
     wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet(name_file)
+    ws = wb.add_sheet(model)
     # Sheet header, first row
     row_num = 0
     font_style = xlwt.XFStyle()
@@ -714,11 +712,19 @@ def export_output_table_xlsx(request, numquery, year):
         columns = ['Identificativo', 'Cliente', 'Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Entrate', 'Uscite', 'Saldo']
         rows = execute_query_4()
 
-    name_file = request.POST.get("fname")+'_'+year or 'default_name_{}_{}'.format(output, year or 'YearNotSpecified')
+    wb = xlwt.Workbook(encoding='utf-8')
+    if year == 'no':
+        name_file = request.POST.get("fname")
+        ws = wb.add_sheet(output)
+    elif year:
+        name_file = request.POST.get("fname") + '_' + year
+        ws = wb.add_sheet(output+'_'+year)
+    else:
+        name_file = request.POST.get("fname")+'_YearNotSpecified'
+        wb.add_sheet(output + '_YearNotSpecified')
+
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename="{}.xlsx"'.format(name_file)
-    wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet(output)
     # Sheet header, first row
     row_num = 0
     font_style = xlwt.XFStyle()

@@ -28,7 +28,7 @@
                 <div align="right">
                 <form method="post" action="{% url 'export_output_table_xlsx' numquery=3 year=year %}">
                     {% csrf_token %}
-                     <input type="text" name="fname" placeholder="<FileName>.xlsx">
+                     <input type="text" name="fname" placeholder="<FileName>.xlsx" required>
                     <button type="submit">EXPORT TABLE</button>
                 </form>
                 </div>

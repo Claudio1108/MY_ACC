@@ -99,7 +99,7 @@
                     <div align="right">
                     <form method="post" action="{% url 'export_input_table_xlsx' list=filter.qs model='ricavo' %}">
                         {% csrf_token %}
-                         <input type="text" name="fname" placeholder="<FileName>.xlsx">
+                         <input type="text" name="fname" placeholder="<FileName>.xlsx" required>
                         <button type="submit">EXPORT TABLE</button>
                     </form>
                     </div>
