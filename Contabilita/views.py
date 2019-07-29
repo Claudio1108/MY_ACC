@@ -19,12 +19,12 @@ def viewAllProtocols(request):
     protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli.order_by("-identificativo"))
     today = date.today()
     for proto in protocollo_filter.qs:
-        d = datetime.strptime(str(proto.data_concordata), "%Y-%m-%d")
-        data_concordata = d.date()
-        if proto.data_effettiva != None:
+        d = datetime.strptime(str(proto.data_scadenza), "%Y-%m-%d")
+        data_scadenza = d.date()
+        if proto.data_consegna != None:
             proto.status = None
         else:
-            proto.status = (data_concordata - today).days
+            proto.status = (data_scadenza - today).days
             cursor = connection.cursor()
             cursor.execute("""update Contabilita_protocollo set status = {} where identificativo = '{}'""".format(proto.status,proto.identificativo))
         sum_parcelle=sum_parcelle+proto.parcella
@@ -45,12 +45,12 @@ def viewCreateProtocol(request):
         cursor.execute("""update Contabilita_calendariocontatore  set count={} where id={}""".format(str(val),anno))
         form.set_identificativo(str('{0:04}'.format(val))+"-"+anno[2:4])
         today = date.today()
-        d = datetime.strptime(form['data_concordata'].value(), "%Y-%m-%d")
-        data_concordata = d.date()
-        if form['data_effettiva'].value() != '':
+        d = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d")
+        data_scadenza = d.date()
+        if form['data_consegna'].value() != '':
             form.set_status(0)
         else:
-            form.set_status((data_concordata - today).days)
+            form.set_status((data_scadenza - today).days)
 
         if(form.is_valid()):
             form.save()
@@ -655,7 +655,7 @@ def viewContabilitaProtocolli(request):
     return render(request, "ContabilitaProtocolli.html", {'tabella_output4': execute_query_4()})
 
 def export_input_table_xlsx(request,list,model):
-    fields_models = { 'protocollo': ['Identificativo', 'Cliente', 'Referente', 'Mail Cliente', 'Tel Cliente', 'Indirizzo', 'Parcella', 'Pratica', 'Note', 'Data Registrazione', 'Data Concordata', 'Data Effettiva'],
+    fields_models = { 'protocollo': ['Identificativo', 'Data Registrazione', 'Cliente', 'Tel Cliente', 'Mail Cliente', 'Referente', 'Tel Referente', 'Mail Referente' , 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Scadenza', 'Data Consegna'],
                       'ricavo' : ['Data','Movimento','Importo','Fattura','Intestatario Fattura','Protocollo'],
                       'spesacommessa' : ['Data','Importo','Protocollo'],
                       'spesagestione' : ['Data', 'Importo', 'Fattura', 'Intestatario Fattura', 'Causale'],
@@ -676,7 +676,7 @@ def export_input_table_xlsx(request,list,model):
     # Sheet body, remaining rows
     font_style = xlwt.XFStyle()
     if model == 'protocollo':
-        rows = Protocollo.objects.filter(identificativo__in = re.findall("(\d+-\d+)",list)).values_list('identificativo', 'cliente', 'referente', 'mail_cliente', 'tel_cliente', 'indirizzo', 'parcella', 'pratica', 'note', 'data_registrazione','data_concordata' , 'data_effettiva')
+        rows = Protocollo.objects.filter(identificativo__in = re.findall("(\d+-\d+)",list)).values_list('identificativo', 'data_registrazione', 'cliente', 'tel_cliente', 'mail_cliente', 'referente', 'tel_referente', 'mail_referente', 'indirizzo', 'pratica', 'parcella', 'note','data_scadenza' , 'data_consegna')
     if model == 'ricavo':
         rows = Ricavo.objects.filter(id__in = re.findall("(\d+)",list)).values_list('data', 'movimento', 'importo', 'fattura', 'intestatario_fattura', 'protocollo')
     if model == 'spesacommessa':

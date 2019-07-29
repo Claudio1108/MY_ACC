@@ -16,15 +16,15 @@ class formProtocol(forms.ModelForm):
             "tel_cliente": "Tel Cliente ",
             "indirizzo": "Indirizzo ",
             "parcella": "Parcella* ",
-            "pratica": "Pratica ",
+            "pratica": "Pratica* ",
             "note": "Note ",
             "data_registrazione": "Data Registrazione* ",
-            "data_concordata": "Data Concordata* ",
-            "data_effettiva": "Data Effettiva "}
+            "data_scadenza": "Data Scadenza* ",
+            "data_consegna": "Data Consegna "}
         widgets = {
             'data_registrazione': DateInput(),
-            'data_concordata': DateInput(),
-            'data_effettiva': DateInput(),
+            'data_scadenza': DateInput(),
+            'data_consegna': DateInput(),
             'identificativo' : forms.HiddenInput(),
             'status' : forms.HiddenInput()}
 
@@ -44,7 +44,9 @@ class formProtocolUpdate(forms.ModelForm):
         model = Protocollo
         fields = "__all__"
         widgets = {
-            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
+            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
+            'identificativo': forms.HiddenInput(),
+            'status': forms.HiddenInput()}
 
 class formRicavo(forms.ModelForm):
     class Meta:

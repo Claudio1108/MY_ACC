@@ -2,17 +2,19 @@ from django.db import models
 
 class Protocollo(models.Model):
     identificativo = models.CharField(max_length=10, blank=True)
+    data_registrazione = models.DateField(auto_now=False, auto_now_add=False)  # obbligatorio
     cliente = models.CharField(max_length=25, blank=True)
-    referente = models.CharField(max_length=25, blank=True)
-    mail_cliente = models.EmailField(max_length=40, blank=True)
     tel_cliente = models.CharField(max_length=20, blank=True)
-    indirizzo = models.CharField(max_length=40, blank=True)
+    mail_cliente = models.EmailField(max_length=40, blank=True)
+    referente = models.CharField(max_length=25, blank=True)
+    tel_referente = models.CharField(max_length=20, blank=True)
+    mail_referente = models.EmailField(max_length=40, blank=True)
+    indirizzo = models.CharField(max_length=40) #obbligatorio
+    pratica = models.CharField(max_length=40)   #obbligatorio
     parcella = models.DecimalField(max_digits=19, decimal_places=2) #obbligatorio
-    pratica = models.CharField(max_length=40, blank=True)
     note = models.TextField(blank=True)
-    data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
-    data_concordata = models.DateField(auto_now=False, auto_now_add=False, default=None) #obbligatorio
-    data_effettiva = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
+    data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None) #obbligatorio
+    data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     status = models.IntegerField(default=None)
 
     def __str__(self):

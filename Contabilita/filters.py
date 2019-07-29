@@ -7,24 +7,18 @@ def print_query_param(value, key):
 
 
 class ProtocolloFilter(django_filters.FilterSet):
+    #data_registrazione = django_filters.DateFilter(label='Data di Registrazione (gg/mm/aaaa)', field_name='data_registrazione', lookup_expr='exact')
     identificativo = django_filters.CharFilter(label='Identificativo', field_name='identificativo', lookup_expr='contains')
     cliente = django_filters.CharFilter(label='Cliente', field_name='cliente', lookup_expr='contains')
     referente = django_filters.CharFilter(label='Referente', field_name='referente', lookup_expr='contains')
     indirizzo = django_filters.CharFilter(label='Indirizzo', field_name='indirizzo', lookup_expr='contains')
     pratica = django_filters.CharFilter(label='Pratica', field_name='pratica', lookup_expr='contains')
-    data_registrazione = django_filters.DateFilter(label='Data di Registrazione (gg/mm/aaaa)', field_name='data_registrazione', lookup_expr='exact')
-    status = django_filters.RangeFilter(label = 'range (min-max)')
-    #status = django_filters.ChoiceFilter(field_name='status', choices=(('SI', 'SI'),('NO', 'NO')), method='filter_price')
-    data_effettiva = django_filters.BooleanFilter(label='Data Effettiva',field_name = 'data_effettiva', lookup_expr='isnull', exclude=True)
-
-    # def filter_price(self, queryset, name, value):
-    #     for price in value:
-    #         if price == 'SI':
-    #             return queryset.objects.filter(i_begin_int__lte=0, i_end_int__gte=3)
+    data_consegna = django_filters.BooleanFilter(label='Data Consegna',field_name = 'data_consegna', lookup_expr='isnull', exclude=True)
+    status = django_filters.RangeFilter(label='range (min-max)')
 
     class Meta:
         model = Protocollo
-        fields = ['identificativo','cliente','referente','indirizzo','pratica','data_registrazione','status','data_effettiva']
+        fields = ['identificativo','cliente','referente','indirizzo','pratica','data_consegna','status']
 
 class SpesaGestioneFilter(django_filters.FilterSet):
     data = django_filters.DateFilter(label='Data di Registrazione (gg/mm/aaaa)', field_name='data', lookup_expr='exact')
