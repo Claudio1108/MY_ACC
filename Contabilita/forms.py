@@ -51,17 +51,17 @@ class formProtocolUpdate(forms.ModelForm):
 class formRicavo(forms.ModelForm):
     class Meta:
         model = Ricavo
-        fields = ('data','movimento','importo','fattura','intestatario_fattura','causale','protocollo')
+        fields = ('data_registrazione','movimento','importo','fattura','intestatario_fattura', 'protocollo', 'note')
         labels = {
-            "data": "Data* ",
+            "data_registrazione": "Data Registrazione* ",
             "movimento": "Movimento ",
             "importo": "Importo* ",
             "fattura": "Fattura ",
-            "causale": "Causale ",
             "intestatario_fattura": "Intestatario Fattura ",
-            "protocollo": "Protocollo "}
+            "protocollo": "Protocollo ",
+            "note": "Note "}
         widgets = {
-            'data': DateInput()}
+            'data_registrazione': DateInput()}
 
     def Check1(self):
         id_protocollo = self.data['protocollo']
@@ -87,7 +87,7 @@ class formRicavoUpdate(forms.ModelForm):
         model = Ricavo
         fields = "__all__"
         widgets = {
-            'data': forms.DateInput(attrs={'class':'datepicker'})}
+            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
 
     def Check1(self):
         id_protocollo = self.data['protocollo']
@@ -113,18 +113,19 @@ class formSpesaCommessa(forms.ModelForm):
         model = SpesaCommessa
         fields = "__all__"
         labels = {
-            "data": "Data* ",
+            "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
-            "protocollo": "Protocollo "}
+            "protocollo": "Protocollo ",
+            "note": "Note "}
         widgets = {
-            'data': DateInput()}
+            'data_registrazione': DateInput()}
 
 class formSpesaCommessaUpdate(forms.ModelForm):
     class Meta:
         model = SpesaCommessa
         fields = "__all__"
         widgets = {
-            'data': forms.DateInput(attrs={'class':'datepicker'})}
+            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
 
 class formSocio(forms.ModelForm):
     class Meta:
@@ -136,37 +137,36 @@ class formSpesaGestione(forms.ModelForm):
         model = SpesaGestione
         fields = "__all__"
         labels = {
-            "data": "Data* ",
+            "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
-            "fattura": "Fattura ",
-            "intestatario_fattura": "Intestatario Fattura ",
-            "causale": "Causale "}
+            "causale": "Causale ",
+            "fattura": "Fattura ",}
         widgets = {
-            'data': DateInput()}
+            'data_registrazione': DateInput()}
 
 class formSpesaGestioneUpdate(forms.ModelForm):
     class Meta:
         model = SpesaGestione
         fields = "__all__"
         widgets = {
-            'data': forms.DateInput(attrs={'class':'datepicker'})}
+            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
 
 class formGuadagnoEffettivo(forms.ModelForm):
     class Meta:
         model = GuadagnoEffettivo
         fields = "__all__"
         labels = {
-            "data": "Data* ",
+            "data_registrazione": "Data* ",
             "importo": "Importo* "}
         widgets = {
-            'data': DateInput()}
+            'data_registrazione': DateInput()}
 
 class formGuadagnoEffettivoUpdate(forms.ModelForm):
     class Meta:
         model = GuadagnoEffettivo
         fields = "__all__"
         widgets = {
-            'data': forms.DateInput(attrs={'class':'datepicker'})}
+            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
 
 class form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(forms.Form):
     year = forms.IntegerField(required = True)

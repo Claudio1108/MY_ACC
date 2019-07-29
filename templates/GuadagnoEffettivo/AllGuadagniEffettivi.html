@@ -96,7 +96,7 @@
         <table width="100%" border="1" cellpadding="10" cellspacing="0">
             <tr>
                 <th></th>
-                <th>data</th>
+                <th>data_registrazione</th>
                 <th>importo</th>
                 <th colspan="2">Operation</th>
             </tr>
@@ -105,10 +105,10 @@
                 <td>
                     <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                 </td>
-                <td>{{ b.data }}</td>
+                <td>{{ b.data_registrazione }}</td>
                 <td>{{ b.importo }} €</td>
-                <td align="center"><a href="/UpdateGuadagnoEffettivo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">UPDATE</a></td>
-                <td align="center"><a href="/DeleteGuadagnoEffettivo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Guadagno Effettivo?')">DELETE</a></td>
+                <td align="center"><a href="/UpdateGuadagnoEffettivo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
+                <td align="center"><a href="/DeleteGuadagnoEffettivo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Guadagno Effettivo?')">X</a></td>
             </tr>
             {% endfor %}
         </table>

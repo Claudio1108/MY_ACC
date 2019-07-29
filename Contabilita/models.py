@@ -18,10 +18,7 @@ class Protocollo(models.Model):
     status = models.IntegerField(default=None)
 
     def __str__(self):
-        if(str(self.indirizzo) != ''):
-            return str(self.identificativo)+" | "+str(self.indirizzo)
-        else:
-            return str(self.identificativo)+" | Not Specific Address"
+        return str(self.identificativo)+" | "+str(self.indirizzo)
 
     class Meta:
         ordering = ['-identificativo']
@@ -35,47 +32,41 @@ class Socio(models.Model):
         return self.nome + " " + self.cognome
 
 class Ricavo(models.Model):
-    data = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
-    TIPO_MOVIMENTO = (('ACCONTO', 'ACCONTO'),('SALDO', 'SALDO'))
-    movimento = models.CharField(max_length=10, choices=TIPO_MOVIMENTO,null=True, blank=True)
+    data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
+    movimento = models.CharField(max_length=10, choices=(('ACCONTO', 'ACCONTO'),('SALDO', 'SALDO')) ,null=True, blank=True)
     importo = models.DecimalField(max_digits=19, decimal_places=2) #obbligatorio
-    TIPO_FATTURA = (('SI', 'SI'),('NO', 'NO'))
-    fattura = models.CharField(max_length=2, choices=TIPO_FATTURA, default='NO')
-    causale = models.CharField(max_length=120,default="", null=True, blank=True)
+    fattura = models.CharField(max_length=2, choices=(('SI', 'SI'),('NO', 'NO')), default='NO')
     #foreign_key
     intestatario_fattura = models.ForeignKey(Socio, on_delete=models.CASCADE, related_name="sociofatturaricavo", default="", null=True, blank=True)
     #foreign_key
     protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="ricavi", default="", null=True, blank=True)
-    #reated_name = relazione inversa, dato un protocollo vedere i relativi guadagni
+    note = models.TextField(blank=True)
 
     def __str__(self):
         return "id: "+str(self.id)
 
 class SpesaCommessa(models.Model):
 
-    data = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
+    data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
     importo = models.DecimalField(max_digits=19, decimal_places=2) #obbligatorio
     # foreign_key
     protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="spesecommessa")
-    # reated_name = relazione inversa, dato un protocollo vedere i relativi guadagni
+    note = models.TextField(blank=True)
 
     def __str__(self):
         return "id: "+str(self.id)
 
 class SpesaGestione(models.Model):
-    data = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
+    data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
     importo = models.DecimalField(max_digits=19, decimal_places=2) #obbligatorio
-    TIPO_FATTURA = (('SI', 'SI'),('NO', 'NO'))
-    fattura = models.CharField(max_length=2, choices=TIPO_FATTURA, default='NO')
-    # foreign_key
-    intestatario_fattura = models.ForeignKey(Socio, on_delete=models.CASCADE, related_name="sociofatturaspesagestione", default="", null=True, blank=True)
     causale = models.CharField(max_length=120, default="", null=True, blank=True)
+    fattura = models.CharField(max_length=120, default="", null=True, blank=True)
 
     def __str__(self):
         return "id: "+str(self.id)
 
 class GuadagnoEffettivo(models.Model):
-    data = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
+    data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
     importo = models.DecimalField(max_digits=19, decimal_places=2) #obbligatorio
 
     def __str__(self):
