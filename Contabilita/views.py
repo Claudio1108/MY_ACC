@@ -652,7 +652,7 @@ def execute_query_4():
 def viewContabilitaProtocolli(request):
     return render(request, "ContabilitaProtocolli.html", {'tabella_output4': execute_query_4()})
 
-def export_input_table_xlsx(request,list,model):
+def export_input_table_xls(request,list,model):
     fields_models = { 'protocollo': ['Identificativo', 'Data Registrazione', 'Cliente', 'Tel Cliente', 'Mail Cliente', 'Referente', 'Tel Referente', 'Mail Referente' , 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Scadenza', 'Data Consegna'],
                       'ricavo' : ['Data Registrazione','Movimento','Importo','Fattura','Intestatario Fattura','Protocollo', 'Note'],
                       'spesacommessa' : ['Data Registrazione','Importo','Protocollo', 'Note'],
@@ -692,7 +692,7 @@ def export_input_table_xlsx(request,list,model):
     wb.save(response)
     return response
 
-def export_output_table_xlsx(request, numquery, year):
+def export_output_table_xls(request, numquery, year):
     output=''
     if int(numquery) == 1:
         output='spese_gestione'
