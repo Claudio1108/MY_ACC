@@ -99,8 +99,8 @@
                     <div align="right">
                     <form method="post" action="{% url 'export_input_table_xls' list=filter.qs model='ricavo' %}">
                         {% csrf_token %}
-                         <input type="text" name="fname" placeholder="<NomeFile>.xls" required>
-                        <button type="submit">DOWNLOAD Tabella</button>
+                         <input type="text" name="fname" placeholder="<NomeFile>" required>
+                        <button type="submit">DOWNLOAD Excel</button>
                     </form>
                     </div>
                 </td>

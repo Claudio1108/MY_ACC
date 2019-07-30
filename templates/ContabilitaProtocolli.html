@@ -13,8 +13,8 @@
                     <div align="right">
                     <form method="post" action="{% url 'export_output_table_xls' numquery=4 year='no' %}">
                         {% csrf_token %}
-                         <input type="text" name="fname" placeholder="<NomeFile>.xls" required>
-                        <button type="submit">DOWNLOAD Tabella</button>
+                         <input type="text" name="fname" placeholder="<NomeFile>" required>
+                        <button type="submit">DOWNLOAD Excel</button>
                     </form>
                     </div>
                 </td>
