@@ -8,16 +8,14 @@
 {% block content %}
 
     <form method="post">
-
         {% csrf_token %}
         <table>
             {{ form.as_table }}
         </table>
         </br>
-        <h6>* Attributo Obbligatorio </h6>
+        <h6>* Campo Obbligatorio </h6>
         </br>
         <input type="submit" class="btn btn-primary" value="Crea">
-
     </form>
 
 {% endblock %}

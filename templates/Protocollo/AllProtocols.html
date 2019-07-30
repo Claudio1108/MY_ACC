@@ -131,16 +131,16 @@
         <table align="left" style="width:100%">
             <tr>
                 <td >
-                    <input type="button" onclick='selectAll()' value="Select All"/>
-                    <input type="button" onclick='unSelectAll()' value="Unselect All"/>
-                    <input type="button" onclick='deleteGroup()' value="Delete Selected"/>
+                    <input type="button" onclick='selectAll()' value="Seleziona Tutti"/>
+                    <input type="button" onclick='unSelectAll()' value="Deseleziona Tutti"/>
+                    <input type="button" onclick='deleteGroup()' value="Elimina Selezionati"/>
                 </td>
                 <td >
                     <div align="right">
                     <form method="post" action="{% url 'export_input_table_xlsx' list=filter.qs model='protocollo' %}">
                         {% csrf_token %}
-                         <input type="text" name="fname" placeholder="<FileName>.xlsx" required>
-                        <button type="submit">EXPORT TABLE</button>
+                         <input type="text" name="fname" placeholder="<NomeFile>.xlsx" required>
+                        <button type="submit">DOWNLOAD Tabella</button>
                     </form>
                     </div>
                 </td>
@@ -160,7 +160,7 @@
                 <th>note</th>
                 <th>data_scadenza</th>
                 <th>data_consegna</th>
-                <th colspan="2">Operation</th>
+                <th colspan="2">Operazioni</th>
             </tr>
             {% for b in filter.qs %}
 

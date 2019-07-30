@@ -15,49 +15,39 @@ class ProtocolloFilter(django_filters.FilterSet):
     indirizzo = django_filters.CharFilter(label='Indirizzo', field_name='indirizzo', lookup_expr='icontains')
     pratica = django_filters.CharFilter(label='Pratica', field_name='pratica', lookup_expr='icontains')
     data_consegna = django_filters.BooleanFilter(label='Data Consegna',field_name = 'data_consegna', lookup_expr='isnull', exclude=True)
-    status = django_filters.RangeFilter(label='range (min-max)')
-
-    # class Meta:
-    #     model = Protocollo
-    #     fields = ['identificativo','cliente','referente','indirizzo','pratica','data_consegna','status']
+    status = django_filters.RangeFilter(label='Stato Protocollo (min-max)gg ', field_name = 'status')
 
 class SpesaGestioneFilter(django_filters.FilterSet):
     data_registrazione_year = django_filters.NumberFilter(label='Data Registrazione (Anno)', field_name='data_registrazione', lookup_expr='year')
     data_registrazione_month = django_filters.NumberFilter(label='Data Registrazione (Mese 1-12)', field_name='data_registrazione', lookup_expr='month')
     fattura = django_filters.CharFilter(label='Fattura', field_name='fattura', lookup_expr='icontains')
     causale = django_filters.CharFilter(label='Causale', field_name='causale', lookup_expr='icontains')
-
-    # class Meta:
-    #     model = SpesaGestione
-    #     fields = ['fattura','causale']
+    importo = django_filters.RangeFilter(label='Importo (min-max)€', field_name='importo')
 
 class SpesaCommessaFilter(django_filters.FilterSet):
     data_registrazione_year = django_filters.NumberFilter(label='Data Registrazione (Anno)', field_name='data_registrazione', lookup_expr='year')
     data_registrazione_month = django_filters.NumberFilter(label='Data Registrazione (Mese 1-12)', field_name='data_registrazione', lookup_expr='month')
-    #protocollo = django_filters.CharFilter(label='Protocollo', field_name='protocollo', lookup_expr='icontains')
-    class Meta:
-        model = SpesaCommessa
-        fields = {
-            'protocollo': ['exact', ],
-        }
+    protocollo_exist = django_filters.BooleanFilter(label='Esistenza Protocollo', field_name='protocollo', lookup_expr='isnull', exclude=True)
+    protocollo_id = django_filters.CharFilter(label='Protocollo (id)', field_name='protocollo__identificativo', lookup_expr='icontains')
+    protocollo_address = django_filters.CharFilter(label='Protocollo (indirizzo)', field_name='protocollo__indirizzo', lookup_expr='icontains')
+    importo = django_filters.RangeFilter(label='Importo (min-max)€', field_name='importo')
 
 class RicavoFilter(django_filters.FilterSet):
     data_registrazione_year = django_filters.NumberFilter(label='Data Registrazione (Anno)', field_name='data_registrazione', lookup_expr='year')
     data_registrazione_month = django_filters.NumberFilter(label='Data Registrazione (Mese 1-12)', field_name='data_registrazione', lookup_expr='month')
-    #protocollo = django_filters.CharFilter(label='Protocollo', field_name='protocollo', lookup_expr='icontains')
+    protocollo_exist = django_filters.BooleanFilter(label='Esistenza Protocollo', field_name='protocollo', lookup_expr='isnull', exclude=True)
+    protocollo_id = django_filters.CharFilter(label='Protocollo (id)', field_name='protocollo__identificativo', lookup_expr='icontains')
+    protocollo_address = django_filters.CharFilter(label='Protocollo (indirizzo)', field_name='protocollo__indirizzo', lookup_expr='icontains')
+    importo = django_filters.RangeFilter(label='Importo (min-max)€', field_name='importo')
 
     class Meta:
         model = Ricavo
         fields = {
-            'intestatario_fattura': ['exact', ],
-            'protocollo': ['exact', ],
-            'fattura': ['exact',]
+            'intestatario_fattura': ['exact'],
+            'fattura': ['exact']
         }
 
 class GuadagnoEffettivoFilter(django_filters.FilterSet):
     data_registrazione_year = django_filters.NumberFilter(label='Data Registrazione (Anno)', field_name='data_registrazione', lookup_expr='year')
     data_registrazione_month = django_filters.NumberFilter(label='Data Registrazione (Mese 1-12)', field_name='data_registrazione', lookup_expr='month')
-
-    # class Meta:
-    #     model = GuadagnoEffettivo
-    #     fields = []
+    importo = django_filters.RangeFilter(label='Importo (min-max)€', field_name='importo')

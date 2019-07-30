@@ -14,7 +14,7 @@ class formProtocol(forms.ModelForm):
             "referente": "Referente ",
             "mail_cliente": "Mail Cliente ",
             "tel_cliente": "Tel Cliente ",
-            "indirizzo": "Indirizzo ",
+            "indirizzo": "Indirizzo* ",
             "parcella": "Parcella* ",
             "pratica": "Pratica* ",
             "note": "Note ",

@@ -6,17 +6,16 @@
 {% block name %}MODIFICA SPESA DI COMMESSA{% endblock %}
 
 {% block content %}
-            <form method="post">
 
-
-                {% csrf_token %}
-
-                <table>
-                    {{ form.as_table }}
-                </table>
-
-                <input type="submit" class="btn btn-primary" value="Modifica">
-
-            </form>
+    <form method="post">
+        {% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
+        </br>
+        <h6>* Campo Obbligatorio </h6>
+        </br>
+        <input type="submit" class="btn btn-primary" value="Modifica">
+    </form>
 
 {% endblock %}
