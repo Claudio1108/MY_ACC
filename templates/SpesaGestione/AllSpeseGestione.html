@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base2.html' %}
 {% load static %}
 
 {% block title %}AllSpeseGestione{% endblock title %}
@@ -39,7 +39,7 @@
             function deleteGroup(){
                   var list=getSelected();
                   if(list.length > 0){
-                    if(confirm('Are you sure you want to delete this Spese di Gestione?')== true){
+                    if(confirm('Sei sicuro di voler eliminare queste Spese di Gestione ?')== true){
                         $.ajax({
                             type: "POST",
                             url: "/DeleteSpeseGestioneGroup/",
@@ -55,7 +55,6 @@
                                 alert("failure");
                             }
                         });
-
                     }
                   }
             }
@@ -64,7 +63,6 @@
 {% endblock %}
 
 {% block content %}
-
     <form method="get">
         <!--{{ filter.form.as_table }}-->
         <table border="5">
@@ -118,12 +116,11 @@
             <td>{{ b.causale }}</td>
             <td>{{ b.fattura }}</td>
             <td align="center"><a href="/UpdateSpesaGestione/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
-            <td align="center"><a href="/DeleteSpesaGestione/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Are you sure you want to delete this Spesa di Gestione?')">X</a></td>
+            <td align="center"><a href="/DeleteSpesaGestione/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Spesa di Gestione ?')">X</a></td>
         </tr>
         {% endfor %}
     </table>
     <div class="alert alert-primary" role="alert">
         Totale degli importi: <a href="#" class="alert-link">{{sum_s}}</a>
     </div>
-
 {% endblock %}
