@@ -1,14 +1,26 @@
 from django.db import models
 
+class RubricaClienti(models.Model):
+    nominativo = models.CharField(max_length=25) # obbligatorio
+    tel = models.CharField(max_length=20) # obbligatorio
+    mail = models.EmailField(max_length=40, blank=True)
+    note = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.nominativo + "/" + self.tel + "/" + self.mail
+
+class RubricaReferenti(models.Model):
+    nominativo = models.CharField(max_length=25) # obbligatorio
+    tel = models.CharField(max_length=20) # obbligatorio
+    mail = models.EmailField(max_length=40, blank=True)
+    note = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.nominativo + "/" + self.tel + "/" + self.mail
+
 class Protocollo(models.Model):
     identificativo = models.CharField(max_length=10, blank=True)
     data_registrazione = models.DateField(auto_now=False, auto_now_add=False)  # obbligatorio
-    cliente = models.CharField(max_length=25, blank=True)
-    tel_cliente = models.CharField(max_length=20, blank=True)
-    mail_cliente = models.EmailField(max_length=40, blank=True)
-    referente = models.CharField(max_length=25, blank=True)
-    tel_referente = models.CharField(max_length=20, blank=True)
-    mail_referente = models.EmailField(max_length=40, blank=True)
     indirizzo = models.CharField(max_length=40) #obbligatorio
     pratica = models.CharField(max_length=40)   #obbligatorio
     parcella = models.DecimalField(max_digits=19, decimal_places=2) #obbligatorio
@@ -16,6 +28,10 @@ class Protocollo(models.Model):
     data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None) #obbligatorio
     data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     status = models.IntegerField(default=None)
+
+    # foreign_key
+    cliente = models.ForeignKey(RubricaClienti, on_delete=models.CASCADE)
+    referente = models.ForeignKey(RubricaReferenti, on_delete=models.CASCADE, default="", null=True, blank=True)
 
     def __str__(self):
         return str(self.identificativo)+" | "+str(self.indirizzo)
@@ -71,6 +87,23 @@ class GuadagnoEffettivo(models.Model):
 
     def __str__(self):
         return "id: "+str(self.id)
+
+class Consulenza(models.Model):
+    data_registrazione = models.DateField(auto_now=False, auto_now_add=False)  # obbligatorio
+    indirizzo = models.CharField(max_length=40)
+    attivita = models.CharField(max_length=40)  # obbligatorio
+    compenso = models.DecimalField(max_digits=19, decimal_places=2, blank=True)
+    note = models.TextField(blank=True)
+    data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None)  # obbligatorio
+    data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
+    status = models.IntegerField(default=None)
+    richiedente = models.CharField(max_length=50, null=True, blank=True)
+    # foreign_key
+    #cliente = models.ForeignKey(RubricaClienti, on_delete=models.CASCADE)
+    #referente = models.ForeignKey(RubricaReferenti, on_delete=models.CASCADE, default="", null=True, blank=True)
+
+
+
 
 class CalendarioContatore(models.Model):
     count = models.IntegerField()

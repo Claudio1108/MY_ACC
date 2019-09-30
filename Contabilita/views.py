@@ -9,8 +9,96 @@ import xlwt
 from django.http import HttpResponse
 
 
-def viewhomepage(request):
+def viewHomePage(request):
     return render(request, "Homepage/HomePage.html")
+
+def viewHomePageContabilita(request):
+    return render(request, "Homepage/HomePageContabilita.html")
+
+def viewHomePageAmministrazione(request):
+    return render(request, "Homepage/HomePageAmministrazione.html")
+
+def viewAllClienti(request):
+    clienti = RubricaClienti.objects.all()
+    cliente_filter = ClienteFilter(request.GET, queryset=clienti.order_by("-nominativo"))
+    return render(request, "Amministrazione/Cliente/AllClienti.html", { "filter" : cliente_filter})
+
+def viewCreateCliente(request):
+    if(request.method == "POST"):
+        form = formCliente(request.POST)
+        if(form.is_valid()):
+            form.save()
+            return redirect('AllClienti')
+    else:
+        form = formCliente()
+        return render(request,"Amministrazione/Cliente/CreateCliente.html",{'form':form})
+
+def viewDeleteCliente(request,id):
+    cliente = RubricaClienti.objects.get(id=id)
+    cliente.delete()
+    return redirect('AllClienti')
+
+def viewDeleteClientiGroup(request):
+    if request.method == "POST":
+        tasks = request.POST.getlist('list[]')
+        for task in tasks:
+            cliente = RubricaClienti.objects.get(id=int(task))
+            cliente.delete()
+        print("delete done")
+    return render(request, "Homepage/HomePageAmministrazione.html")
+
+def viewUpdateCliente(request,id):
+    if (request.method == "POST"):
+        cliente = RubricaClienti.objects.get(id=id)
+        form = formClienteUpdate(request.POST, instance=cliente)
+        if (form.is_valid()):
+            form.save()
+            return redirect('AllClienti')
+    else:
+        cliente = RubricaClienti.objects.get(id=id)
+        form = formClienteUpdate(instance=cliente)
+        return render(request, "Amministrazione/Cliente/UpdateCliente.html", {'form': form})
+
+def viewAllReferenti(request):
+    referenti = RubricaReferenti.objects.all()
+    referente_filter = ReferenteFilter(request.GET, queryset=referenti.order_by("-nominativo"))
+    return render(request, "Amministrazione/Referente/AllReferenti.html", { "filter" : referente_filter})
+
+def viewCreateReferente(request):
+    if(request.method == "POST"):
+        form = formReferente(request.POST)
+        if(form.is_valid()):
+            form.save()
+            return redirect('AllReferenti')
+    else:
+        form = formReferente()
+        return render(request,"Amministrazione/Referente/CreateReferente.html",{'form':form})
+
+def viewDeleteReferente(request,id):
+    referente = RubricaReferenti.objects.get(id=id)
+    referente.delete()
+    return redirect('AllReferenti')
+
+def viewDeleteReferentiGroup(request):
+    if request.method == "POST":
+        tasks = request.POST.getlist('list[]')
+        for task in tasks:
+            referente = RubricaReferenti.objects.get(id=int(task))
+            referente.delete()
+        print("delete done")
+    return render(request, "Homepage/HomePageAmministrazione.html")
+
+def viewUpdateReferente(request,id):
+    if (request.method == "POST"):
+        referente = RubricaReferenti.objects.get(id=id)
+        form = formReferenteUpdate(request.POST, instance=referente)
+        if (form.is_valid()):
+            form.save()
+            return redirect('AllReferenti')
+    else:
+        referente = RubricaReferenti.objects.get(id=id)
+        form = formReferenteUpdate(instance=referente)
+        return render(request, "Amministrazione/Referente/UpdateReferente.html", {'form': form})
 
 def viewAllProtocols(request):
     protocolli = Protocollo.objects.all()
@@ -27,9 +115,8 @@ def viewAllProtocols(request):
             cursor = connection.cursor()
             cursor.execute("""update Contabilita_protocollo set status = {} where identificativo = '{}'""".format(proto.status,proto.identificativo))
         sum_parcelle=sum_parcelle+proto.parcella
-
     context = {'filter': protocollo_filter, 'sum_p':sum_parcelle}
-    return render(request, "Protocollo/AllProtocols.html", context)
+    return render(request, "Amministrazione/Protocollo/AllProtocols.html", context)
 
 def viewCreateProtocol(request):
     if(request.method == "POST"):
@@ -56,7 +143,7 @@ def viewCreateProtocol(request):
             return redirect('AllProtocols')
     else:
         form = formProtocol()
-        return render(request,"Protocollo/CreateProtocol.html", {'form':form})
+        return render(request,"Amministrazione/Protocollo/CreateProtocol.html", {'form':form})
 
 def viewDeleteProtocol(request,id):
     protocol = Protocollo.objects.get(id=id)
@@ -70,7 +157,7 @@ def viewDeleteProtocolsGroup(request):
             protocol = Protocollo.objects.get(id=int(task))
             protocol.delete()
         print("delete done")
-    return render(request, "Homepage/HomePage.html")
+    return render(request, "Homepage/HomePageAmministrazione.html")
 
 def viewUpdateProtocol(request,id):
     if (request.method == "POST"):
@@ -82,7 +169,79 @@ def viewUpdateProtocol(request,id):
     else:
         protocol = Protocollo.objects.get(id=id)
         form = formProtocolUpdate(instance=protocol)
-        return render(request, "Protocollo/UpdateProtocol.html", {'form': form})
+        return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
+
+def viewAllConsulenze(request):
+    consulenze = Consulenza.objects.all()
+    sum_compensi = 0
+    consulenza_filter = ConsulenzaFilter(request.GET, queryset=consulenze.order_by("-id"))
+    today = date.today()
+    for cons in consulenza_filter.qs:
+        d = datetime.strptime(str(cons.data_scadenza), "%Y-%m-%d")
+        data_scadenza = d.date()
+        if cons.data_consegna != None:
+            cons.status = None
+        else:
+            cons.status = (data_scadenza - today).days
+            cursor = connection.cursor()
+            cursor.execute("""update Contabilita_consulenza set status = {} where id = '{}'""".format(cons.status,cons.id))
+        sum_compensi=sum_compensi+cons.compenso
+
+    context = {'filter': consulenza_filter, 'sum_c':sum_compensi}
+    return render(request, "Amministrazione/Consulenza/AllConsulenze.html", context)
+
+def viewCreateConsulenza(request):
+    if(request.method == "POST"):
+        form = formConsulenza(request.POST)
+        # anno=form['data_registrazione'].value()[0:4]
+        # cursor = connection.cursor()
+        # cursor.execute("""select count from Contabilita_calendariocontatore as c where c.id={}""".format(anno))
+        # rows = cursor.fetchone()
+        #
+        # val=rows[0]+1
+        # cursor = connection.cursor()
+        # cursor.execute("""update Contabilita_calendariocontatore  set count={} where id={}""".format(str(val),anno))
+        # form.set_identificativo(str('{0:03}'.format(val))+"-"+anno[2:4])
+        today = date.today()
+        d = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d")
+        data_scadenza = d.date()
+        if form['data_consegna'].value() != '':
+            form.set_status(0)
+        else:
+            form.set_status((data_scadenza - today).days)
+
+        if(form.is_valid()):
+            form.save()
+            return redirect('AllConsulenze')
+    else:
+        form = formConsulenza()
+        return render(request,"Amministrazione/Consulenza/CreateConsulenza.html", {'form':form})
+
+def viewDeleteConsulenza(request,id):
+    consulenza = Consulenza.objects.get(id=id)
+    consulenza.delete()
+    return redirect('AllConsulenze')
+
+def viewDeleteConsulenzeGroup(request):
+    if request.method == "POST":
+        tasks = request.POST.getlist('list[]')
+        for task in tasks:
+            consulenza = Consulenza.objects.get(id=int(task))
+            consulenza.delete()
+        print("delete done")
+    return render(request, "Homepage/HomePageAmministrazione.html")
+
+def viewUpdateConsulenza(request,id):
+    if (request.method == "POST"):
+        consulenza = Consulenza.objects.get(id=id)
+        form = formConsulenzaUpdate(request.POST, instance=consulenza)
+        if (form.is_valid()):
+            form.save()
+            return redirect('AllConsulenze')
+    else:
+        consulenza = Consulenza.objects.get(id=id)
+        form = formConsulenzaUpdate(instance=consulenza)
+        return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': form})
 
 def viewAllRicavi(request):
     ricavi = Ricavo.objects.all()
@@ -91,7 +250,7 @@ def viewAllRicavi(request):
     for ricavo in ricavo_filter.qs:
         sum_ricavi = sum_ricavi + ricavo.importo
     context = {'filter': ricavo_filter, 'sum_r':sum_ricavi}
-    return render(request, "Ricavo/AllRicavi.html", context)
+    return render(request, "Contabilita/Ricavo/AllRicavi.html", context)
 
 def viewCreateRicavo(request):
     if(request.method == "POST"):
@@ -110,7 +269,7 @@ def viewCreateRicavo(request):
             return redirect('AllRicavi')
     else:
         form = formRicavo()
-        return render(request,"Ricavo/CreateRicavo.html",{'form':form})
+        return render(request,"Contabilita/Ricavo/CreateRicavo.html",{'form':form})
 
 def viewDeleteRicavo(request,id):
     ricavo = Ricavo.objects.get(id=id)
@@ -124,7 +283,7 @@ def viewDeleteRicaviGroup(request):
             ricavo = Ricavo.objects.get(id=int(task))
             ricavo.delete()
         print("delete done")
-    return render(request, "Homepage/HomePage.html")
+    return render(request, "Homepage/HomePageContabilita.html")
 
 def viewUpdateRicavo(request,id):
     if (request.method == "POST"):
@@ -141,7 +300,7 @@ def viewUpdateRicavo(request,id):
     else:
         ricavo = Ricavo.objects.get(id=id)
         form = formRicavoUpdate(instance=ricavo)
-        return render(request, "Ricavo/UpdateRicavo.html", {'form': form})
+        return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
 
 def viewAllSpeseCommessa(request):
     spesecommessa = SpesaCommessa.objects.all()
@@ -149,7 +308,7 @@ def viewAllSpeseCommessa(request):
     sum_spesecommessa = 0
     for sc in spesacommessa_filter.qs:
         sum_spesecommessa = sum_spesecommessa + sc.importo
-    return render(request, "SpesaCommessa/AllSpeseCommessa.html", {'filter': spesacommessa_filter, 'sum_s': sum_spesecommessa})
+    return render(request, "Contabilita/SpesaCommessa/AllSpeseCommessa.html", {'filter': spesacommessa_filter, 'sum_s': sum_spesecommessa})
 
 def viewCreateSpesaCommessa(request):
     if(request.method == "POST"):
@@ -159,7 +318,7 @@ def viewCreateSpesaCommessa(request):
             return redirect('AllSpeseCommessa')
     else:
         form = formSpesaCommessa()
-        return render(request,"SpesaCommessa/CreateSpesaCommessa.html",{'form':form})
+        return render(request,"Contabilita/SpesaCommessa/CreateSpesaCommessa.html",{'form':form})
 
 def viewDeleteSpesaCommessa(request,id):
     spesacommessa = SpesaCommessa.objects.get(id=id)
@@ -173,7 +332,7 @@ def viewDeleteSpeseCommessaGroup(request):
             spesacommessa = SpesaCommessa.objects.get(id=int(task))
             spesacommessa.delete()
         print("delete done")
-    return render(request, "Homepage/HomePage.html")
+    return render(request, "Homepage/HomePageContabilita.html")
 
 def viewUpdateSpesaCommessa(request,id):
     if (request.method == "POST"):
@@ -185,11 +344,11 @@ def viewUpdateSpesaCommessa(request,id):
     else:
         spesacommessa = SpesaCommessa.objects.get(id=id)
         form = formSpesaCommessaUpdate(instance=spesacommessa)
-        return render(request, "SpesaCommessa/UpdateSpesaCommessa.html", {'form': form})
+        return render(request, "Contabilita/SpesaCommessa/UpdateSpesaCommessa.html", {'form': form})
 
 def viewAllSoci(request):
     soci = Socio.objects.all()
-    return render(request, "Socio/AllSoci.html", { "tabella_soci" : soci })
+    return render(request, "Contabilita/Socio/AllSoci.html", { "tabella_soci" : soci })
 
 def viewUpdateSocio(request,id):
     if (request.method == "POST"):
@@ -215,7 +374,7 @@ def viewUpdateSocio(request,id):
     else:
         socio = Socio.objects.get(id=id)
         form = formSocio(instance=socio)
-        return render(request, "Socio/UpdateSocio.html", {'form': form})
+        return render(request, "Contabilita/Socio/UpdateSocio.html", {'form': form})
 
 def viewAllSpeseGestione(request):
     spesegestione = SpesaGestione.objects.all()
@@ -223,7 +382,7 @@ def viewAllSpeseGestione(request):
     sum_spesegestione = 0
     for sg in spesagestione_filter.qs:
         sum_spesegestione = sum_spesegestione + sg.importo
-    return render(request, "SpesaGestione/AllSpeseGestione.html", {'filter': spesagestione_filter, 'sum_s':sum_spesegestione})
+    return render(request, "Contabilita/SpesaGestione/AllSpeseGestione.html", {'filter': spesagestione_filter, 'sum_s':sum_spesegestione})
 
 def viewCreateSpesaGestione(request):
     if(request.method == "POST"):
@@ -233,7 +392,7 @@ def viewCreateSpesaGestione(request):
             return redirect('AllSpeseGestione')
     else:
         form = formSpesaGestione()
-        return render(request,"SpesaGestione/CreateSpesaGestione.html",{'form':form})
+        return render(request,"Contabilita/SpesaGestione/CreateSpesaGestione.html",{'form':form})
 
 def viewDeleteSpesaGestione(request,id):
     spesagestione = SpesaGestione.objects.get(id=id)
@@ -247,7 +406,7 @@ def viewDeleteSpeseGestioneGroup(request):
             spesagestione = SpesaGestione.objects.get(id=int(task))
             spesagestione.delete()
         print("delete done")
-    return render(request, "Homepage/HomePage.html")
+    return render(request, "Homepage/HomePageContabilita.html")
 
 def viewUpdateSpesaGestione(request,id):
     if (request.method == "POST"):
@@ -259,7 +418,7 @@ def viewUpdateSpesaGestione(request,id):
     else:
         spesagestione = SpesaGestione.objects.get(id=id)
         form = formSpesaGestioneUpdate(instance=spesagestione)
-        return render(request, "SpesaGestione/UpdateSpesaGestione.html", {'form': form})
+        return render(request, "Contabilita/SpesaGestione/UpdateSpesaGestione.html", {'form': form})
 
 def viewAllGuadagniEffettivi(request):
     guadagnieffettivi = GuadagnoEffettivo.objects.all()
@@ -267,7 +426,7 @@ def viewAllGuadagniEffettivi(request):
     sum_guadagnieffettivi = 0
     for ge in guadagnoeffettivo_filter.qs:
         sum_guadagnieffettivi = sum_guadagnieffettivi + ge.importo
-    return render(request, "GuadagnoEffettivo/AllGuadagniEffettivi.html", { "filter" : guadagnoeffettivo_filter, 'sum_g': sum_guadagnieffettivi})
+    return render(request, "Contabilita/GuadagnoEffettivo/AllGuadagniEffettivi.html", { "filter" : guadagnoeffettivo_filter, 'sum_g': sum_guadagnieffettivi})
 
 def viewCreateGuadagnoEffettivo(request):
     if(request.method == "POST"):
@@ -277,7 +436,7 @@ def viewCreateGuadagnoEffettivo(request):
             return redirect('AllGuadagniEffettivi')
     else:
         form = formGuadagnoEffettivo()
-        return render(request,"GuadagnoEffettivo/CreateGuadagnoEffettivo.html",{'form':form})
+        return render(request,"Contabilita/GuadagnoEffettivo/CreateGuadagnoEffettivo.html",{'form':form})
 
 def viewDeleteGuadagnoEffettivo(request,id):
     guadagnoefettivo = GuadagnoEffettivo.objects.get(id=id)
@@ -291,7 +450,7 @@ def viewDeleteGuadagniEffettiviGroup(request):
             guadagnoeffettivo = GuadagnoEffettivo.objects.get(id=int(task))
             guadagnoeffettivo.delete()
         print("delete done")
-    return render(request, "Homepage/HomePage.html")
+    return render(request, "Homepage/HomePageContabilita.html")
 
 def viewUpdateGuadagnoEffettivo(request,id):
     if (request.method == "POST"):
@@ -301,9 +460,9 @@ def viewUpdateGuadagnoEffettivo(request,id):
             form.save()
             return redirect('AllGuadagniEffettivi')
     else:
-        ricavoeffettivo = GuadagnoEffettivo.objects.get(id=id)
-        form = formGuadagnoEffettivoUpdate(instance=ricavoeffettivo)
-        return render(request, "GuadagnoEffettivo/UpdateGuadagnoEffettivo.html", {'form': form})
+        guadagnoeffettivo = GuadagnoEffettivo.objects.get(id=id)
+        form = formGuadagnoEffettivoUpdate(instance=guadagnoeffettivo)
+        return render(request, "Contabilita/GuadagnoEffettivo/UpdateGuadagnoEffettivo.html", {'form': form})
 
 def execute_query_1(year):
     anno = str(year)
@@ -349,7 +508,7 @@ def execute_query_1(year):
                         UNION
                         select '11/NOVEMBRE' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                         from Contabilita_spesagestione t1  
-                        where t1.data_registrazione_registrazione >= '{d[year]}-11-01' and t1.data_registrazione <= '{d[year]}-11-30' 
+                        where t1.data_registrazione >= '{d[year]}-11-01' and t1.data_registrazione <= '{d[year]}-11-30' 
                         UNION
                         select '12/DICEMBRE' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                         from Contabilita_spesagestione t1  
@@ -369,10 +528,10 @@ def viewResocontoSpeseGestione(request):
     if (request.method == "POST"):
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
         if (form.is_valid()):
-            return render(request, "ResocontoSpeseGestione.html", {'form': form, 'tabella_output1': execute_query_1(form['year'].value()), 'year': form['year'].value()})
+            return render(request, "Contabilita/ResocontoSpeseGestione.html", {'form': form, 'tabella_output1': execute_query_1(form['year'].value()), 'year': form['year'].value()})
     else:
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi()
-        return render(request, "ResocontoSpeseGestione.html", {'form': form, 'tabella_output1':[]})
+        return render(request, "Contabilita/ResocontoSpeseGestione.html", {'form': form, 'tabella_output1':[]})
 
 def execute_query_2(year):
     anno = str(year)
@@ -464,10 +623,10 @@ def viewResocontoRicavi(request):
     if (request.method == "POST"):
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
         if (form.is_valid()):
-            return render(request, "ResocontoRicavi.html", {'form': form, 'tabella_output2': execute_query_2(form['year'].value()), 'year': form['year'].value()})
+            return render(request, "Contabilita/ResocontoRicavi.html", {'form': form, 'tabella_output2': execute_query_2(form['year'].value()), 'year': form['year'].value()})
     else:
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi()
-        return render(request, "ResocontoRicavi.html", {'form': form, 'tabella_output2':[]})
+        return render(request, "Contabilita/ResocontoRicavi.html", {'form': form, 'tabella_output2':[]})
 
 def execute_query_3(year):
     anno = str(year)
@@ -623,10 +782,10 @@ def viewGestioneGuadagniEffettivi(request):
     if (request.method == "POST"):
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
         if (form.is_valid()):
-            return render(request, "GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': execute_query_3(form['year'].value()), 'year': form['year'].value()})
+            return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': execute_query_3(form['year'].value()), 'year': form['year'].value()})
     else:
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi()
-        return render(request, "GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': []})
+        return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': []})
 
 def execute_query_4():
     query = """SELECT t1.identificativo, t1.cliente, t1.referente, t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
@@ -650,14 +809,16 @@ def execute_query_4():
     return rows
 
 def viewContabilitaProtocolli(request):
-    return render(request, "ContabilitaProtocolli.html", {'tabella_output4': execute_query_4()})
+    return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': execute_query_4()})
 
 def export_input_table_xls(request,list,model):
-    fields_models = { 'protocollo': ['Identificativo', 'Data Registrazione', 'Cliente', 'Tel Cliente', 'Mail Cliente', 'Referente', 'Tel Referente', 'Mail Referente' , 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Scadenza', 'Data Consegna'],
+    fields_models = { 'protocollo': ['Identificativo', 'Data Registrazione', 'Cliente', 'Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Scadenza', 'Data Consegna'],
                       'ricavo' : ['Data Registrazione','Movimento','Importo','Fattura','Intestatario Fattura','Protocollo', 'Note'],
                       'spesacommessa' : ['Data Registrazione','Importo','Protocollo', 'Note'],
                       'spesagestione' : ['Data Registrazione', 'Importo', 'Causale', 'Fattura'],
-                      'guadagnoeffettivo' : ['Data Registrazione', 'Importo']}
+                      'guadagnoeffettivo' : ['Data Registrazione', 'Importo'],
+                      'consulenza' : ['Data Registrazione', 'Cliente', 'Referente', 'Indirizzo', 'Attivita', 'Compenso', 'Note', 'Data Scadenza', 'Data Consegna'],
+                      'rubricaclienti' : ['Nominativo', 'Telefono', 'Mail', 'Note']}
     name_file = request.POST.get("fname")
     response = HttpResponse(content_type='application/ms-excel')
     #content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -675,7 +836,7 @@ def export_input_table_xls(request,list,model):
     # Sheet body, remaining rows
     font_style = xlwt.XFStyle()
     if model == 'protocollo':
-        rows = Protocollo.objects.filter(identificativo__in = re.findall("(\d+-\d+)",list)).values_list('identificativo', 'data_registrazione', 'cliente', 'tel_cliente', 'mail_cliente', 'referente', 'tel_referente', 'mail_referente', 'indirizzo', 'pratica', 'parcella', 'note','data_scadenza' , 'data_consegna')
+        rows = Protocollo.objects.filter(identificativo__in = re.findall("(\d+-\d+)",list)).values_list('identificativo', 'data_registrazione', 'cliente', 'referente', 'indirizzo', 'pratica', 'parcella', 'note','data_scadenza' , 'data_consegna')
     if model == 'ricavo':
         rows = Ricavo.objects.filter(id__in = re.findall("(\d+)",list)).values_list('data_registrazione', 'movimento', 'importo', 'fattura', 'intestatario_fattura', 'protocollo', 'note')
     if model == 'spesacommessa':
@@ -684,6 +845,10 @@ def export_input_table_xls(request,list,model):
         rows = SpesaGestione.objects.filter(id__in = re.findall("(\d+)",list)).values_list('data_registrazione', 'importo', 'causale', 'fattura')
     if model == 'guadagnoeffettivo':
         rows = GuadagnoEffettivo.objects.filter(id__in = re.findall("(\d+)",list)).values_list('data_registrazione', 'importo')
+    if model == 'consulenza':
+        rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'cliente', 'referente', 'indirizzo', 'attivita', 'compenso', 'note', 'data_scadenza', 'data_consegna')
+    if model == 'rubricaclienti':
+        rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).values_list('nominativo', 'tel', 'mail', 'note')
 
     for row in rows:
         row_num += 1

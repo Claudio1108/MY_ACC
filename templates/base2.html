@@ -13,21 +13,16 @@
         <h1>{% block name %}{% endblock %}</h1>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <!-- Navbar content -->
-            <a class="navbar-brand" href="{% url 'HomePage' %}">DASHBOARD</a>
+            <a class="navbar-brand" href="{% url 'HomePage' %}">HomePage</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'HomePageContabilita' %}">Tabelle Output</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink1" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Protocolli
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllProtocols' %}">Visualizza Protocolli</a>
-                            <a class="dropdown-item" href="{% url 'CreateProtocol' %}">Aggiungi Protocollo</a>
-                        </div>
-                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Ricavi

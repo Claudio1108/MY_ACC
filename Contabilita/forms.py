@@ -5,15 +5,45 @@ from django.db import connection
 class DateInput(forms.DateInput):
     input_type = 'date'
 
+class formCliente(forms.ModelForm):
+    class Meta:
+        model = RubricaClienti
+        fields = "__all__"
+        labels = {
+            "nominativo": "Nome - Cognome* ",
+            "tel": "Telefono* ",
+            "mail": "Mail ",
+            "note": "Note "}
+
+
+class formClienteUpdate(forms.ModelForm):
+    class Meta:
+        model = RubricaClienti
+        fields = "__all__"
+
+class formReferente(forms.ModelForm):
+    class Meta:
+        model = RubricaReferenti
+        fields = "__all__"
+        labels = {
+            "nominativo": "Azienda - Nome - Cognome* ",
+            "tel": "Telefono* ",
+            "mail": "Mail ",
+            "note": "Note "}
+
+
+class formReferenteUpdate(forms.ModelForm):
+    class Meta:
+        model = RubricaReferenti
+        fields = "__all__"
+
 class formProtocol(forms.ModelForm):
     class Meta:
         model = Protocollo
         fields = "__all__"
         labels = {
-            "cliente": "Cliente ",
+            "cliente": "Cliente* ",
             "referente": "Referente ",
-            "mail_cliente": "Mail Cliente ",
-            "tel_cliente": "Tel Cliente ",
             "indirizzo": "Indirizzo* ",
             "parcella": "Parcella* ",
             "pratica": "Pratica* ",
@@ -46,6 +76,39 @@ class formProtocolUpdate(forms.ModelForm):
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
             'identificativo': forms.HiddenInput(),
+            'status': forms.HiddenInput()}
+
+class formConsulenza(forms.ModelForm):
+    class Meta:
+        model = Consulenza
+        fields = "__all__"
+        labels = {
+            "data_registrazione": "Data Registrazione* ",
+            "cliente": "Cliente ",
+            "indirizzo": "Indirizzo* ",
+            "attivita": "Attività* ",
+            "compenso": "Compenso ",
+            "note": "Note ",
+            "data_scadenza": "Data Scadenza* ",
+            "data_consegna": "Data Consegna "}
+        widgets = {
+            'data_registrazione': DateInput(),
+            'data_scadenza': DateInput(),
+            'data_consegna': DateInput(),
+            'status' : forms.HiddenInput()}
+
+    def set_status(self,value):
+        data = self.data.copy()
+        data['status'] = value
+        self.data = data
+
+
+class formConsulenzaUpdate(forms.ModelForm):
+    class Meta:
+        model = Consulenza
+        fields = "__all__"
+        widgets = {
+            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
             'status': forms.HiddenInput()}
 
 class formRicavo(forms.ModelForm):

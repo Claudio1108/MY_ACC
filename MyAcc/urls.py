@@ -22,14 +22,34 @@ from django.conf.urls import  url
 urlpatterns = [
 
     path('admin/', admin.site.urls),
+    path('HomePage', contviews.viewHomePage, name='HomePage'),
+    path('HomePageContabilita', contviews.viewHomePageContabilita, name='HomePageContabilita'),
+    path('HomePageAmministrazione', contviews.viewHomePageAmministrazione, name='HomePageAmministrazione'),
+    #Cliente
+    path('AllClienti/', contviews.viewAllClienti, name='AllClienti'),
+    path('CreateCliente/', contviews.viewCreateCliente, name='CreateCliente'),
+    path('DeleteCliente/<int:id>', contviews.viewDeleteCliente, name='DeleteCliente'),
+    url(r'^DeleteClientiGroup/$', contviews.viewDeleteClientiGroup, name='DeleteClientiGroup'),
+    path('UpdateCliente/<int:id>', contviews.viewUpdateCliente, name='UpdateCliente'),
+    #Referente
+    path('AllReferenti/', contviews.viewAllReferenti, name='AllReferenti'),
+    path('CreateReferente/', contviews.viewCreateReferente, name='CreateReferente'),
+    path('DeleteReferente/<int:id>', contviews.viewDeleteReferente, name='DeleteReferente'),
+    url(r'^DeleteReferentiGroup/$', contviews.viewDeleteReferentiGroup, name='DeleteReferentiGroup'),
+    path('UpdateReferente/<int:id>', contviews.viewUpdateReferente, name='UpdateReferente'),
     #Protocollo
-    path('HomePage', contviews.viewhomepage, name='HomePage'),
     #url(r'^AllProtocols/\?order=(?P<order>.*)&csrfmiddlewaretoken=(?P<csrfmiddlewaretoken>.*)$', contviews.viewAllProtocols, name='AllProtocols'),
     path('AllProtocols/', contviews.viewAllProtocols, name='AllProtocols'),
     path('CreateProtocol/', contviews.viewCreateProtocol, name='CreateProtocol'),
     path('DeleteProtocol/<int:id>', contviews.viewDeleteProtocol, name='DeleteProtocol'),
     url(r'^DeleteProtocolsGroup/$', contviews.viewDeleteProtocolsGroup, name='DeleteProtocolsGroup'),
     path('UpdateProtocol/<int:id>', contviews.viewUpdateProtocol, name='UpdateProtocol'),
+    #Consulenze
+    path('AllConsulenze/', contviews.viewAllConsulenze, name='AllConsulenze'),
+    path('CreateConsulenza/', contviews.viewCreateConsulenza, name='CreateConsulenza'),
+    path('DeleteConsulenza/<int:id>', contviews.viewDeleteConsulenza, name='DeleteConsulenza'),
+    url(r'^DeleteConsulenzeGroup/$', contviews.viewDeleteConsulenzeGroup, name='DeleteConsulenzeGroup'),
+    path('UpdateConsulenza/<int:id>', contviews.viewUpdateConsulenza, name='UpdateConsulenza'),
     #Ricavo
     path('AllRicavi/', contviews.viewAllRicavi, name='AllRicavi'),
     path('CreateRicavo/', contviews.viewCreateRicavo, name='CreateRicavo'),
