@@ -92,17 +92,12 @@ class Consulenza(models.Model):
     data_registrazione = models.DateField(auto_now=False, auto_now_add=False)  # obbligatorio
     indirizzo = models.CharField(max_length=40)
     attivita = models.CharField(max_length=40)  # obbligatorio
-    compenso = models.DecimalField(max_digits=19, decimal_places=2, blank=True)
+    compenso = models.DecimalField(max_digits=19, decimal_places=2, blank=True, default=0)
     note = models.TextField(blank=True)
     data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None)  # obbligatorio
     data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     status = models.IntegerField(default=None)
     richiedente = models.CharField(max_length=50, null=True, blank=True)
-    # foreign_key
-    #cliente = models.ForeignKey(RubricaClienti, on_delete=models.CASCADE)
-    #referente = models.ForeignKey(RubricaReferenti, on_delete=models.CASCADE, default="", null=True, blank=True)
-
-
 
 
 class CalendarioContatore(models.Model):

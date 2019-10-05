@@ -3,17 +3,22 @@ body {
 }
 .btn-primary {
   width: 300px;
-  height: 200px;
-  background-color: #FDD017 !important;
+  height: 100px;
+  background-color: #4169e1 !important;
   border-color: #5bc2c2;
   font-size:30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
 }
 .btn-secondary {
   width: 300px;
-  height: 200px;
-  background-color: #6CC417 !important;
+  height: 100px;
+  background-color: #8b4513 !important;
   font-size:30px;
   border-color: #5bc2c2;
-  vertical-align: middle;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

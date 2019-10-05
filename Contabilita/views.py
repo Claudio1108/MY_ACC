@@ -8,6 +8,8 @@ from datetime import date,datetime
 import xlwt
 from django.http import HttpResponse
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 def viewHomePage(request):
     return render(request, "Homepage/HomePage.html")
@@ -104,6 +106,16 @@ def viewAllProtocols(request):
     protocolli = Protocollo.objects.all()
     sum_parcelle = 0
     protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli.order_by("-identificativo"))
+    page = request.GET.get('page', 1)
+    paginator = Paginator(protocollo_filter.qs, 10)
+
+    try:
+        protocols = paginator.page(page)
+    except PageNotAnInteger:
+        protocols = paginator.page(1)
+    except EmptyPage:
+        protocols = paginator.page(paginator.num_pages)
+
     today = date.today()
     for proto in protocollo_filter.qs:
         d = datetime.strptime(str(proto.data_scadenza), "%Y-%m-%d")
@@ -115,7 +127,7 @@ def viewAllProtocols(request):
             cursor = connection.cursor()
             cursor.execute("""update Contabilita_protocollo set status = {} where identificativo = '{}'""".format(proto.status,proto.identificativo))
         sum_parcelle=sum_parcelle+proto.parcella
-    context = {'filter': protocollo_filter, 'sum_p':sum_parcelle}
+    context = {'filter': protocollo_filter, 'sum_p':sum_parcelle, 'protocols': protocols}
     return render(request, "Amministrazione/Protocollo/AllProtocols.html", context)
 
 def viewCreateProtocol(request):
