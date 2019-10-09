@@ -1,6 +1,7 @@
 from django import forms
 from .models import *
 from django.db import connection
+from dal import autocomplete
 
 class DateInput(forms.DateInput):
     input_type = 'date'
@@ -15,12 +16,6 @@ class formCliente(forms.ModelForm):
             "mail": "Mail ",
             "note": "Note "}
 
-
-class formClienteUpdate(forms.ModelForm):
-    class Meta:
-        model = RubricaClienti
-        fields = "__all__"
-
 class formReferente(forms.ModelForm):
     class Meta:
         model = RubricaReferenti
@@ -30,12 +25,6 @@ class formReferente(forms.ModelForm):
             "tel": "Telefono* ",
             "mail": "Mail ",
             "note": "Note "}
-
-
-class formReferenteUpdate(forms.ModelForm):
-    class Meta:
-        model = RubricaReferenti
-        fields = "__all__"
 
 class formProtocol(forms.ModelForm):
     class Meta:
@@ -56,7 +45,9 @@ class formProtocol(forms.ModelForm):
             'data_scadenza': DateInput(),
             'data_consegna': DateInput(),
             'identificativo' : forms.HiddenInput(),
-            'status' : forms.HiddenInput()}
+            'status' : forms.HiddenInput(),
+            'cliente': autocomplete.ModelSelect2(url='cliente_autocomp'),
+            'referente': autocomplete.ModelSelect2(url='referente_autocomp')}
 
     def set_identificativo(self,value):
         data = self.data.copy()
@@ -73,10 +64,23 @@ class formProtocolUpdate(forms.ModelForm):
     class Meta:
         model = Protocollo
         fields = "__all__"
+        labels = {
+            "cliente": "Cliente* ",
+            "referente": "Referente ",
+            "indirizzo": "Indirizzo* ",
+            "parcella": "Parcella* ",
+            "pratica": "Pratica* ",
+            "note": "Note ",
+            "data_registrazione": "Data Registrazione* ",
+            "data_scadenza": "Data Scadenza* ",
+            "data_consegna": "Data Consegna "}
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
             'identificativo': forms.HiddenInput(),
-            'status': forms.HiddenInput()}
+            'status': forms.HiddenInput(),
+            'cliente': autocomplete.ModelSelect2(url='cliente_autocomp'),
+            'referente': autocomplete.ModelSelect2(url='referente_autocomp')
+        }
 
 class formConsulenza(forms.ModelForm):
     class Meta:
@@ -107,6 +111,15 @@ class formConsulenzaUpdate(forms.ModelForm):
     class Meta:
         model = Consulenza
         fields = "__all__"
+        labels = {
+            "data_registrazione": "Data Registrazione* ",
+            "cliente": "Cliente ",
+            "indirizzo": "Indirizzo* ",
+            "attivita": "Attività* ",
+            "compenso": "Compenso ",
+            "note": "Note ",
+            "data_scadenza": "Data Scadenza* ",
+            "data_consegna": "Data Consegna "}
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
             'status': forms.HiddenInput()}
@@ -124,7 +137,8 @@ class formRicavo(forms.ModelForm):
             "protocollo": "Protocollo ",
             "note": "Note "}
         widgets = {
-            'data_registrazione': DateInput()}
+            'data_registrazione': DateInput(),
+            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
 
     def Check1(self):
         id_protocollo = self.data['protocollo']
@@ -149,8 +163,17 @@ class formRicavoUpdate(forms.ModelForm):
     class Meta:
         model = Ricavo
         fields = "__all__"
+        labels = {
+            "data_registrazione": "Data Registrazione* ",
+            "movimento": "Movimento ",
+            "importo": "Importo* ",
+            "fattura": "Fattura ",
+            "intestatario_fattura": "Intestatario Fattura ",
+            "protocollo": "Protocollo ",
+            "note": "Note "}
         widgets = {
-            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
+            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
+            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
 
     def Check1(self):
         id_protocollo = self.data['protocollo']
@@ -181,14 +204,21 @@ class formSpesaCommessa(forms.ModelForm):
             "protocollo": "Protocollo ",
             "note": "Note "}
         widgets = {
-            'data_registrazione': DateInput()}
+            'data_registrazione': DateInput(),
+            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
 
 class formSpesaCommessaUpdate(forms.ModelForm):
     class Meta:
         model = SpesaCommessa
         fields = "__all__"
+        labels = {
+            "data_registrazione": "Data Registrazione* ",
+            "importo": "Importo* ",
+            "protocollo": "Protocollo ",
+            "note": "Note "}
         widgets = {
-            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
+            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
+            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
 
 class formSocio(forms.ModelForm):
     class Meta:
@@ -211,6 +241,11 @@ class formSpesaGestioneUpdate(forms.ModelForm):
     class Meta:
         model = SpesaGestione
         fields = "__all__"
+        labels = {
+            "data_registrazione": "Data Registrazione* ",
+            "importo": "Importo* ",
+            "causale": "Causale ",
+            "fattura": "Fattura ", }
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
 
@@ -228,6 +263,9 @@ class formGuadagnoEffettivoUpdate(forms.ModelForm):
     class Meta:
         model = GuadagnoEffettivo
         fields = "__all__"
+        labels = {
+            "data_registrazione": "Data* ",
+            "importo": "Importo* "}
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
 

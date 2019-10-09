@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'Contabilita',
     'widget_tweaks',
     'django_filters',
+    'dal',
+    'dal_select2',
 
 ]
 

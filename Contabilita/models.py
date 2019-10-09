@@ -66,7 +66,7 @@ class SpesaCommessa(models.Model):
     data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
     importo = models.DecimalField(max_digits=19, decimal_places=2) #obbligatorio
     # foreign_key
-    protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="spesecommessa")
+    protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="spesecommessa", default="", null=True, blank=True)
     note = models.TextField(blank=True)
 
     def __str__(self):

@@ -10,6 +10,28 @@ from django.http import HttpResponse
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+from dal import autocomplete
+
+class ProtocolloAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        qs = Protocollo.objects.all()
+        if self.q:
+            qs = qs.filter(identificativo__icontains=self.q) | qs.filter(indirizzo__icontains=self.q)
+        return qs
+
+class ClienteAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        qs = RubricaClienti.objects.all()
+        if self.q:
+            qs = qs.filter(nominativo__icontains=self.q) | qs.filter(tel__icontains=self.q)
+        return qs
+
+class ReferenteAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        qs = RubricaReferenti.objects.all()
+        if self.q:
+            qs = qs.filter(nominativo__icontains=self.q) | qs.filter(tel__icontains=self.q)
+        return qs
 
 def viewHomePage(request):
     return render(request, "Homepage/HomePage.html")
@@ -23,7 +45,15 @@ def viewHomePageAmministrazione(request):
 def viewAllClienti(request):
     clienti = RubricaClienti.objects.all()
     cliente_filter = ClienteFilter(request.GET, queryset=clienti.order_by("-nominativo"))
-    return render(request, "Amministrazione/Cliente/AllClienti.html", { "filter" : cliente_filter})
+    page = request.GET.get('page', 1)
+    paginator = Paginator(cliente_filter.qs, 20)
+    try:
+        cl = paginator.page(page)
+    except PageNotAnInteger:
+        cl = paginator.page(1)
+    except EmptyPage:
+        cl = paginator.page(paginator.num_pages)
+    return render(request, "Amministrazione/Cliente/AllClienti.html", { "filter" : cliente_filter, 'cl': cl})
 
 def viewCreateCliente(request):
     if(request.method == "POST"):
@@ -52,19 +82,27 @@ def viewDeleteClientiGroup(request):
 def viewUpdateCliente(request,id):
     if (request.method == "POST"):
         cliente = RubricaClienti.objects.get(id=id)
-        form = formClienteUpdate(request.POST, instance=cliente)
+        form = formCliente(request.POST, instance=cliente)
         if (form.is_valid()):
             form.save()
             return redirect('AllClienti')
     else:
         cliente = RubricaClienti.objects.get(id=id)
-        form = formClienteUpdate(instance=cliente)
+        form = formCliente(instance=cliente)
         return render(request, "Amministrazione/Cliente/UpdateCliente.html", {'form': form})
 
 def viewAllReferenti(request):
     referenti = RubricaReferenti.objects.all()
     referente_filter = ReferenteFilter(request.GET, queryset=referenti.order_by("-nominativo"))
-    return render(request, "Amministrazione/Referente/AllReferenti.html", { "filter" : referente_filter})
+    page = request.GET.get('page', 1)
+    paginator = Paginator(referente_filter.qs, 20)
+    try:
+        ref = paginator.page(page)
+    except PageNotAnInteger:
+        ref = paginator.page(1)
+    except EmptyPage:
+        ref = paginator.page(paginator.num_pages)
+    return render(request, "Amministrazione/Referente/AllReferenti.html", { "filter" : referente_filter, 'ref':ref})
 
 def viewCreateReferente(request):
     if(request.method == "POST"):
@@ -93,13 +131,13 @@ def viewDeleteReferentiGroup(request):
 def viewUpdateReferente(request,id):
     if (request.method == "POST"):
         referente = RubricaReferenti.objects.get(id=id)
-        form = formReferenteUpdate(request.POST, instance=referente)
+        form = formReferente(request.POST, instance=referente)
         if (form.is_valid()):
             form.save()
             return redirect('AllReferenti')
     else:
         referente = RubricaReferenti.objects.get(id=id)
-        form = formReferenteUpdate(instance=referente)
+        form = formReferente(instance=referente)
         return render(request, "Amministrazione/Referente/UpdateReferente.html", {'form': form})
 
 def viewAllProtocols(request):
@@ -107,7 +145,7 @@ def viewAllProtocols(request):
     sum_parcelle = 0
     protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli.order_by("-identificativo"))
     page = request.GET.get('page', 1)
-    paginator = Paginator(protocollo_filter.qs, 10)
+    paginator = Paginator(protocollo_filter.qs, 20)
 
     try:
         protocols = paginator.page(page)
@@ -187,6 +225,14 @@ def viewAllConsulenze(request):
     consulenze = Consulenza.objects.all()
     sum_compensi = 0
     consulenza_filter = ConsulenzaFilter(request.GET, queryset=consulenze.order_by("-id"))
+    page = request.GET.get('page', 1)
+    paginator = Paginator(consulenza_filter.qs, 20)
+    try:
+        con = paginator.page(page)
+    except PageNotAnInteger:
+        con = paginator.page(1)
+    except EmptyPage:
+        con = paginator.page(paginator.num_pages)
     today = date.today()
     for cons in consulenza_filter.qs:
         d = datetime.strptime(str(cons.data_scadenza), "%Y-%m-%d")
@@ -199,21 +245,12 @@ def viewAllConsulenze(request):
             cursor.execute("""update Contabilita_consulenza set status = {} where id = '{}'""".format(cons.status,cons.id))
         sum_compensi=sum_compensi+cons.compenso
 
-    context = {'filter': consulenza_filter, 'sum_c':sum_compensi}
+    context = {'filter': consulenza_filter, 'sum_c':sum_compensi, 'con':con}
     return render(request, "Amministrazione/Consulenza/AllConsulenze.html", context)
 
 def viewCreateConsulenza(request):
     if(request.method == "POST"):
         form = formConsulenza(request.POST)
-        # anno=form['data_registrazione'].value()[0:4]
-        # cursor = connection.cursor()
-        # cursor.execute("""select count from Contabilita_calendariocontatore as c where c.id={}""".format(anno))
-        # rows = cursor.fetchone()
-        #
-        # val=rows[0]+1
-        # cursor = connection.cursor()
-        # cursor.execute("""update Contabilita_calendariocontatore  set count={} where id={}""".format(str(val),anno))
-        # form.set_identificativo(str('{0:03}'.format(val))+"-"+anno[2:4])
         today = date.today()
         d = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d")
         data_scadenza = d.date()
@@ -259,9 +296,17 @@ def viewAllRicavi(request):
     ricavi = Ricavo.objects.all()
     ricavo_filter = RicavoFilter(request.GET, queryset=ricavi.order_by("-data_registrazione"))
     sum_ricavi = 0
+    page = request.GET.get('page', 1)
+    paginator = Paginator(ricavo_filter.qs, 20)
+    try:
+        r = paginator.page(page)
+    except PageNotAnInteger:
+        r = paginator.page(1)
+    except EmptyPage:
+        r = paginator.page(paginator.num_pages)
     for ricavo in ricavo_filter.qs:
         sum_ricavi = sum_ricavi + ricavo.importo
-    context = {'filter': ricavo_filter, 'sum_r':sum_ricavi}
+    context = {'filter': ricavo_filter, 'sum_r':sum_ricavi, 'ricavi':r}
     return render(request, "Contabilita/Ricavo/AllRicavi.html", context)
 
 def viewCreateRicavo(request):
@@ -318,9 +363,19 @@ def viewAllSpeseCommessa(request):
     spesecommessa = SpesaCommessa.objects.all()
     spesacommessa_filter = SpesaCommessaFilter(request.GET, queryset=spesecommessa.order_by("-data_registrazione"))
     sum_spesecommessa = 0
-    for sc in spesacommessa_filter.qs:
-        sum_spesecommessa = sum_spesecommessa + sc.importo
-    return render(request, "Contabilita/SpesaCommessa/AllSpeseCommessa.html", {'filter': spesacommessa_filter, 'sum_s': sum_spesecommessa})
+    page = request.GET.get('page', 1)
+    paginator = Paginator(spesacommessa_filter.qs, 20)
+
+    try:
+        sc = paginator.page(page)
+    except PageNotAnInteger:
+        sc = paginator.page(1)
+    except EmptyPage:
+        sc = paginator.page(paginator.num_pages)
+
+    for s in spesacommessa_filter.qs:
+        sum_spesecommessa = sum_spesecommessa + s.importo
+    return render(request, "Contabilita/SpesaCommessa/AllSpeseCommessa.html", {'filter': spesacommessa_filter, 'sum_s': sum_spesecommessa, 'sc': sc})
 
 def viewCreateSpesaCommessa(request):
     if(request.method == "POST"):
@@ -392,9 +447,17 @@ def viewAllSpeseGestione(request):
     spesegestione = SpesaGestione.objects.all()
     spesagestione_filter = SpesaGestioneFilter(request.GET, queryset=spesegestione.order_by("-data_registrazione"))
     sum_spesegestione = 0
-    for sg in spesagestione_filter.qs:
-        sum_spesegestione = sum_spesegestione + sg.importo
-    return render(request, "Contabilita/SpesaGestione/AllSpeseGestione.html", {'filter': spesagestione_filter, 'sum_s':sum_spesegestione})
+    page = request.GET.get('page', 1)
+    paginator = Paginator(spesagestione_filter.qs, 20)
+    try:
+        sg = paginator.page(page)
+    except PageNotAnInteger:
+        sg = paginator.page(1)
+    except EmptyPage:
+        sg = paginator.page(paginator.num_pages)
+    for s in spesagestione_filter.qs:
+        sum_spesegestione = sum_spesegestione + s.importo
+    return render(request, "Contabilita/SpesaGestione/AllSpeseGestione.html", {'filter': spesagestione_filter, 'sum_s':sum_spesegestione, 'sg': sg})
 
 def viewCreateSpesaGestione(request):
     if(request.method == "POST"):
@@ -436,9 +499,17 @@ def viewAllGuadagniEffettivi(request):
     guadagnieffettivi = GuadagnoEffettivo.objects.all()
     guadagnoeffettivo_filter = GuadagnoEffettivoFilter(request.GET, queryset=guadagnieffettivi.order_by("-data_registrazione"))
     sum_guadagnieffettivi = 0
-    for ge in guadagnoeffettivo_filter.qs:
-        sum_guadagnieffettivi = sum_guadagnieffettivi + ge.importo
-    return render(request, "Contabilita/GuadagnoEffettivo/AllGuadagniEffettivi.html", { "filter" : guadagnoeffettivo_filter, 'sum_g': sum_guadagnieffettivi})
+    page = request.GET.get('page', 1)
+    paginator = Paginator(guadagnoeffettivo_filter.qs, 20)
+    try:
+        ge = paginator.page(page)
+    except PageNotAnInteger:
+        ge = paginator.page(1)
+    except EmptyPage:
+        ge = paginator.page(paginator.num_pages)
+    for g in guadagnoeffettivo_filter.qs:
+        sum_guadagnieffettivi = sum_guadagnieffettivi + g.importo
+    return render(request, "Contabilita/GuadagnoEffettivo/AllGuadagniEffettivi.html", { "filter" : guadagnoeffettivo_filter, 'sum_g': sum_guadagnieffettivi, 'ge': ge})
 
 def viewCreateGuadagnoEffettivo(request):
     if(request.method == "POST"):

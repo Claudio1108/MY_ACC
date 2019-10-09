@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from Contabilita import views as contviews
 from django.conf.urls import  url
-
+from Contabilita.views import ProtocolloAutocomplete, ClienteAutocomplete, ReferenteAutocomplete
 
 urlpatterns = [
 
@@ -86,6 +86,10 @@ urlpatterns = [
 
     #Reporter
     url(r'^export_input_table/xls/\?list=(?P<list>.*)/\?model=(?P<model>.*)$', contviews.export_input_table_xls, name='export_input_table_xls'),
-    url(r'^export_output_table/xls/\?numquery=(?P<numquery>.*)/\?year=(?P<year>.*)$', contviews.export_output_table_xls, name='export_output_table_xls')
+    url(r'^export_output_table/xls/\?numquery=(?P<numquery>.*)/\?year=(?P<year>.*)$', contviews.export_output_table_xls, name='export_output_table_xls'),
+
+    url(r'^proto-autocomp/$', ProtocolloAutocomplete.as_view(), name='proto_autocomp'),
+    url(r'^cliente-autocomp/$', ClienteAutocomplete.as_view(), name='cliente_autocomp'),
+    url(r'^referente-autocomp/$', ReferenteAutocomplete.as_view(), name='referente_autocomp')
 
 ]
