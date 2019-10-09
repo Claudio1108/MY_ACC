@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}UpdateSpesaCommessa{% endblock title %}
+
+{% block name %}MODIFICA SPESA DI COMMESSA{% endblock %}
+
+{% block content %}
+
+    <form method="post">
+        {% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
+        </br>
+        <h6>* Campo Obbligatorio </h6>
+        </br>
+        <input type="submit" class="btn btn-primary" value="Modifica">
+    </form>
+
+{% endblock %}
+
+{% block footer %}
+    <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+    {{ form.media }}
+{% endblock %}

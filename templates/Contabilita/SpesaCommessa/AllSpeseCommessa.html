@@ -1,0 +1,126 @@
+{% extends 'base2.html' %}
+{% load static %}
+
+{% block title %}AllSpeseCommessa{% endblock title %}
+
+{% block name %}TABELLA DELLE SPESE DI COMMESSA{% endblock %}
+
+{% block scripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script type="text/javascript">
+
+        	function selectAll(){
+				var items=document.getElementsByName('b1');
+				for(var i=0; i<items.length; i++){
+					if(items[i].type=='checkbox')
+						items[i].checked=true;
+				}
+			}
+
+			function unSelectAll(){
+				var items=document.getElementsByName('b1');
+				for(var i=0; i<items.length; i++){
+					if(items[i].type=='checkbox')
+						items[i].checked=false;
+				}
+			}
+
+			function getSelected(){
+				var checks=document.getElementsByName('b1');
+				var list = new Array();
+				for(var i=0; i<checks.length; i++){
+					if(checks[i].checked== true){
+						list.push(checks[i].value);
+					}
+				}
+				return list;
+			}
+
+            function deleteGroup(){
+                  var list=getSelected();
+                  if(list.length > 0){
+                    if(confirm('Sei sicuro di voler eliminare queste Spese di Commessa ?')== true){
+                        $.ajax({
+                            type: "POST",
+                            url: "/DeleteSpeseCommessaGroup/",
+                            data: {
+                                'list': list,
+                                csrfmiddlewaretoken: '{{ csrf_token }}'
+                            },
+                            success: function(response) {
+                                location.reload(true);
+
+                            },
+                            error: function(response){
+                                alert("failure");
+                            }
+                        });
+                    }
+                  }
+            }
+
+    </script>
+{% endblock %}
+
+{% block content %}
+    <form method="get">
+        <!-- {{ filter.form.as_table }} -->
+        <table border="5">
+            {% for field in filter.form %}
+                {% if forloop.counter|divisibleby:"2" %}
+                    <tr>{{ field.label }} {{ field }}</tr></br></br>
+                {% else %}
+                    <tr>{{ field.label }} {{ field }}</tr>&nbsp;&nbsp;&nbsp;
+                {% endif %}
+            {% endfor %}
+            </table></br>
+        <button type="submit">Filtra</button>
+    </form>
+    </br>
+    <table align="left" style="width:100%">
+        <tr>
+            <td>
+                <input type="button" onclick='selectAll()' value="Seleziona Tutti"/>
+                <input type="button" onclick='unSelectAll()' value="Deseleziona Tutti"/>
+                <input type="button" onclick='deleteGroup()' value="Elimina Selezionati"/>
+            </td>
+            <td>
+                <div align="right">
+                <form method="post" action="{% url 'export_input_table_xls' list=filter.qs model='spesacommessa' %}">
+                    {% csrf_token %}
+                     <input type="text" name="fname" placeholder="<NomeFile>" required>
+                    <button type="submit">DOWNLOAD Excel</button>
+                </form>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <table width="100%" border="1" cellpadding="10" cellspacing="0">
+        <tr>
+            <th></th>
+            <th>data_registrazione</th>
+            <th>importo</th>
+            <th>protocollo</th>
+            <th>note</th>
+            <th colspan="2">Operazioni</th>
+        </tr>
+        {% for b in sc %}
+        <tr>
+            <td>
+                <input type="checkbox" class="checks" name="b1" value={{b.id}}>
+            </td>
+            <td>{{ b.data_registrazione }}</td>
+            <td>{{ b.importo }} €</td>
+            <td>{{ b.protocollo }}</td>
+            <td>{{ b.note|linebreaks }}</td>
+            <td align="center"><a href="/UpdateSpesaCommessa/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
+            <td align="center"><a href="/DeleteSpesaCommessa/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Spesa di Commessa ?')">X</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="alert alert-primary" role="alert">
+        Totale degli importi: <a href="#" class="alert-link">{{sum_s}}</a>
+    </div>
+{% endblock %}

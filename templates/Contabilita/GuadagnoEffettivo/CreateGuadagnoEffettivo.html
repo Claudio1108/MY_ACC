@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CreateGuadagnoEffettivo{% endblock title %}
+
+{% block name %}CREA NUOVO GUADAGNO EFFETTIVO{% endblock %}
+
+{% block content %}
+
+    <form method="post">
+        {% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
+        </br>
+        <h6>* Campo Obbligatorio </h6>
+        </br>
+        <input type="submit" class="btn btn-primary" value="Crea">
+    </form>
+
+{% endblock %}
