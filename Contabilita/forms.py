@@ -224,6 +224,8 @@ class formSocio(forms.ModelForm):
     class Meta:
         model = Socio
         fields = ["percentuale"]
+        labels = {
+            "percentuale": ""}
 
 class formSpesaGestione(forms.ModelForm):
     class Meta:

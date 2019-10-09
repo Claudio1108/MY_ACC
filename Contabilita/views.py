@@ -414,7 +414,7 @@ def viewUpdateSpesaCommessa(request,id):
         return render(request, "Contabilita/SpesaCommessa/UpdateSpesaCommessa.html", {'form': form})
 
 def viewAllSoci(request):
-    soci = Socio.objects.all()
+    soci = Socio.objects.all().order_by("-percentuale")
     return render(request, "Contabilita/Socio/AllSoci.html", { "tabella_soci" : soci })
 
 def viewUpdateSocio(request,id):
@@ -433,7 +433,7 @@ def viewUpdateSocio(request,id):
                 return redirect('AllSoci')
             else:
                 if (float(sum) + float(form['percentuale'].value()) > 1.00):
-                    messages.error(request,'ATTENZIONE. La percentuale inserita non รจ valida')
+                    messages.error(request,'ATTENZIONE. Percentuale inserita invalida')
                     return redirect('AllSoci')
                 else:
                     form.save()
@@ -441,7 +441,7 @@ def viewUpdateSocio(request,id):
     else:
         socio = Socio.objects.get(id=id)
         form = formSocio(instance=socio)
-        return render(request, "Contabilita/Socio/UpdateSocio.html", {'form': form})
+        return render(request, "Contabilita/Socio/UpdateSocio.html", {'form': form, 'socio':socio})
 
 def viewAllSpeseGestione(request):
     spesegestione = SpesaGestione.objects.all()
