@@ -901,7 +901,7 @@ def export_input_table_xls(request,list,model):
                       'spesagestione' : ['Data Registrazione', 'Importo', 'Causale', 'Fattura'],
                       'guadagnoeffettivo' : ['Data Registrazione', 'Importo'],
                       'consulenza' : ['Data Registrazione', 'Cliente', 'Referente', 'Indirizzo', 'Attivita', 'Compenso', 'Note', 'Data Scadenza', 'Data Consegna'],
-                      'rubricaclienti' : ['Nominativo', 'Telefono', 'Mail', 'Note']
+                      'rubricaclienti' : ['Nominativo', 'Telefono', 'Mail', 'Note'],
                       'rubricareferenti' : ['Nominativo', 'Telefono', 'Mail', 'Note']}
     
     name_file = request.POST.get("fname")
