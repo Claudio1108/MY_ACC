@@ -951,11 +951,11 @@ def export_output_table_xls(request, numquery, year):
         columns = ['Mese', 'Spese di gestione (€)', 'Daniele (€)', 'Laura (€)', 'Federico (€)']
         rows = execute_query_1(year)
     if int(numquery) == 2:
-        output = 'resoconto_ricavi'
+        output = 'ricavi'
         columns = ['Mese', 'Ricavi (€)', 'Daniele (€)', 'Laura (€)', 'Federico (€)']
         rows = execute_query_2(year)
     if int(numquery) == 3:
-        output = 'gestione_guadagni_effettivi'
+        output = 'guadagni_eff'
         columns = ['Mese', 'Guadagni Teorici (€)', 'Guadagni Effettivi (€)', 'Daniele (€)', 'Laura (€)', 'Federico (€)', 'GT - GE (€)']
         rows = execute_query_3(year)
     if int(numquery) == 4:
@@ -972,7 +972,7 @@ def export_output_table_xls(request, numquery, year):
         ws = wb.add_sheet(output+'_'+year)
     else:
         name_file = request.POST.get("fname")+'_YearNotSpecified'
-        wb.add_sheet(output + '_YearNotSpecified')
+        ws = wb.add_sheet(output + '_YearNotSpecified')
 
     response = HttpResponse(content_type='application/ms-excel')
     #content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
