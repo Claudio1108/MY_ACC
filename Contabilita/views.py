@@ -901,7 +901,9 @@ def export_input_table_xls(request,list,model):
                       'spesagestione' : ['Data Registrazione', 'Importo', 'Causale', 'Fattura'],
                       'guadagnoeffettivo' : ['Data Registrazione', 'Importo'],
                       'consulenza' : ['Data Registrazione', 'Cliente', 'Referente', 'Indirizzo', 'Attivita', 'Compenso', 'Note', 'Data Scadenza', 'Data Consegna'],
-                      'rubricaclienti' : ['Nominativo', 'Telefono', 'Mail', 'Note']}
+                      'rubricaclienti' : ['Nominativo', 'Telefono', 'Mail', 'Note']
+                      'rubricareferenti' : ['Nominativo', 'Telefono', 'Mail', 'Note']}
+    
     name_file = request.POST.get("fname")
     response = HttpResponse(content_type='application/ms-excel')
     #content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -931,7 +933,9 @@ def export_input_table_xls(request,list,model):
     if model == 'consulenza':
         rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'cliente', 'referente', 'indirizzo', 'attivita', 'compenso', 'note', 'data_scadenza', 'data_consegna')
     if model == 'rubricaclienti':
-        rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).values_list('nominativo', 'tel', 'mail', 'note')
+        rows = RubricaClienti.objects.filter(id__in=re.findall("(\d+)", list)).values_list('nominativo', 'tel', 'mail', 'note')
+    if model == 'rubricareferenti':
+        rows = RubricaReferenti.objects.filter(id__in=re.findall("(\d+)", list)).values_list('nominativo', 'tel', 'mail', 'note')
 
     for row in rows:
         row_num += 1
