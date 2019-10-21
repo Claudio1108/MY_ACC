@@ -26,6 +26,7 @@ SECRET_KEY = '%c%tj3bv#%dpyp^w)bx3zfg3$6g=!xrgh0m(&tll3nj5f8sk!3'
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1']
+#ALLOWED_HOSTS = ['calicino.pythonanywhere.com']
 
 
 # Application definition
@@ -128,3 +129,5 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
+
+#STATIC_ROOT = os.path.join(BASE_DIR, "static")
