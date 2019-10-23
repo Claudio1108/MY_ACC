@@ -1,9 +1,7 @@
 # MY_ACC
-Spider Master
 =============
 
-Spider Master è il software di crawling.
-Spider Master è basato su Scrapy, un framework di Python dedicato al web crawling che utilizza Twisted, un event-driven networking engine.
+MY_ACC è un software per la gestione amministrativa e della contabilità di uno studio tecnico di architettura denominato "STUDIO DOA". Il software è stato realizzato con Django, un framework Python dedicato allo sviluppo di applicazioni web.
 
 Feature
 -------
@@ -18,7 +16,7 @@ Gli spider disponibili per il crawling sono:
 Technologies
 ------------
 
-La versione di Python utilizzata è la 3.4.
+La versione di Python utilizzata è la 3.6. La versione di Django utilizzata è la 2.2.3.
 
 Il packet manager utilzzato è pip.
 
