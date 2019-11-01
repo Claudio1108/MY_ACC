@@ -1,7 +1,7 @@
-{% extends 'base4.html' %}
+{% extends 'base2.html' %}
 {% load static %}
-{% block title %}AllClienti{% endblock title %}
-{% block name %}TABELLA DEI CLIENTI{% endblock %}
+{% block title %}AllSpeseGestione{% endblock title %}
+{% block name %}TABELLA DELLE SPESE DI GESTIONE{% endblock %}
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script type="text/javascript">
@@ -12,6 +12,7 @@
 						items[i].checked=true;
 				}
 			}
+
 			function unSelectAll(){
 				var items=document.getElementsByName('b1');
 				for(var i=0; i<items.length; i++){
@@ -19,6 +20,7 @@
 						items[i].checked=false;
 				}
 			}
+
 			function getSelected(){
 				var checks=document.getElementsByName('b1');
 				var list = new Array();
@@ -29,19 +31,21 @@
 				}
 				return list;
 			}
+
             function deleteGroup(){
                   var list=getSelected();
                   if(list.length > 0){
-                    if(confirm('Sei sicuro di voler eliminare questi Clienti ?')== true){
+                    if(confirm('Sei sicuro di voler eliminare queste Spese di Gestione ?')== true){
                         $.ajax({
                             type: "POST",
-                            url: "/DeleteClientiGroup/",
+                            url: "/DeleteSpeseGestioneGroup/",
                             data: {
                                 'list': list,
                                 csrfmiddlewaretoken: '{{ csrf_token }}'
                             },
                             success: function(response) {
                                 location.reload(true);
+
                             },
                             error: function(response){
                                 alert("failure");
@@ -50,6 +54,7 @@
                     }
                   }
             }
+
     </script>
 {% endblock %}
 
@@ -57,7 +62,7 @@
     <form method="get">
         <table border="5">
         {% for field in filter.form %}
-            {% if forloop.counter|divisibleby:"2" %}
+            {% if forloop.counter|divisibleby:"3" %}
                 <tr>{{ field.label }} {{ field }}</tr></br></br>
             {% else %}
                 <tr>{{ field.label }} {{ field }}</tr>&nbsp;&nbsp;&nbsp;
@@ -74,9 +79,9 @@
                 <input type="button" onclick='unSelectAll()' value="Deseleziona Tutti"/>
                 <input type="button" onclick='deleteGroup()' value="Elimina Selezionati"/>
             </td>
-            <td>
+            <td >
                 <div align="right">
-                <form method="post" action="{% url 'export_input_table_xls' list=filter.qs model='rubricaclienti' %}">
+                <form method="post" action="{% url 'export_input_table_xls' list=filter.qs model='spesagestione' %}">
                     {% csrf_token %}
                      <input type="text" name="fname" placeholder="<NomeFile>" required>
                     <button type="submit">DOWNLOAD Excel</button>
@@ -85,14 +90,13 @@
             </td>
         </tr>
     </table>
-
     <table width="100%" border="1" cellpadding="10" cellspacing="0">
         <tr>
             <th></th>
-            <th>nominativo</th>
-            <th>tel</th>
-            <th>mail</th>
-            <th>note</th>
+            <th>data_registrazione</th>
+            <th>importo</th>
+            <th>causale</th>
+            <th>fattura</th>
             <th colspan="2">Operazioni</th>
         </tr>
         {% for b in filter_queryset %}
@@ -100,29 +104,16 @@
             <td>
                 <input type="checkbox" class="checks" name="b1" value={{b.id}}>
             </td>
-            <td>{{ b.nominativo }}</td>
-            <td>{{ b.tel }}</td>
-            <td>{{ b.mail }}</td>
-            <td>{{ b.note }}</td>
-            <td align="center"><a href="/UpdateCliente/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
-            <td align="center"><a href="/DeleteCliente/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Cliente ?')">X</a></td>
+            <td>{{ b.data_registrazione }}</td>
+            <td>{{ b.importo }} €</td>
+            <td>{{ b.causale }}</td>
+            <td>{{ b.fattura }}</td>
+            <td align="center"><a href="/UpdateSpesaGestione/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
+            <td align="center"><a href="/DeleteSpesaGestione/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Spesa di Gestione ?')">X</a></td>
         </tr>
         {% endfor %}
     </table>
-
-<!--<div class="pagination">-->
-        <!--<span class="step-links">-->
-            <!--{% if cl.has_previous %}-->
-                <!--<a href="?page=1">&laquo; Prima Pagina</a> /-->
-                <!--<a href="?page={{ cl.previous_page_number }}">Precedente</a>-->
-            <!--{% endif %}-->
-            <!--<span class="current">-->
-                <!--Page {{ cl.number }} of {{ cl.paginator.num_pages }}.-->
-            <!--</span>-->
-            <!--{% if cl.has_next %}-->
-                <!--<a href="?page={{ cl.next_page_number }}">Successiva</a> /-->
-                <!--<a href="?page={{ cl.paginator.num_pages }}">Ultima Pagina &raquo;</a>-->
-            <!--{% endif %}-->
-        <!--</span>-->
- <!--</div>-->
+    <div class="alert alert-primary" role="alert">
+        Totale degli importi: <a href="#" class="alert-link">{{sum_s}}</a>
+    </div>
 {% endblock %}

@@ -1,10 +1,7 @@
 {% extends 'base2.html' %}
 {% load static %}
-
 {% block title %}AllGuadagniEffettivi{% endblock title %}
-
 {% block name %}TABELLA DEI GUADAGNI EFFETTIVI{% endblock %}
-
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script type="text/javascript">
@@ -63,7 +60,6 @@
 
 {% block content %}
     <form method="get">
-        <!-- {{ filter.form.as_table }} -->
         <table border="5">
         {% for field in filter.form %}
             {% if forloop.counter|divisibleby:"2" %}
@@ -102,7 +98,7 @@
             <th>importo</th>
             <th colspan="2">Operazioni</th>
         </tr>
-        {% for b in ge %}
+        {% for b in filter_queryset %}
         <tr>
             <td>
                 <input type="checkbox" class="checks" name="b1" value={{b.id}}>

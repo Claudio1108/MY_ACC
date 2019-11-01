@@ -1,14 +1,10 @@
 {% extends 'base2.html' %}
 {% load static %}
-
 {% block title %}AllSpeseCommessa{% endblock title %}
-
 {% block name %}TABELLA DELLE SPESE DI COMMESSA{% endblock %}
-
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script type="text/javascript">
-
         	function selectAll(){
 				var items=document.getElementsByName('b1');
 				for(var i=0; i<items.length; i++){
@@ -58,13 +54,11 @@
                     }
                   }
             }
-
     </script>
 {% endblock %}
 
 {% block content %}
     <form method="get">
-        <!-- {{ filter.form.as_table }} -->
         <table border="5">
             {% for field in filter.form %}
                 {% if forloop.counter|divisibleby:"2" %}
@@ -105,14 +99,14 @@
             <th>note</th>
             <th colspan="2">Operazioni</th>
         </tr>
-        {% for b in sc %}
+        {% for b in filter_queryset %}
         <tr>
             <td>
                 <input type="checkbox" class="checks" name="b1" value={{b.id}}>
             </td>
             <td>{{ b.data_registrazione }}</td>
             <td>{{ b.importo }} €</td>
-            <td>{{ b.protocollo }}</td>
+            <td>{{ b.protocollo|default_if_none:'' }}</td>
             <td>{{ b.note|linebreaks }}</td>
             <td align="center"><a href="/UpdateSpesaCommessa/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
             <td align="center"><a href="/DeleteSpesaCommessa/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Spesa di Commessa ?')">X</a></td>

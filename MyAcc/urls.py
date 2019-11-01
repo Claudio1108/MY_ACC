@@ -20,7 +20,6 @@ from django.conf.urls import  url
 from Contabilita.views import ProtocolloAutocomplete, ClienteAutocomplete, ReferenteAutocomplete
 
 urlpatterns = [
-
     path('admin/', admin.site.urls),
     path('HomePage', contviews.viewHomePage, name='HomePage'),
     path('HomePageContabilita', contviews.viewHomePageContabilita, name='HomePageContabilita'),
@@ -38,7 +37,6 @@ urlpatterns = [
     url(r'^DeleteReferentiGroup/$', contviews.viewDeleteReferentiGroup, name='DeleteReferentiGroup'),
     path('UpdateReferente/<int:id>', contviews.viewUpdateReferente, name='UpdateReferente'),
     #Protocollo
-    #url(r'^AllProtocols/\?order=(?P<order>.*)&csrfmiddlewaretoken=(?P<csrfmiddlewaretoken>.*)$', contviews.viewAllProtocols, name='AllProtocols'),
     path('AllProtocols/', contviews.viewAllProtocols, name='AllProtocols'),
     path('CreateProtocol/', contviews.viewCreateProtocol, name='CreateProtocol'),
     path('DeleteProtocol/<int:id>', contviews.viewDeleteProtocol, name='DeleteProtocol'),
@@ -77,19 +75,16 @@ urlpatterns = [
     path('DeleteGuadagnoEffettivo/<int:id>', contviews.viewDeleteGuadagnoEffettivo, name='DeleteGuadagnoEffettivo'),
     url(r'^DeleteGuadagniEffettiviGroup/$', contviews.viewDeleteGuadagniEffettiviGroup, name='DeleteGuadagniEffettiviGroup'),
     path('UpdateGuadagnoEffettivo/<int:id>', contviews.viewUpdateGuadagnoEffettivo, name='UpdateGuadagnoEffettivo'),
-
     #Output
     path('ResocontoSpeseGestione/', contviews.viewResocontoSpeseGestione, name='ResocontoSpeseGestione'),
     path('ResocontoRicavi/', contviews.viewResocontoRicavi, name='ResocontoRicavi'),
     path('GestioneGuadagniEffettivi/', contviews.viewGestioneGuadagniEffettivi, name='GestioneGuadagniEffettivi'),
     path('ContabilitaProtocolli/', contviews.viewContabilitaProtocolli, name='ContabilitaProtocolli'),
-
     #Reporter
     url(r'^export_input_table/xls/\?list=(?P<list>.*)/\?model=(?P<model>.*)$', contviews.export_input_table_xls, name='export_input_table_xls'),
     url(r'^export_output_table/xls/\?numquery=(?P<numquery>.*)/\?year=(?P<year>.*)$', contviews.export_output_table_xls, name='export_output_table_xls'),
-
+    #Autocompletamento
     url(r'^proto-autocomp/$', ProtocolloAutocomplete.as_view(), name='proto_autocomp'),
     url(r'^cliente-autocomp/$', ClienteAutocomplete.as_view(), name='cliente_autocomp'),
     url(r'^referente-autocomp/$', ReferenteAutocomplete.as_view(), name='referente_autocomp')
-
 ]

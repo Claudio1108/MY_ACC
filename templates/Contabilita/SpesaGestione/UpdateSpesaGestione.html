@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}UpdateSpesaCommessa{% endblock title %}
-{% block name %}MODIFICA SPESA DI COMMESSA{% endblock %}
+{% block title %}UpdateSpesaGestione{% endblock title %}
+{% block name %}MODIFICA SPESA DI GESTIONE{% endblock %}
 {% block content %}
 
     <form method="post">
@@ -15,9 +15,4 @@
         <input type="submit" class="btn btn-primary" value="Modifica">
     </form>
 
-{% endblock %}
-
-{% block footer %}
-    <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
-    {{ form.media }}
 {% endblock %}

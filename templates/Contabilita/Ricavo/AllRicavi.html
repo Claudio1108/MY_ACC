@@ -1,10 +1,7 @@
 {% extends 'base2.html' %}
 {% load static %}
-
 {% block title %}AllRicavi{% endblock title %}
-
 {% block name %}TABELLA DEI RICAVI{% endblock %}
-
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script type="text/javascript">
@@ -70,7 +67,6 @@
     {% endif %}
 
     <form method="get">
-        <!--{{ filter.form.as_table }}-->
         <table border="5">
         {% for field in filter.form %}
             {% if forloop.counter|divisibleby:"3" %}
@@ -78,14 +74,11 @@
             {% else %}
                 <tr>{{ field.label }} {{ field }}</tr>&nbsp;&nbsp;&nbsp;
             {% endif %}
-
         {% endfor %}
         </table></br>
         <button type="submit">Filtra</button>
     </form>
-
     </br>
-
     <table align="left" style="width:100%">
         <tr>
             <td >
@@ -117,7 +110,7 @@
             <th>note</th>
             <th colspan="2">Operazioni</th>
         </tr>
-        {% for b in ricavi %}
+        {% for b in filter_queryset %}
         <tr>
             <td>
                 <input type="checkbox" class="checks" name="b1" value={{b.id}}>
@@ -126,8 +119,8 @@
             <td>{{ b.movimento }}</td>
             <td>{{ b.importo }} €</td>
             <td>{{ b.fattura }}</td>
-            <td>{{ b.intestatario_fattura }}</td>
-            <td>{{ b.protocollo }}</td>
+            <td>{{ b.intestatario_fattura|default_if_none:'' }}</td>
+            <td>{{ b.protocollo|default_if_none:'' }}</td>
             <td>{{ b.note|linebreaks }}</td>
             <td align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
             <td align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')">X</a></td>

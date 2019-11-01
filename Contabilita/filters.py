@@ -1,7 +1,6 @@
 import django_filters
 from .models import *
 
-
 def print_query_param(value, key):
    if value and key:
        return "%s=%s&" % (key, value)

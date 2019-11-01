@@ -1,10 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
-
 {% block title %}ResocontoSpeseGestione{% endblock title %}
-
 {% block name %}RESOCONTO DELLE SPESE DI GESTIONE{% endblock %}
-
 {% block content %}
 
     <table align="left" style="width:100%">
@@ -62,7 +59,6 @@
                     <td>{{ item.4 }}</td>
                 </tr>
             {% endif %}
-
         {% endfor %}
     </table>
 

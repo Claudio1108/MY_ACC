@@ -1,3 +1,4 @@
+from datetime import datetime
 from django import forms
 from .models import *
 from django.db import connection
@@ -39,7 +40,9 @@ class formProtocol(forms.ModelForm):
             "note": "Note ",
             "data_registrazione": "Data Registrazione* ",
             "data_scadenza": "Data Scadenza* ",
-            "data_consegna": "Data Consegna "}
+            "data_consegna": "Data Consegna ",
+            # "responsabile": "Responsabile* "
+        }
         widgets = {
             'data_registrazione': DateInput(),
             'data_scadenza': DateInput(),
@@ -59,7 +62,6 @@ class formProtocol(forms.ModelForm):
         data['status'] = value
         self.data = data
 
-
 class formProtocolUpdate(forms.ModelForm):
     class Meta:
         model = Protocollo
@@ -73,7 +75,9 @@ class formProtocolUpdate(forms.ModelForm):
             "note": "Note ",
             "data_registrazione": "Data Registrazione* ",
             "data_scadenza": "Data Scadenza* ",
-            "data_consegna": "Data Consegna "}
+            "data_consegna": "Data Consegna ",
+            # "responsabile": "Responsabile* "
+        }
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
             'identificativo': forms.HiddenInput(),
@@ -88,7 +92,7 @@ class formConsulenza(forms.ModelForm):
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
-            "cliente": "Cliente ",
+            "richiedente": "Richiedente ",
             "indirizzo": "Indirizzo* ",
             "attivita": "Attività* ",
             "compenso": "Compenso ",
@@ -106,14 +110,13 @@ class formConsulenza(forms.ModelForm):
         data['status'] = value
         self.data = data
 
-
 class formConsulenzaUpdate(forms.ModelForm):
     class Meta:
         model = Consulenza
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
-            "cliente": "Cliente ",
+            "richiedente": "Richiedente ",
             "indirizzo": "Indirizzo* ",
             "attivita": "Attività* ",
             "compenso": "Compenso ",
@@ -256,7 +259,7 @@ class formGuadagnoEffettivo(forms.ModelForm):
         model = GuadagnoEffettivo
         fields = "__all__"
         labels = {
-            "data_registrazione": "Data* ",
+            "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* "}
         widgets = {
             'data_registrazione': DateInput()}
@@ -266,10 +269,10 @@ class formGuadagnoEffettivoUpdate(forms.ModelForm):
         model = GuadagnoEffettivo
         fields = "__all__"
         labels = {
-            "data_registrazione": "Data* ",
+            "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* "}
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
 
 class form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(forms.Form):
-    year = forms.IntegerField(required = True)
+    year = forms.IntegerField(required = True, initial=datetime.now().year)

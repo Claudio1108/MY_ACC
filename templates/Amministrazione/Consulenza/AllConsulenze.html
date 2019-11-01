@@ -1,10 +1,7 @@
 {% extends 'base4.html' %}
 {% load static %}
-
 {% block title %}AllConsulenze{% endblock title %}
-
 {% block name %}TABELLA DELLE CONSULENZE{% endblock %}
-
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script type="text/javascript">
@@ -99,7 +96,6 @@
 
 {% block content %}
     <form method="get">
-        <!--{{ filter.form.as_table }}-->
         <table border="5">
         {% for field in filter.form %}
             {% if forloop.counter|divisibleby:"3" %}
@@ -144,21 +140,20 @@
             <th>data_consegna</th>
             <th colspan="2">Operazioni</th>
         </tr>
-        {% for b in con %}
-
-            {% if b.status is None %}
+        {% for b in filter_queryset %}
+            {% if b.data_consegna is not None %}
                 <tr style="background-color:white">
                     <td>
                         <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                     </td>
                     <td>{{ b.data_registrazione }}</td>
-                    <td>{{ b.cliente }}</td>
+                    <td>{{ b.richiedente }}</td>
                     <td>{{ b.indirizzo }}</td>
                     <td>{{ b.attivita }}</td>
                     <td>{{ b.compenso }}</td>
                     <td style='width: 200px; overflow: auto'>{{ b.note|linebreaks }}</td>
                     <td>{{ b.data_scadenza }}</td>
-                    <td>{{ b.data_consegna }}</td>
+                    <td>{{ b.data_consegna|default_if_none:'' }}</td>
                     <td align="center"><a href="/UpdateConsulenza/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
                     <td align="center"><a href="/DeleteConsulenza/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Consulenza ?')">X</a></td>
                 </tr>
@@ -169,13 +164,13 @@
                         <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                         </td>
                         <td>{{ b.data_registrazione }}</td>
-                        <td>{{ b.cliente }}</td>
+                        <td>{{ b.richiedente }}</td>
                         <td>{{ b.indirizzo }}</td>
                         <td>{{ b.attivita }}</td>
                         <td>{{ b.compenso }}</td>
                         <td style='width: 200px; overflow: auto'>{{ b.note|linebreaks }}</td>
                         <td>{{ b.data_scadenza }}</td>
-                        <td>{{ b.data_consegna }}</td>
+                        <td>{{ b.data_consegna|default_if_none:'' }}</td>
                         <td align="center"><a href="/UpdateConsulenza/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
                         <td align="center"><a href="/DeleteConsulenza/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Consulenza ?')">X</a></td>
                     </tr>
@@ -186,13 +181,13 @@
                                 <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                             </td>
                             <td>{{ b.data_registrazione }}</td>
-                            <td>{{ b.cliente }}</td>
+                            <td>{{ b.richiedente }}</td>
                             <td>{{ b.indirizzo }}</td>
                             <td>{{ b.attivita }}</td>
                             <td>{{ b.compenso }}</td>
                             <td style='width: 200px; overflow: auto'>{{ b.note|linebreaks }}</td>
                             <td>{{ b.data_scadenza }}</td>
-                            <td>{{ b.data_consegna }}</td>
+                            <td>{{ b.data_consegna|default_if_none:'' }}</td>
                             <td align="center"><a href="/UpdateConsulenza/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
                             <td align="center"><a href="/DeleteConsulenza/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Consulenza ?')">X</a></td>
                         </tr>
@@ -202,20 +197,19 @@
                                 <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                             </td>
                             <td>{{ b.data_registrazione }}</td>
-                            <td>{{ b.cliente }}</td>
+                            <td>{{ b.richiedente }}</td>
                             <td>{{ b.indirizzo }}</td>
                             <td>{{ b.attivita }}</td>
                             <td>{{ b.compenso }}</td>
                             <td style='width: 200px; overflow: auto'>{{ b.note|linebreaks }}</td>
                             <td>{{ b.data_scadenza }}</td>
-                            <td>{{ b.data_consegna }}</td>
+                            <td>{{ b.data_consegna|default_if_none:'' }}</td>
                             <td align="center"><a href="/UpdateConsulenza/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
                             <td align="center"><a href="/DeleteConsulenza/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Consulenza ?')">X</a></td>
                         </tr>
                     {% endif %}
                 {% endif %}
             {% endif %}
-
         {% endfor %}
     </table>
 

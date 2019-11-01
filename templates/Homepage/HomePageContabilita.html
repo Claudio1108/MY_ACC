@@ -1,10 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
-
 {% block title %}CONTABILITA'{% endblock title %}
-
 {% block name %}CONTABILITA' - STUDIO DOA{% endblock %}
-
 {% block content %}
 
     <div class="row">
@@ -19,35 +16,4 @@
         <div class="col-md-6"><h3>CONTROLLO CONTABILITA' DEI PROTOCOLLI</h3><a href="{% url 'ContabilitaProtocolli' %}"><img width="220" src="{% static 'images/protocolli.png'%}"></a></div>
     </div>
 
-<!--<footer class="footer-distributed">
-        <div class="footer-left">
-            <h3>C.A.<span>Labs</span></h3>
-            <p class="footer-company-name">C.A.Labs &copy; 2019</p>
-        </div>
-        <div class="footer-center">
-            <div>
-                <i class="fa fa-map-marker"></i>
-                <p><span>20 Paolo Paruta Street, 00179</span> Rome, Italy</p>
-            </div>
-            <div>
-                <i class="fa fa-phone"></i>
-                <p>+39 338 8648120</p>
-            </div>
-            <div>
-                <i class="fa fa-envelope"></i>
-                <p><a href="mailto:alicino.claudio@gmail.com">alicino.claudio@gmail.com</a></p>
-            </div>
-        </div>
-
-        <div class="footer-right">
-                <a href="https://docs.djangoproject.com/en/2.2/"><img width="100" src="{% static 'images/django.png'%}"></a>
-                <a href="https://getbootstrap.com/docs/4.1/getting-started/introduction/"><img width="35" src="{% static 'images/bootstrap.png'%}"></a>
-                <a href="https://docs.python.org/3.6/"><img width="130" src="{% static 'images/python.png'%}"></a>
-        </div>
-</footer> -->
-
 {% endblock %}
-
-
-
-

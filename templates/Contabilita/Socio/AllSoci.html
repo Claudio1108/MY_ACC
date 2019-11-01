@@ -1,10 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
-
 {% block title %}AllSoci{% endblock title %}
-
 {% block name %}TABELLA SOCI{% endblock %}
-
 {% block content %}
 
         {% if messages %}
@@ -32,7 +29,7 @@
                 <td>{{ b.nome }}</td>
                 <td>{{ b.cognome }}</td>
                 <td>{{ b.percentuale }}</td>
-                <td align="center"><a href="/UpdateSocio/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">UPDATE PERCENTUAL</a></td>
+                <td align="center"><a href="/UpdateSocio/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">MODIFICA PERCENTUALE</a></td>
             </tr>
             {% endfor %}
         </table>
