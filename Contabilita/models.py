@@ -1,10 +1,11 @@
 from django.db import models
+from ckeditor.fields import RichTextField
 
 class RubricaClienti(models.Model):
     nominativo = models.CharField(max_length=40) #obbligatorio
     tel = models.CharField(max_length=20) #obbligatorio
     mail = models.EmailField(max_length=50, blank=True)
-    note = models.TextField(blank=True)
+    note = RichTextField(null=True, blank=True)
 
     def __str__(self):
         return self.nominativo + "/" + self.tel + "/" + self.mail
@@ -13,7 +14,7 @@ class RubricaReferenti(models.Model):
     nominativo = models.CharField(max_length=40) #obbligatorio
     tel = models.CharField(max_length=20) #obbligatorio
     mail = models.EmailField(max_length=50, blank=True)
-    note = models.TextField(blank=True)
+    note = RichTextField(null=True, blank=True)
 
     def __str__(self):
         return self.nominativo + "/" + self.tel + "/" + self.mail
@@ -35,7 +36,7 @@ class Protocollo(models.Model):
     indirizzo = models.CharField(max_length=30) #obbligatorio
     pratica = models.CharField(max_length=20)   #obbligatorio
     parcella = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
-    note = models.TextField(blank=True)
+    note = RichTextField(null=True, blank=True)
     data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None) #obbligatorio
     data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     status = models.IntegerField(default=None)
@@ -53,7 +54,7 @@ class Ricavo(models.Model):
     movimento = models.CharField(max_length=15, choices=(('ACCONTO', 'ACCONTO'),('SALDO', 'SALDO')), default="", null=True, blank=True)
     importo = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
     fattura = models.CharField(max_length=2, choices=(('SI', 'SI'),('NO', 'NO')), default='NO')
-    note = models.TextField(blank=True)
+    note = RichTextField(null=True, blank=True)
     #foreign_key
     intestatario_fattura = models.ForeignKey(Socio, on_delete=models.CASCADE, related_name="sociofatturaricavo", null=True, blank=True)
     protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="ricavi", null=True, blank=True)
@@ -66,7 +67,7 @@ class SpesaCommessa(models.Model):
     importo = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
     # foreign_key
     protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="spesecommessa", null=True,blank=True)
-    note = models.TextField(blank=True)
+    note = RichTextField(null=True, blank=True)
 
     def __str__(self):
         return "id: "+str(self.id)
@@ -93,7 +94,7 @@ class Consulenza(models.Model):
     indirizzo = models.CharField(max_length=30)
     attivita = models.CharField(max_length=40)  #obbligatorio
     compenso = models.DecimalField(max_digits=14, decimal_places=2, blank=True, default=0)
-    note = models.TextField(blank=True)
+    note = RichTextField(null=True, blank=True)
     data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None)  #obbligatorio
     data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     status = models.IntegerField(default=None)

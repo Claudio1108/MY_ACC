@@ -3,6 +3,8 @@ bottle==0.12.17
 django-autocomplete-light==3.4.1
 django-filter==2.1.0
 django-widget-tweaks==1.4.5
+django-js-asset==1.2.2
+django-ckeditor==5.7.1
 pip==19.2.3
 pytz==2019.1
 setuptools==39.1.0

@@ -121,7 +121,7 @@
             <td>{{ b.fattura }}</td>
             <td>{{ b.intestatario_fattura|default_if_none:'' }}</td>
             <td>{{ b.protocollo|default_if_none:'' }}</td>
-            <td>{{ b.note|linebreaks }}</td>
+            <td>{{ b.note|safe }}</td>
             <td align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
             <td align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')">X</a></td>
         </tr>

@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django_filters',
     'dal',
     'dal_select2',
-
+    'ckeditor'
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

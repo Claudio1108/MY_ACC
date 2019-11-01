@@ -154,7 +154,7 @@
                     <td>{{ b.referente.nominativo }}</td>
                     <td>{{ b.indirizzo }}</td>
                     <td>{{ b.pratica }}</td>
-                    <td style='width: 200px; overflow: auto'>{{ b.note|linebreaks }}</td>
+                    <td style='width: 200px; overflow: auto'>{{ b.note|safe }}</td>
                     <td>{{ b.data_scadenza }}</td>
                     <td>{{ b.data_consegna|default_if_none:'' }}</td>
                     <td>{{ b.responsabile|default_if_none:'' }}</td>
@@ -173,7 +173,7 @@
                         <td>{{ b.referente.nominativo }}</td>
                         <td>{{ b.indirizzo }}</td>
                         <td>{{ b.pratica }}</td>
-                        <td style='width: 200px; overflow: auto'>{{ b.note|linebreaks }}</td>
+                        <td style='width: 200px; overflow: auto'>{{ b.note|safe }}</td>
                         <td>{{ b.data_scadenza }}</td>
                         <td>{{ b.data_consegna|default_if_none:'' }}</td>
                         <td>{{ b.responsabile|default_if_none:'' }}</td>
@@ -192,7 +192,7 @@
                             <td>{{ b.referente.nominativo }}</td>
                             <td>{{ b.indirizzo }}</td>
                             <td>{{ b.pratica }}</td>
-                            <td style='width: 200px; overflow: auto'>{{ b.note|linebreaks }}</td>
+                            <td style='width: 200px; overflow: auto'>{{ b.note|safe }}</td>
                             <td>{{ b.data_scadenza }}</td>
                             <td>{{ b.data_consegna|default_if_none:'' }}</td>
                             <td>{{ b.responsabile|default_if_none:'' }}</td>
@@ -210,7 +210,7 @@
                             <td>{{ b.referente.nominativo }}</td>
                             <td>{{ b.indirizzo }}</td>
                             <td>{{ b.pratica }}</td>
-                            <td style='width: 200px; overflow: auto'>{{ b.note|linebreaks }}</td>
+                            <td style='width: 200px; overflow: auto'>{{ b.note|safe }}</td>
                             <td>{{ b.data_scadenza }}</td>
                             <td>{{ b.data_consegna|default_if_none:'' }}</td>
                             <td>{{ b.responsabile|default_if_none:'' }}</td>
