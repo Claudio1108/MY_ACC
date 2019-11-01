@@ -130,14 +130,15 @@
     <table width="100%" border="1" cellpadding="10" cellspacing="0">
         <tr>
             <th></th>
-            <th>data_registrazione</th>
+            <th>registrazione</th>
             <th>richiedente</th>
             <th>indirizzo</th>
             <th>attività</th>
             <th>compenso</th>
             <th>note</th>
-            <th>data_scadenza</th>
-            <th>data_consegna</th>
+            <th>scadenza</th>
+            <th>consegna</th>
+            <th>responsabile</th>
             <th colspan="2">Operazioni</th>
         </tr>
         {% for b in filter_queryset %}
@@ -154,6 +155,7 @@
                     <td style='width: 200px; overflow: auto'>{{ b.note|linebreaks }}</td>
                     <td>{{ b.data_scadenza }}</td>
                     <td>{{ b.data_consegna|default_if_none:'' }}</td>
+                    <td>{{ b.responsabile|default_if_none:'' }}</td>
                     <td align="center"><a href="/UpdateConsulenza/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
                     <td align="center"><a href="/DeleteConsulenza/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Consulenza ?')">X</a></td>
                 </tr>
@@ -171,6 +173,7 @@
                         <td style='width: 200px; overflow: auto'>{{ b.note|linebreaks }}</td>
                         <td>{{ b.data_scadenza }}</td>
                         <td>{{ b.data_consegna|default_if_none:'' }}</td>
+                        <td>{{ b.responsabile|default_if_none:'' }}</td>
                         <td align="center"><a href="/UpdateConsulenza/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
                         <td align="center"><a href="/DeleteConsulenza/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Consulenza ?')">X</a></td>
                     </tr>
@@ -188,6 +191,7 @@
                             <td style='width: 200px; overflow: auto'>{{ b.note|linebreaks }}</td>
                             <td>{{ b.data_scadenza }}</td>
                             <td>{{ b.data_consegna|default_if_none:'' }}</td>
+                            <td>{{ b.responsabile|default_if_none:'' }}</td>
                             <td align="center"><a href="/UpdateConsulenza/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
                             <td align="center"><a href="/DeleteConsulenza/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Consulenza ?')">X</a></td>
                         </tr>
@@ -204,6 +208,7 @@
                             <td style='width: 200px; overflow: auto'>{{ b.note|linebreaks }}</td>
                             <td>{{ b.data_scadenza }}</td>
                             <td>{{ b.data_consegna|default_if_none:'' }}</td>
+                            <td>{{ b.responsabile|default_if_none:'' }}</td>
                             <td align="center"><a href="/UpdateConsulenza/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
                             <td align="center"><a href="/DeleteConsulenza/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Consulenza ?')">X</a></td>
                         </tr>

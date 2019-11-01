@@ -1,10 +1,6 @@
 import django_filters
 from .models import *
 
-def print_query_param(value, key):
-   if value and key:
-       return "%s=%s&" % (key, value)
-
 class ClienteFilter(django_filters.FilterSet):
     nominativo = django_filters.CharFilter(label='Nominativo', field_name='nominativo', lookup_expr='icontains')
 
@@ -21,6 +17,12 @@ class ProtocolloFilter(django_filters.FilterSet):
     data_consegna = django_filters.BooleanFilter(label='Data Consegna',field_name = 'data_consegna', lookup_expr='isnull', exclude=True)
     status = django_filters.RangeFilter(label='Stato Protocollo (min-max)gg ', field_name = 'status')
 
+    class Meta:
+        model = Protocollo
+        fields = {
+            'responsabile': ['exact'],
+        }
+
 class ConsulenzaFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione (start-end) dd/mm/yyyy')
     cliente = django_filters.CharFilter(label='Cliente', field_name='cliente', lookup_expr='icontains')
@@ -28,6 +30,12 @@ class ConsulenzaFilter(django_filters.FilterSet):
     attivita = django_filters.CharFilter(label='Attività', field_name='attivita', lookup_expr='icontains')
     data_consegna = django_filters.BooleanFilter(label='Data Consegna',field_name = 'data_consegna', lookup_expr='isnull', exclude=True)
     status = django_filters.RangeFilter(label='Stato Consulenza (min-max)gg ', field_name = 'status')
+
+    class Meta:
+        model = Consulenza
+        fields = {
+            'responsabile': ['exact'],
+        }
 
 class SpesaGestioneFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione (start-end) dd/mm/yyyy')

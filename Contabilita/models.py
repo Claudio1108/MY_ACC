@@ -40,7 +40,7 @@ class Protocollo(models.Model):
     data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     status = models.IntegerField(default=None)
     #foreign_key
-    # responsabile = models.ForeignKey(Socio, on_delete=models.CASCADE) #obbligatorio
+    responsabile = models.ForeignKey(Socio, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return str(self.identificativo)+" | "+str(self.indirizzo)
@@ -97,6 +97,8 @@ class Consulenza(models.Model):
     data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None)  #obbligatorio
     data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     status = models.IntegerField(default=None)
+    # foreign_key
+    responsabile = models.ForeignKey(Socio, on_delete=models.CASCADE, null=True, blank=True)
 
 class CalendarioContatore(models.Model):
     count = models.IntegerField()

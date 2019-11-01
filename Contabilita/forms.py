@@ -41,7 +41,7 @@ class formProtocol(forms.ModelForm):
             "data_registrazione": "Data Registrazione* ",
             "data_scadenza": "Data Scadenza* ",
             "data_consegna": "Data Consegna ",
-            # "responsabile": "Responsabile* "
+            "responsabile": "Responsabile "
         }
         widgets = {
             'data_registrazione': DateInput(),
@@ -76,7 +76,7 @@ class formProtocolUpdate(forms.ModelForm):
             "data_registrazione": "Data Registrazione* ",
             "data_scadenza": "Data Scadenza* ",
             "data_consegna": "Data Consegna ",
-            # "responsabile": "Responsabile* "
+            "responsabile": "Responsabile "
         }
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
@@ -98,7 +98,8 @@ class formConsulenza(forms.ModelForm):
             "compenso": "Compenso ",
             "note": "Note ",
             "data_scadenza": "Data Scadenza* ",
-            "data_consegna": "Data Consegna "}
+            "data_consegna": "Data Consegna ",
+            "responsabile": "Responsabile "}
         widgets = {
             'data_registrazione': DateInput(),
             'data_scadenza': DateInput(),
@@ -122,7 +123,8 @@ class formConsulenzaUpdate(forms.ModelForm):
             "compenso": "Compenso ",
             "note": "Note ",
             "data_scadenza": "Data Scadenza* ",
-            "data_consegna": "Data Consegna "}
+            "data_consegna": "Data Consegna ",
+            "responsabile": "Responsabile "}
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
             'status': forms.HiddenInput()}
