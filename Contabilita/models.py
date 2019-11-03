@@ -8,7 +8,7 @@ class RubricaClienti(models.Model):
     note = RichTextField(null=True, blank=True)
 
     def __str__(self):
-        return self.nominativo + "/" + self.tel + "/" + self.mail
+        return self.nominativo + "/" + self.tel
 
 class RubricaReferenti(models.Model):
     nominativo = models.CharField(max_length=40) #obbligatorio
@@ -17,7 +17,7 @@ class RubricaReferenti(models.Model):
     note = RichTextField(null=True, blank=True)
 
     def __str__(self):
-        return self.nominativo + "/" + self.tel + "/" + self.mail
+        return self.nominativo + "/" + self.tel
 
 class Socio(models.Model):
     nome = models.CharField(max_length=25)

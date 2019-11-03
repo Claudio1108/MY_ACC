@@ -102,15 +102,15 @@
         </tr>
         {% for b in filter_queryset %}
         <tr>
-            <td>
+            <td style='width: 35px; overflow: auto'>
                 <input type="checkbox" class="checks" name="b1" value={{b.id}}>
             </td>
-            <td>{{ b.nominativo }}</td>
-            <td>{{ b.tel }}</td>
-            <td>{{ b.mail }}</td>
-            <td>{{ b.note|safe }}</td>
-            <td align="center"><a href="/UpdateReferente/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
-            <td align="center"><a href="/DeleteReferente/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Referente ?')">X</a></td>
+            <td style='width: 250px; overflow: auto'>{{ b.nominativo }}</td>
+            <td style='width: 150px; overflow: auto'>{{ b.tel }}</td>
+            <td style='width: 250px; overflow: auto'>{{ b.mail }}</td>
+            <td style='width: 300px; overflow: auto'>{{ b.note|safe }}</td>
+            <td style='width: 50px; overflow: auto' align="center"><a href="/UpdateReferente/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
+            <td style='width: 50px; overflow: auto' align="center"><a href="/DeleteReferente/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Referente ?')">X</a></td>
         </tr>
         {% endfor %}
     </table>

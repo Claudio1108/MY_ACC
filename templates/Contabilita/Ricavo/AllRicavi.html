@@ -117,13 +117,13 @@
             </td>
             <td>{{ b.data_registrazione }}</td>
             <td>{{ b.movimento }}</td>
-            <td>{{ b.importo }} €</td>
+            <td style='width: 100px; overflow: auto'>{{ b.importo }} €</td>
             <td>{{ b.fattura }}</td>
             <td>{{ b.intestatario_fattura|default_if_none:'' }}</td>
             <td>{{ b.protocollo|default_if_none:'' }}</td>
             <td>{{ b.note|safe }}</td>
-            <td align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
-            <td align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')">X</a></td>
+            <td style='width: 50px; overflow: auto' align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
+            <td style='width: 50px; overflow: auto' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')">X</a></td>
         </tr>
         {% endfor %}
     </table>
