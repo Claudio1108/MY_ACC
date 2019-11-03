@@ -54,10 +54,10 @@ class Ricavo(models.Model):
     movimento = models.CharField(max_length=15, choices=(('ACCONTO', 'ACCONTO'),('SALDO', 'SALDO')), default="", null=True, blank=True)
     importo = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
     fattura = models.CharField(max_length=2, choices=(('SI', 'SI'),('NO', 'NO')), default='NO')
-    note = RichTextField(null=True, blank=True)
-    #foreign_key
+    # foreign_key
     intestatario_fattura = models.ForeignKey(Socio, on_delete=models.CASCADE, related_name="sociofatturaricavo", null=True, blank=True)
     protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="ricavi", null=True, blank=True)
+    note = RichTextField(null=True, blank=True)
 
     def __str__(self):
         return "id: "+str(self.id)
