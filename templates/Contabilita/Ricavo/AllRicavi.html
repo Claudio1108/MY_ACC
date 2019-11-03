@@ -112,7 +112,7 @@
         </tr>
         {% for b in filter_queryset %}
         <tr>
-            <td>
+            <td style='width: 35px; overflow: auto'>
                 <input type="checkbox" class="checks" name="b1" value={{b.id}}>
             </td>
             <td>{{ b.data_registrazione }}</td>

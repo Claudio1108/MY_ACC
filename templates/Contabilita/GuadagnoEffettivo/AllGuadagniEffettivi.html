@@ -100,13 +100,13 @@
         </tr>
         {% for b in filter_queryset %}
         <tr>
-            <td>
+            <td style='width: 35px; overflow: auto'>
                 <input type="checkbox" class="checks" name="b1" value={{b.id}}>
             </td>
             <td>{{ b.data_registrazione }}</td>
             <td>{{ b.importo }} €</td>
-            <td align="center"><a href="/UpdateGuadagnoEffettivo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
-            <td align="center"><a href="/DeleteGuadagnoEffettivo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Guadagno Effettivo ?')">X</a></td>
+            <td style='width: 50px; overflow: auto' align="center"><a href="/UpdateGuadagnoEffettivo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
+            <td style='width: 50px; overflow: auto' align="center"><a href="/DeleteGuadagnoEffettivo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Guadagno Effettivo ?')">X</a></td>
         </tr>
         {% endfor %}
     </table>
