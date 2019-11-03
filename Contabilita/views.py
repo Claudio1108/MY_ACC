@@ -822,13 +822,13 @@ def export_input_table_xls(request,list,model):
     if model == 'consulenza':
         rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'cliente', 'referente', 'indirizzo', 'attivita', 'compenso', 'note', 'data_scadenza', 'data_consegna')
     if model == 'rubricaclienti':
-        rows = RubricaClienti.objects.filter(id__in=re.findall("(\d+)", list)).values_list('nominativo', 'tel', 'mail', 'note')
+        rows = RubricaClienti.objects.filter(tel__in=re.findall("(\d+)", list)).values_list('nominativo', 'tel', 'mail', 'note')
     if model == 'rubricareferenti':
-        rows = RubricaReferenti.objects.filter(id__in=re.findall("(\d+)", list)).values_list('nominativo', 'tel', 'mail', 'note')
+        rows = RubricaReferenti.objects.filter(tel__in=re.findall("(\d+)", list)).values_list('nominativo', 'tel', 'mail', 'note')
     for row in rows:
         row_num += 1
         for col_num in range(len(row)):
-            ws.write(row_num, col_num, str(row[col_num]), font_style)
+            ws.write(row_num, col_num, str(row[col_num]).replace("None",''), font_style)
     wb.save(response)
     return response
 
@@ -871,6 +871,6 @@ def export_output_table_xls(request, numquery, year):
     for row in rows:
         row_num += 1
         for col_num in range(len(row)):
-            ws.write(row_num, col_num, str(row[col_num]), font_style)
+            ws.write(row_num, col_num, str(row[col_num]).replace("None",''), font_style)
     wb.save(response)
     return response
