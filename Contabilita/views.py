@@ -787,12 +787,12 @@ def viewContabilitaProtocolli(request):
     return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': execute_query_4()})
 
 def export_input_table_xls(request,list,model):
-    fields_models = { 'protocollo': ['Identificativo', 'Data Registrazione', 'Cliente', 'Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Scadenza', 'Data Consegna'],
+    fields_models = { 'protocollo': ['Identificativo', 'Data Registrazione', 'Cliente', 'Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Scadenza', 'Data Consegna', 'Responsabile'],
                       'ricavo' : ['Data Registrazione','Movimento','Importo','Fattura','Intestatario Fattura','Protocollo', 'Note'],
                       'spesacommessa' : ['Data Registrazione','Importo','Protocollo', 'Note'],
                       'spesagestione' : ['Data Registrazione', 'Importo', 'Causale', 'Fattura'],
                       'guadagnoeffettivo' : ['Data Registrazione', 'Importo'],
-                      'consulenza' : ['Data Registrazione', 'Cliente', 'Referente', 'Indirizzo', 'Attivita', 'Compenso', 'Note', 'Data Scadenza', 'Data Consegna'],
+                      'consulenza' : ['Data Registrazione', 'Richiedente', 'Indirizzo', 'Attivita', 'Compenso', 'Note', 'Data Scadenza', 'Data Consegna', 'Responsabile'],
                       'rubricaclienti' : ['Nominativo', 'Telefono', 'Mail', 'Note'],
                       'rubricareferenti' : ['Nominativo', 'Telefono', 'Mail', 'Note']}
     name_file = request.POST.get("fname")
@@ -810,7 +810,7 @@ def export_input_table_xls(request,list,model):
     # Sheet body, remaining rows
     font_style = xlwt.XFStyle()
     if model == 'protocollo':
-        rows = Protocollo.objects.filter(identificativo__in = re.findall("(\d+-\d+)",list)).values_list('identificativo', 'data_registrazione', 'cliente', 'referente', 'indirizzo', 'pratica', 'parcella', 'note','data_scadenza' , 'data_consegna')
+        rows = Protocollo.objects.filter(identificativo__in = re.findall("(\d+-\d+)",list)).values_list('identificativo', 'data_registrazione', 'cliente', 'referente', 'indirizzo', 'pratica', 'parcella', 'note','data_scadenza' , 'data_consegna', 'responsabile')
     if model == 'ricavo':
         rows = Ricavo.objects.filter(id__in = re.findall("(\d+)",list)).values_list('data_registrazione', 'movimento', 'importo', 'fattura', 'intestatario_fattura', 'protocollo', 'note')
     if model == 'spesacommessa':
@@ -820,7 +820,7 @@ def export_input_table_xls(request,list,model):
     if model == 'guadagnoeffettivo':
         rows = GuadagnoEffettivo.objects.filter(id__in = re.findall("(\d+)",list)).values_list('data_registrazione', 'importo')
     if model == 'consulenza':
-        rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'cliente', 'referente', 'indirizzo', 'attivita', 'compenso', 'note', 'data_scadenza', 'data_consegna')
+        rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'richiedente', 'indirizzo', 'attivita', 'compenso', 'note', 'data_scadenza', 'data_consegna', 'responsabile')
     if model == 'rubricaclienti':
         rows = RubricaClienti.objects.filter(tel__in=re.findall("(\d+)", list)).values_list('nominativo', 'tel', 'mail', 'note')
     if model == 'rubricareferenti':
@@ -828,7 +828,7 @@ def export_input_table_xls(request,list,model):
     for row in rows:
         row_num += 1
         for col_num in range(len(row)):
-            ws.write(row_num, col_num, str(row[col_num]).replace("None",''), font_style)
+            ws.write(row_num, col_num, re.sub(r'<[^<]+?>', '', str(row[col_num]).replace("None", '')), font_style)
     wb.save(response)
     return response
 

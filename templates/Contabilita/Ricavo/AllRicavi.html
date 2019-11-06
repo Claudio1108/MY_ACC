@@ -69,7 +69,7 @@
     <form method="get">
         <table border="5">
         {% for field in filter.form %}
-            {% if forloop.counter|divisibleby:"3" %}
+            {% if forloop.counter|divisibleby:"2" %}
                 <tr>{{ field.label }} {{ field }}</tr></br></br>
             {% else %}
                 <tr>{{ field.label }} {{ field }}</tr>&nbsp;&nbsp;&nbsp;
