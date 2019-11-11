@@ -90,26 +90,26 @@
         </tr>
     </table>
 
-    <table width="100%" border="1" cellpadding="10" cellspacing="0">
+    <table width="100%" border="1" cellpadding="5" cellspacing="0">
         <tr>
             <th></th>
             <th>registrazione</th>
             <th>importo</th>
-            <th>protocollo</th>
-            <th>note</th>
+            <th style='width: 350px; overflow: auto'>protocollo</th>
+            <th style='width: 500px; overflow: auto'>note</th>
             <th colspan="2">Operazioni</th>
         </tr>
         {% for b in filter_queryset %}
         <tr>
-            <td style='width: 35px; overflow: auto'>
+            <td style='width: 10px;'>
                 <input type="checkbox" class="checks" name="b1" value={{b.id}}>
             </td>
             <td>{{ b.data_registrazione }}</td>
             <td>{{ b.importo }} €</td>
-            <td>{{ b.protocollo|default_if_none:'' }}</td>
-            <td>{{ b.note|safe }}</td>
-            <td style='width: 50px; overflow: auto' align="center"><a href="/UpdateSpesaCommessa/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
-            <td style='width: 50px; overflow: auto' align="center"><a href="/DeleteSpesaCommessa/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Spesa di Commessa ?')">X</a></td>
+            <td style='width: 350px; overflow: auto'>{{ b.protocollo|default_if_none:'' }}</td>
+            <td style='width: 500px; overflow: auto'>{{ b.note|safe }}</td>
+            <td style='width: 15px;' align="center"><a href="/UpdateSpesaCommessa/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
+            <td style='width: 15px;' align="center"><a href="/DeleteSpesaCommessa/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Spesa di Commessa ?')">X</a></td>
         </tr>
         {% endfor %}
     </table>

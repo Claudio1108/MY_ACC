@@ -8,7 +8,7 @@ from .filters import *
 from datetime import date,datetime
 from django.http import HttpResponse
 from dal import autocomplete
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+# from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 class ProtocolloAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
@@ -173,7 +173,6 @@ def viewCreateProtocol(request):
             form.set_status(0)
         else:
             form.set_status((data_scadenza - today).days)
-
         if(form.is_valid()):
             form.save()
             return redirect('AllProtocols')
@@ -787,9 +786,9 @@ def viewContabilitaProtocolli(request):
     return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': execute_query_4()})
 
 def export_input_table_xls(request,list,model):
-    fields_models = { 'protocollo': ['Identificativo', 'Data Registrazione', 'Cliente', 'Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Scadenza', 'Data Consegna', 'Responsabile'],
-                      'ricavo' : ['Data Registrazione','Movimento','Importo','Fattura','Intestatario Fattura','Protocollo', 'Note'],
-                      'spesacommessa' : ['Data Registrazione','Importo','Protocollo', 'Note'],
+    fields_models = { 'protocollo': ['Identificativo', 'Data Registrazione', 'Nominativo Cliente', 'Telefono Cliente', 'Nominativo Referente', 'Telefono Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Scadenza', 'Data Consegna', 'Responsabile'],
+                      'ricavo' : ['Data Registrazione','Movimento','Importo','Fattura','Intestatario Fattura','Id Protocollo', 'Indirizzo Protocollo', 'Note'],
+                      'spesacommessa' : ['Data Registrazione','Importo','Id Protocollo', 'Indirizzo Protocollo', 'Note'],
                       'spesagestione' : ['Data Registrazione', 'Importo', 'Causale', 'Fattura'],
                       'guadagnoeffettivo' : ['Data Registrazione', 'Importo'],
                       'consulenza' : ['Data Registrazione', 'Richiedente', 'Indirizzo', 'Attivita', 'Compenso', 'Note', 'Data Scadenza', 'Data Consegna', 'Responsabile'],
@@ -810,17 +809,17 @@ def export_input_table_xls(request,list,model):
     # Sheet body, remaining rows
     font_style = xlwt.XFStyle()
     if model == 'protocollo':
-        rows = Protocollo.objects.filter(identificativo__in = re.findall("(\d+-\d+)",list)).values_list('identificativo', 'data_registrazione', 'cliente', 'referente', 'indirizzo', 'pratica', 'parcella', 'note','data_scadenza' , 'data_consegna', 'responsabile')
+        rows = Protocollo.objects.filter(identificativo__in = re.findall("(\d+-\d+)",list)).values_list('identificativo', 'data_registrazione', 'cliente__nominativo', 'cliente__tel', 'referente__nominativo', 'referente__tel', 'indirizzo', 'pratica', 'parcella', 'note','data_scadenza' , 'data_consegna', 'responsabile__cognome')
     if model == 'ricavo':
-        rows = Ricavo.objects.filter(id__in = re.findall("(\d+)",list)).values_list('data_registrazione', 'movimento', 'importo', 'fattura', 'intestatario_fattura', 'protocollo', 'note')
+        rows = Ricavo.objects.filter(id__in = re.findall("(\d+)",list)).values_list('data_registrazione', 'movimento', 'importo', 'fattura', 'intestatario_fattura__cognome', 'protocollo__identificativo', 'protocollo__indirizzo', 'note')
     if model == 'spesacommessa':
-        rows = SpesaCommessa.objects.filter(id__in = re.findall("(\d+)",list)).values_list('data_registrazione', 'importo', 'protocollo', 'note')
+        rows = SpesaCommessa.objects.filter(id__in = re.findall("(\d+)",list)).values_list('data_registrazione', 'importo', 'protocollo__identificativo', 'protocollo__indirizzo', 'note')
     if model == 'spesagestione':
         rows = SpesaGestione.objects.filter(id__in = re.findall("(\d+)",list)).values_list('data_registrazione', 'importo', 'causale', 'fattura')
     if model == 'guadagnoeffettivo':
         rows = GuadagnoEffettivo.objects.filter(id__in = re.findall("(\d+)",list)).values_list('data_registrazione', 'importo')
     if model == 'consulenza':
-        rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'richiedente', 'indirizzo', 'attivita', 'compenso', 'note', 'data_scadenza', 'data_consegna', 'responsabile')
+        rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'richiedente', 'indirizzo', 'attivita', 'compenso', 'note', 'data_scadenza', 'data_consegna', 'responsabile__cognome')
     if model == 'rubricaclienti':
         rows = RubricaClienti.objects.filter(tel__in=re.findall("(\d+)", list)).values_list('nominativo', 'tel', 'mail', 'note')
     if model == 'rubricareferenti':
@@ -868,6 +867,7 @@ def export_output_table_xls(request, numquery, year):
     font_style.font.bold = True
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], font_style)
+    font_style = xlwt.XFStyle()
     for row in rows:
         row_num += 1
         for col_num in range(len(row)):
