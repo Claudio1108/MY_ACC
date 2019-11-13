@@ -569,6 +569,8 @@ def viewResocontoSpeseGestione(request):
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
         if (form.is_valid()):
             return render(request, "Contabilita/ResocontoSpeseGestione.html", {'form': form, 'tabella_output1': execute_query_1(form['year'].value()), 'year': form['year'].value()})
+        else:
+            return render(request, "Contabilita/ResocontoSpeseGestione.html", {'form': form, 'tabella_output1': []})
     else:
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi()
         return render(request, "Contabilita/ResocontoSpeseGestione.html", {'form': form, 'tabella_output1':[]})
@@ -637,6 +639,8 @@ def viewResocontoRicavi(request):
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
         if (form.is_valid()):
             return render(request, "Contabilita/ResocontoRicavi.html", {'form': form, 'tabella_output2': execute_query_2(form['year'].value()), 'year': form['year'].value()})
+        else:
+            return render(request, "Contabilita/ResocontoRicavi.html", {'form': form, 'tabella_output2': []})
     else:
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi()
         return render(request, "Contabilita/ResocontoRicavi.html", {'form': form, 'tabella_output2':[]})
@@ -759,6 +763,8 @@ def viewGestioneGuadagniEffettivi(request):
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
         if (form.is_valid()):
             return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': execute_query_3(form['year'].value()), 'year': form['year'].value()})
+        else:
+            return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': []})
     else:
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi()
         return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': []})
