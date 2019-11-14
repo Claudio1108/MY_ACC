@@ -106,3 +106,13 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 #STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+LOGIN_REDIRECT_URL = 'HomePage'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# i due parametri seguenti possono essere usati in combinazione
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# se impostato a True, la sessione scade alla chiusura di tutte le finestre del browser.
+# se impostato a False, il cookie viene memorizzato permanentemente sul browser e non bisognerà più reinserire le credenziali.
+SESSION_COOKIE_AGE = 20
+# la sessione scade dopo n secondi. Dopo un tempo stabilito per poter utilizzare il sito andranno reinserite le credenziali.

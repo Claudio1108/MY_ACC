@@ -23,6 +23,7 @@ from Contabilita.views import ProtocolloAutocomplete, ClienteAutocomplete, Refer
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^favicon\.ico$',RedirectView.as_view(url='/static/images/favicon.ico')),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('HomePage', contviews.viewHomePage, name='HomePage'),
     path('HomePageContabilita', contviews.viewHomePageContabilita, name='HomePageContabilita'),
     path('HomePageAmministrazione', contviews.viewHomePageAmministrazione, name='HomePageAmministrazione'),
