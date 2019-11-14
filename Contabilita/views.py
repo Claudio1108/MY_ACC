@@ -51,7 +51,7 @@ def viewHomePageAmministrazione(request):
 
 def viewAllClienti(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         clienti = RubricaClienti.objects.all()
         cliente_filter = ClienteFilter(request.GET, queryset=clienti.order_by("-nominativo"))
@@ -68,7 +68,7 @@ def viewAllClienti(request):
 
 def viewCreateCliente(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if(request.method == "POST"):
             form = formCliente(request.POST)
@@ -83,7 +83,7 @@ def viewCreateCliente(request):
 
 def viewDeleteCliente(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         cliente = RubricaClienti.objects.get(id=id)
         cliente.delete()
@@ -91,7 +91,7 @@ def viewDeleteCliente(request,id):
 
 def viewDeleteClientiGroup(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if request.method == "POST":
             tasks = request.POST.getlist('list[]')
@@ -102,7 +102,7 @@ def viewDeleteClientiGroup(request):
 
 def viewUpdateCliente(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
             cliente = RubricaClienti.objects.get(id=id)
@@ -119,7 +119,7 @@ def viewUpdateCliente(request,id):
 
 def viewAllReferenti(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         referenti = RubricaReferenti.objects.all()
         referente_filter = ReferenteFilter(request.GET, queryset=referenti.order_by("-nominativo"))
@@ -127,7 +127,7 @@ def viewAllReferenti(request):
 
 def viewCreateReferente(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if(request.method == "POST"):
             form = formReferente(request.POST)
@@ -142,7 +142,7 @@ def viewCreateReferente(request):
 
 def viewDeleteReferente(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         referente = RubricaReferenti.objects.get(id=id)
         referente.delete()
@@ -150,7 +150,7 @@ def viewDeleteReferente(request,id):
 
 def viewDeleteReferentiGroup(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if request.method == "POST":
             tasks = request.POST.getlist('list[]')
@@ -161,7 +161,7 @@ def viewDeleteReferentiGroup(request):
 
 def viewUpdateReferente(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
             referente = RubricaReferenti.objects.get(id=id)
@@ -178,7 +178,7 @@ def viewUpdateReferente(request,id):
 
 def viewAllProtocols(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         protocolli = Protocollo.objects.all()
         sum_parcelle = 0
@@ -199,7 +199,7 @@ def viewAllProtocols(request):
 
 def viewCreateProtocol(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if(request.method == "POST"):
             form = formProtocol(request.POST)
@@ -229,7 +229,7 @@ def viewCreateProtocol(request):
 
 def viewDeleteProtocol(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         protocol = Protocollo.objects.get(id=id)
         protocol.delete()
@@ -237,7 +237,7 @@ def viewDeleteProtocol(request,id):
 
 def viewDeleteProtocolsGroup(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if request.method == "POST":
             tasks = request.POST.getlist('list[]')
@@ -248,7 +248,7 @@ def viewDeleteProtocolsGroup(request):
 
 def viewUpdateProtocol(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
             protocol = Protocollo.objects.get(id=id)
@@ -265,7 +265,7 @@ def viewUpdateProtocol(request,id):
 
 def viewAllConsulenze(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         consulenze = Consulenza.objects.all()
         sum_compensi = 0
@@ -286,7 +286,7 @@ def viewAllConsulenze(request):
 
 def viewCreateConsulenza(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if(request.method == "POST"):
             form = formConsulenza(request.POST)
@@ -309,7 +309,7 @@ def viewCreateConsulenza(request):
 
 def viewDeleteConsulenza(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         consulenza = Consulenza.objects.get(id=id)
         consulenza.delete()
@@ -317,7 +317,7 @@ def viewDeleteConsulenza(request,id):
 
 def viewDeleteConsulenzeGroup(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if request.method == "POST":
             tasks = request.POST.getlist('list[]')
@@ -328,7 +328,7 @@ def viewDeleteConsulenzeGroup(request):
 
 def viewUpdateConsulenza(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
             consulenza = Consulenza.objects.get(id=id)
@@ -345,7 +345,7 @@ def viewUpdateConsulenza(request,id):
 
 def viewAllRicavi(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         ricavi = Ricavo.objects.all()
         ricavo_filter = RicavoFilter(request.GET, queryset=ricavi.order_by("-data_registrazione"))
@@ -357,7 +357,7 @@ def viewAllRicavi(request):
 
 def viewCreateRicavo(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if(request.method == "POST"):
             form = formRicavo(request.POST)
@@ -379,7 +379,7 @@ def viewCreateRicavo(request):
 
 def viewDeleteRicavo(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         ricavo = Ricavo.objects.get(id=id)
         ricavo.delete()
@@ -387,7 +387,7 @@ def viewDeleteRicavo(request,id):
 
 def viewDeleteRicaviGroup(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if request.method == "POST":
             tasks = request.POST.getlist('list[]')
@@ -398,7 +398,7 @@ def viewDeleteRicaviGroup(request):
 
 def viewUpdateRicavo(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
             ricavo = Ricavo.objects.get(id=id)
@@ -418,7 +418,7 @@ def viewUpdateRicavo(request,id):
 
 def viewAllSpeseCommessa(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         spesecommessa = SpesaCommessa.objects.all()
         spesacommessa_filter = SpesaCommessaFilter(request.GET, queryset=spesecommessa.order_by("-data_registrazione"))
@@ -429,7 +429,7 @@ def viewAllSpeseCommessa(request):
 
 def viewCreateSpesaCommessa(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if(request.method == "POST"):
             form = formSpesaCommessa(request.POST)
@@ -444,7 +444,7 @@ def viewCreateSpesaCommessa(request):
 
 def viewDeleteSpesaCommessa(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         spesacommessa = SpesaCommessa.objects.get(id=id)
         spesacommessa.delete()
@@ -452,7 +452,7 @@ def viewDeleteSpesaCommessa(request,id):
 
 def viewDeleteSpeseCommessaGroup(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if request.method == "POST":
             tasks = request.POST.getlist('list[]')
@@ -463,7 +463,7 @@ def viewDeleteSpeseCommessaGroup(request):
 
 def viewUpdateSpesaCommessa(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
             spesacommessa = SpesaCommessa.objects.get(id=id)
@@ -480,14 +480,14 @@ def viewUpdateSpesaCommessa(request,id):
 
 def viewAllSoci(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         soci = Socio.objects.all().order_by("-percentuale")
         return render(request, "Contabilita/Socio/AllSoci.html", { "tabella_soci" : soci })
 
 def viewUpdateSocio(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
             socio = Socio.objects.get(id=id)
@@ -518,7 +518,7 @@ def viewUpdateSocio(request,id):
 
 def viewAllSpeseGestione(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         spesegestione = SpesaGestione.objects.all()
         spesagestione_filter = SpesaGestioneFilter(request.GET, queryset=spesegestione.order_by("-data_registrazione"))
@@ -529,7 +529,7 @@ def viewAllSpeseGestione(request):
 
 def viewCreateSpesaGestione(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if(request.method == "POST"):
             form = formSpesaGestione(request.POST)
@@ -544,7 +544,7 @@ def viewCreateSpesaGestione(request):
 
 def viewDeleteSpesaGestione(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         spesagestione = SpesaGestione.objects.get(id=id)
         spesagestione.delete()
@@ -552,7 +552,7 @@ def viewDeleteSpesaGestione(request,id):
 
 def viewDeleteSpeseGestioneGroup(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if request.method == "POST":
             tasks = request.POST.getlist('list[]')
@@ -563,7 +563,7 @@ def viewDeleteSpeseGestioneGroup(request):
 
 def viewUpdateSpesaGestione(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
             spesagestione = SpesaGestione.objects.get(id=id)
@@ -580,7 +580,7 @@ def viewUpdateSpesaGestione(request,id):
 
 def viewAllGuadagniEffettivi(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         guadagnieffettivi = GuadagnoEffettivo.objects.all()
         guadagnoeffettivo_filter = GuadagnoEffettivoFilter(request.GET, queryset=guadagnieffettivi.order_by("-data_registrazione"))
@@ -591,7 +591,7 @@ def viewAllGuadagniEffettivi(request):
 
 def viewCreateGuadagnoEffettivo(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if(request.method == "POST"):
             form = formGuadagnoEffettivo(request.POST)
@@ -606,7 +606,7 @@ def viewCreateGuadagnoEffettivo(request):
 
 def viewDeleteGuadagnoEffettivo(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         guadagnoefettivo = GuadagnoEffettivo.objects.get(id=id)
         guadagnoefettivo.delete()
@@ -614,7 +614,7 @@ def viewDeleteGuadagnoEffettivo(request,id):
 
 def viewDeleteGuadagniEffettiviGroup(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if request.method == "POST":
             tasks = request.POST.getlist('list[]')
@@ -625,7 +625,7 @@ def viewDeleteGuadagniEffettiviGroup(request):
 
 def viewUpdateGuadagnoEffettivo(request,id):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
             guadagnoeffettivo = GuadagnoEffettivo.objects.get(id=id)
@@ -701,7 +701,7 @@ def execute_query_1(year):
 
 def viewResocontoSpeseGestione(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
             form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
@@ -774,7 +774,7 @@ def execute_query_2(year):
 
 def viewResocontoRicavi(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
             form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
@@ -901,7 +901,7 @@ def execute_query_3(year):
 
 def viewGestioneGuadagniEffettivi(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
             form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
@@ -934,7 +934,7 @@ def execute_query_4():
 
 def viewContabilitaProtocolli(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect("/accounts/login/")
     else:
         return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': execute_query_4()})
 
