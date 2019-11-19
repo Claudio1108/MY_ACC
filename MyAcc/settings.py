@@ -22,7 +22,7 @@ SECRET_KEY = '%c%tj3bv#%dpyp^w)bx3zfg3$6g=!xrgh0m(&tll3nj5f8sk!3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.43.60', '192.168.43.143']
 #ALLOWED_HOSTS = ['calicino.pythonanywhere.com']
 
 # Application definition
@@ -114,5 +114,5 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # se impostato a True, la sessione scade alla chiusura di tutte le finestre del browser.
 # se impostato a False, il cookie viene memorizzato permanentemente sul browser e non bisognerà più reinserire le credenziali.
-SESSION_COOKIE_AGE = 20
+SESSION_COOKIE_AGE = 3600
 # la sessione scade dopo n secondi. Dopo un tempo stabilito per poter utilizzare il sito andranno reinserite le credenziali.
