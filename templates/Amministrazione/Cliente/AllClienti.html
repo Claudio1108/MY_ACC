@@ -104,8 +104,8 @@
             <td style='width: 150px; overflow: auto'>{{ b.tel }}</td>
             <td style='width: 250px; overflow: auto'>{{ b.mail }}</td>
             <td style='width: 300px; overflow: auto'>{{ b.note|safe }}</td>
-            <td style='width: 15px;' align="center"><a href="/UpdateReferente/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
-            <td style='width: 15px;' align="center"><a href="/DeleteReferente/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Referente ?')">X</a></td>
+            <td style='width: 15px;' align="center"><a href="/UpdateCliente/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
+            <td style='width: 15px;' align="center"><a href="/DeleteCliente/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Cliente ?')">X</a></td>
         </tr>
         {% endfor %}
     </table>
