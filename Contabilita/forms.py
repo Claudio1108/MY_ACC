@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from django import forms
 from .models import *
@@ -132,7 +133,7 @@ class formConsulenzaUpdate(forms.ModelForm):
 class formRicavo(forms.ModelForm):
     class Meta:
         model = Ricavo
-        fields = ('data_registrazione','movimento','importo','fattura','intestatario_fattura', 'protocollo', 'note')
+        fields = ('data_registrazione','movimento','importo','fattura','intestatario_fattura', 'protocollo', 'note', 'destinazione')
         labels = {
             "data_registrazione": "Data Registrazione* ",
             "movimento": "Movimento ",
@@ -140,7 +141,8 @@ class formRicavo(forms.ModelForm):
             "fattura": "Fattura ",
             "intestatario_fattura": "Intestatario Fattura ",
             "protocollo": "Protocollo ",
-            "note": "Note "}
+            "note": "Note ",
+            "destinazione": "Destinazione "}
         widgets = {
             'data_registrazione': DateInput(),
             'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
@@ -175,22 +177,22 @@ class formRicavoUpdate(forms.ModelForm):
             "fattura": "Fattura ",
             "intestatario_fattura": "Intestatario Fattura ",
             "protocollo": "Protocollo ",
-            "note": "Note "}
+            "note": "Note ",
+            "destinazione": "Destinazione "}
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
             'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
 
-    def Check1(self):
+    def Check2(self, id_ricavo):
         id_protocollo = self.data['protocollo']
         protocollo = Protocollo.objects.get(id=id_protocollo)
         query="""SELECT coalesce(sum(r.importo),0) as tot
                  FROM Contabilita_ricavo r
-                 WHERE r.protocollo_id={}""".format(str(id_protocollo))
+                 WHERE r.protocollo_id={} AND r.id!={}""".format(str(id_protocollo), re.findall("(\d+)", str(id_ricavo))[0])
 
         cursor = connection.cursor()
         cursor.execute(query);
         rows = cursor.fetchone()
-
         x=rows[0]
         y=float(self.data['importo'])
         z=protocollo.parcella
@@ -207,7 +209,8 @@ class formSpesaCommessa(forms.ModelForm):
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
             "protocollo": "Protocollo ",
-            "note": "Note "}
+            "note": "Note ",
+            "provenienza": "Provenienza "}
         widgets = {
             'data_registrazione': DateInput(),
             'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
@@ -220,7 +223,8 @@ class formSpesaCommessaUpdate(forms.ModelForm):
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
             "protocollo": "Protocollo ",
-            "note": "Note "}
+            "note": "Note ",
+            "provenienza": "Provenienza "}
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
             'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
@@ -240,7 +244,8 @@ class formSpesaGestione(forms.ModelForm):
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
             "causale": "Causale ",
-            "fattura": "Fattura ",}
+            "fattura": "Fattura ",
+            "provenienza": "Provenienza "}
         widgets = {
             'data_registrazione': DateInput()}
 
@@ -252,7 +257,8 @@ class formSpesaGestioneUpdate(forms.ModelForm):
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
             "causale": "Causale ",
-            "fattura": "Fattura ", }
+            "fattura": "Fattura ",
+            "provenienza": "Provenienza "}
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
 
@@ -262,7 +268,8 @@ class formGuadagnoEffettivo(forms.ModelForm):
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
-            "importo": "Importo* "}
+            "importo": "Importo* ",
+            "provenienza": "Provenienza "}
         widgets = {
             'data_registrazione': DateInput()}
 
@@ -272,7 +279,8 @@ class formGuadagnoEffettivoUpdate(forms.ModelForm):
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
-            "importo": "Importo* "}
+            "importo": "Importo* ",
+            "provenienza": "Provenienza "}
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
 

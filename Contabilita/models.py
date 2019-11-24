@@ -34,7 +34,7 @@ class Protocollo(models.Model):
     cliente = models.ForeignKey(RubricaClienti, on_delete=models.CASCADE)  # obbligatorio
     referente = models.ForeignKey(RubricaReferenti, on_delete=models.CASCADE, null=True, blank=True)
     indirizzo = models.CharField(max_length=30) #obbligatorio
-    pratica = models.CharField(max_length=20)   #obbligatorio
+    pratica = models.CharField(max_length=30)   #obbligatorio
     parcella = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
     note = RichTextField(null=True, blank=True)
     data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None) #obbligatorio
@@ -58,6 +58,7 @@ class Ricavo(models.Model):
     intestatario_fattura = models.ForeignKey(Socio, on_delete=models.CASCADE, related_name="sociofatturaricavo", null=True, blank=True)
     protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="ricavi", null=True, blank=True)
     note = RichTextField(null=True, blank=True)
+    destinazione = models.CharField(max_length=15, choices=(('CARTA', 'CARTA'),('DEPOSITO', 'DEPOSITO')), default="", null=True, blank=True)
 
     def __str__(self):
         return "id: "+str(self.id)
@@ -68,6 +69,7 @@ class SpesaCommessa(models.Model):
     # foreign_key
     protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="spesecommessa", null=True,blank=True)
     note = RichTextField(null=True, blank=True)
+    provenienza = models.CharField(max_length=15, choices=(('CARTA', 'CARTA'),('DEPOSITO', 'DEPOSITO')), default="", null=True, blank=True)
 
     def __str__(self):
         return "id: "+str(self.id)
@@ -77,6 +79,7 @@ class SpesaGestione(models.Model):
     importo = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
     causale = models.CharField(max_length=30, default="", null=True, blank=True)
     fattura = models.CharField(max_length=50, default="", null=True, blank=True)
+    provenienza = models.CharField(max_length=15, choices=(('CARTA', 'CARTA'), ('DEPOSITO', 'DEPOSITO')), default="", null=True, blank=True)
 
     def __str__(self):
         return "id: "+str(self.id)
@@ -84,6 +87,7 @@ class SpesaGestione(models.Model):
 class GuadagnoEffettivo(models.Model):
     data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
     importo = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
+    provenienza = models.CharField(max_length=15, choices=(('CARTA', 'CARTA'), ('DEPOSITO', 'DEPOSITO')), default="", null=True, blank=True)
 
     def __str__(self):
         return "id: "+str(self.id)

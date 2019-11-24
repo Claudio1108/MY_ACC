@@ -43,12 +43,24 @@ class SpesaGestioneFilter(django_filters.FilterSet):
     causale = django_filters.CharFilter(label='Causale', field_name='causale', lookup_expr='icontains')
     importo = django_filters.RangeFilter(label='Importo (min-max)€', field_name='importo')
 
+    class Meta:
+        model = SpesaGestione
+        fields = {
+            'provenienza': ['exact'],
+        }
+
 class SpesaCommessaFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione (start-end) dd/mm/yyyy')
     protocollo_exist = django_filters.BooleanFilter(label='Esistenza Protocollo', field_name='protocollo', lookup_expr='isnull', exclude=True)
     protocollo_id = django_filters.CharFilter(label='Protocollo (id)', field_name='protocollo__identificativo', lookup_expr='icontains')
     protocollo_address = django_filters.CharFilter(label='Protocollo (indirizzo)', field_name='protocollo__indirizzo', lookup_expr='icontains')
     importo = django_filters.RangeFilter(label='Importo (min-max)€', field_name='importo')
+
+    class Meta:
+        model = SpesaCommessa
+        fields = {
+            'provenienza': ['exact'],
+        }
 
 class RicavoFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione (start-end) dd/mm/yyyy')
@@ -61,9 +73,16 @@ class RicavoFilter(django_filters.FilterSet):
         model = Ricavo
         fields = {
             'intestatario_fattura': ['exact'],
-            'fattura': ['exact']
+            'fattura': ['exact'],
+            'destinazione': ['exact'],
         }
 
 class GuadagnoEffettivoFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione (start-end) dd/mm/yyyy')
     importo = django_filters.RangeFilter(label='Importo (min-max)€', field_name='importo')
+
+    class Meta:
+        model = GuadagnoEffettivo
+        fields = {
+            'provenienza': ['exact'],
+        }

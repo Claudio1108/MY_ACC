@@ -62,7 +62,7 @@
     <form method="get">
         <table border="5">
         {% for field in filter.form %}
-            {% if forloop.counter|divisibleby:"1" %}
+            {% if forloop.counter|divisibleby:"2" %}
                 <tr>{{ field.label }} {{ field }}</tr></br></br>
             {% else %}
                 <tr>{{ field.label }} {{ field }}</tr>&nbsp;&nbsp;&nbsp;
@@ -96,6 +96,7 @@
             <th></th>
             <th>registrazione</th>
             <th>importo</th>
+            <th>provenienza</th>
             <th colspan="2">Operazioni</th>
         </tr>
         {% for b in filter_queryset %}
@@ -105,6 +106,7 @@
             </td>
             <td>{{ b.data_registrazione }}</td>
             <td>{{ b.importo }} €</td>
+            <td>{{ b.provenienza|default_if_none:'' }}</td>
             <td style='width: 15px;' align="center"><a href="/UpdateGuadagnoEffettivo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
             <td style='width: 15px;' align="center"><a href="/DeleteGuadagnoEffettivo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Guadagno Effettivo ?')">X</a></td>
         </tr>

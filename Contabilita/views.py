@@ -404,11 +404,15 @@ def viewUpdateRicavo(request,id):
             ricavo = Ricavo.objects.get(id=id)
             form = formRicavoUpdate(request.POST, instance=ricavo)
             if (form.is_valid()):
-                if (form.Check1()):
-                    form.save()
+                if (form['protocollo'].value() != ""):
+                    if (form.Check2(ricavo)):
+                        form.save()
+                    else:
+                        messages.error(request,'ATTENZIONE. Il Ricavo inserito non rispetta i vincoli di parcella del protocollo')
+                    return redirect('AllRicavi')
                 else:
-                    messages.error(request,'ATTENZIONE. Il Ricavo inserito non rispetta i vincoli di parcella del protocollo')
-                return redirect('AllRicavi')
+                    form.save()
+                    return redirect('AllRicavi')
             else:
                 return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
         else:
