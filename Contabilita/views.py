@@ -486,8 +486,31 @@ def viewAllSoci(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
+        saldi=list()
         soci = Socio.objects.all().order_by("-percentuale")
-        return render(request, "Contabilita/Socio/AllSoci.html", { "tabella_soci" : soci })
+        for tipo_saldo in ['CARTA', 'DEPOSITO']:
+            query = """ SELECT coalesce(sum(t1.saldo),0)
+                        FROM(
+                        SELECT importo as saldo
+                        FROM Contabilita_ricavo
+                        WHERE destinazione='{t[tipo]}'
+                        UNION
+                        SELECT -importo as saldo
+                        FROM Contabilita_spesagestione
+                        WHERE provenienza='{t[tipo]}'
+                        UNION
+                        SELECT -importo as saldo
+                        FROM Contabilita_spesacommessa
+                        WHERE provenienza='{t[tipo]}'
+                        UNION
+                        SELECT -importo as saldo
+                        FROM Contabilita_guadagnoeffettivo
+                        WHERE provenienza='{t[tipo]}') t1""".format(t={'tipo': tipo_saldo})
+            cursor = connection.cursor()
+            cursor.execute(query)
+            rows = cursor.fetchone()
+            saldi.append(rows[0])
+        return render(request, "Contabilita/Socio/AllSoci.html", { "tabella_soci" : soci, "lista_saldi": saldi })
 
 def viewUpdateSocio(request,id):
     if not request.user.is_authenticated:

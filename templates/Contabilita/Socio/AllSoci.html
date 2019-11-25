@@ -33,5 +33,18 @@
             </tr>
             {% endfor %}
         </table>
+        </br></br>
+        <table align="left" border="0">
+            <tr>
+                <td align="center"><img width="50" src="{% static 'images/cartedicredito.jpg'%}"></td>
+                <td align="center">SALDO CARTA = </td>
+                <td>{{ lista_saldi.0 }} €</td>
+            </tr>
+            <tr>
+                <td align="center"><img width="50" src="{% static 'images/cassaforte.png'%}"></td>
+                <td align="center">SALDO DEPOSITO = </td>
+                <td >{{ lista_saldi.1 }} €</td>
+            </tr>
+        </table>
 
 {% endblock %}
