@@ -107,8 +107,8 @@
             </td>
             <td>{{ b.data_registrazione }}</td>
             <td>{{ b.importo }} €</td>
-            <td>{{ b.causale }}</td>
-            <td>{{ b.fattura }}</td>
+            <td>{{ b.causale|default_if_none:'' }}</td>
+            <td>{{ b.fattura|default_if_none:'' }}</td>
             <td>{{ b.provenienza|default_if_none:'' }}</td>
             <td style='width: 15px;' align="center"><a href="/UpdateSpesaGestione/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
             <td style='width: 15px;' align="center"><a href="/DeleteSpesaGestione/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Spesa di Gestione ?')">X</a></td>
