@@ -81,12 +81,12 @@
     </br>
     <table align="left" style="width:100%">
         <tr>
-            <td >
+            <td>
                 <input type="button" onclick='selectAll()' value="Seleziona Tutti"/>
                 <input type="button" onclick='unSelectAll()' value="Deseleziona Tutti"/>
                 <input type="button" onclick='deleteGroup()' value="Elimina Selezionati"/>
             </td>
-            <td >
+            <td>
                 <div align="right">
                 <form method="post" action="{% url 'export_input_table_xls' list=filter.qs model='ricavo' %}">
                     {% csrf_token %}
