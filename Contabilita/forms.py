@@ -87,6 +87,11 @@ class formProtocolUpdate(forms.ModelForm):
             'referente': autocomplete.ModelSelect2(url='referente_autocomp')
         }
 
+    def set_status(self,value):
+        data = self.data.copy()
+        data['status'] = value
+        self.data = data
+
 class formConsulenza(forms.ModelForm):
     class Meta:
         model = Consulenza
@@ -129,6 +134,11 @@ class formConsulenzaUpdate(forms.ModelForm):
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
             'status': forms.HiddenInput()}
+
+    def set_status(self, value):
+        data = self.data.copy()
+        data['status'] = value
+        self.data = data
 
 class formRicavo(forms.ModelForm):
     class Meta:
