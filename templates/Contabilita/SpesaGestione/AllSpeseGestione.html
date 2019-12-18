@@ -35,7 +35,7 @@
             function deleteGroup(){
                   var list=getSelected();
                   if(list.length > 0){
-                    if(confirm('Sei sicuro di voler eliminare queste Spese di Gestione ?')== true){
+                    if(confirm('Sei sicuro di voler eliminare le Spese di Gestione selezionate ?')== true){
                         $.ajax({
                             type: "POST",
                             url: "/DeleteSpeseGestioneGroup/",

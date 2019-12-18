@@ -36,7 +36,7 @@
             function deleteGroup(){
                   var list=getSelected();
                   if(list.length > 0){
-                    if(confirm('Sei sicuro di voler eliminare questi Referenti ?')== true){
+                    if(confirm('Sei sicuro di voler eliminare i Referenti selezionati ?')== true){
                         $.ajax({
                             type: "POST",
                             url: "/DeleteReferentiroup/",

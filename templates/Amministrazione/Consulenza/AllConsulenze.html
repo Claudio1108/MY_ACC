@@ -37,7 +37,7 @@
             function deleteGroup(){
                   var list=getSelected();
                   if(list.length > 0){
-                    if(confirm('Sei sicuro di voler eliminare queste Consulenze ?')== true){
+                    if(confirm('Sei sicuro di voler eliminare le Consulenze selezionate ?')== true){
                         $.ajax({
                             type: "POST",
                             url: "/DeleteConsulenzeGroup/",
