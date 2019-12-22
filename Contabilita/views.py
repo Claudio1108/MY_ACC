@@ -1,5 +1,6 @@
 import re
 import xlwt
+from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import *
@@ -13,23 +14,17 @@ from dal import autocomplete
 class ProtocolloAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = Protocollo.objects.all()
-        if self.q:
-            qs = qs.filter(identificativo__icontains=self.q) | qs.filter(indirizzo__icontains=self.q)
-        return qs
+        return qs.filter(identificativo__icontains=self.q) | qs.filter(indirizzo__icontains=self.q) if self.q else qs
 
 class ClienteAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = RubricaClienti.objects.all()
-        if self.q:
-            qs = qs.filter(nominativo__icontains=self.q) | qs.filter(tel__icontains=self.q)
-        return qs
+        return qs.filter(nominativo__icontains=self.q) | qs.filter(tel__icontains=self.q) if self.q else qs
 
 class ReferenteAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = RubricaReferenti.objects.all()
-        if self.q:
-            qs = qs.filter(nominativo__icontains=self.q) | qs.filter(tel__icontains=self.q)
-        return qs
+        return qs.filter(nominativo__icontains=self.q) | qs.filter(tel__icontains=self.q) if self.q else qs
 
 def viewHomePage(request):
     if not request.user.is_authenticated:
@@ -53,8 +48,7 @@ def viewAllClienti(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        clienti = RubricaClienti.objects.all()
-        cliente_filter = ClienteFilter(request.GET, queryset=clienti.order_by("-nominativo"))
+        cliente_filter = ClienteFilter(request.GET, queryset=RubricaClienti.objects.all().order_by("-nominativo"))
         # page = request.GET.get('page', 1)
         # paginator = Paginator(cliente_filter.qs, 20)
         # try:
@@ -85,8 +79,7 @@ def viewDeleteCliente(request, id):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        cliente = RubricaClienti.objects.get(id=id)
-        cliente.delete()
+        RubricaClienti.objects.get(id=id).delete()
         return redirect('AllClienti')
 
 def viewDeleteClientiGroup(request):
@@ -94,10 +87,8 @@ def viewDeleteClientiGroup(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            tasks = request.POST.getlist('list[]')
-            for task in tasks:
-                cliente = RubricaClienti.objects.get(id=int(task))
-                cliente.delete()
+            for task in request.POST.getlist('list[]'):
+                RubricaClienti.objects.get(id=int(task)).delete()
         return render(request, "Homepage/HomePageAmministrazione.html")
 
 def viewUpdateCliente(request, id):
@@ -105,24 +96,21 @@ def viewUpdateCliente(request, id):
         return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
-            cliente = RubricaClienti.objects.get(id=id)
-            form = formCliente(request.POST, instance=cliente)
+            form = formCliente(request.POST, instance=RubricaClienti.objects.get(id=id))
             if (form.is_valid()):
                 form.save()
                 return redirect('AllClienti')
             else:
                 return render(request, "Amministrazione/Cliente/UpdateCliente.html", {'form': form})
         else:
-            cliente = RubricaClienti.objects.get(id=id)
-            form = formCliente(instance=cliente)
+            form = formCliente(instance=RubricaClienti.objects.get(id=id))
             return render(request, "Amministrazione/Cliente/UpdateCliente.html", {'form': form})
 
 def viewAllReferenti(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        referenti = RubricaReferenti.objects.all()
-        referente_filter = ReferenteFilter(request.GET, queryset=referenti.order_by("-nominativo"))
+        referente_filter = ReferenteFilter(request.GET, queryset=RubricaReferenti.objects.all().order_by("-nominativo"))
         return render(request, "Amministrazione/Referente/AllReferenti.html",{"filter": referente_filter, "filter_queryset": referente_filter.qs})
 
 def viewCreateReferente(request):
@@ -144,8 +132,7 @@ def viewDeleteReferente(request, id):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        referente = RubricaReferenti.objects.get(id=id)
-        referente.delete()
+        RubricaReferenti.objects.get(id=id).delete()
         return redirect('AllReferenti')
 
 def viewDeleteReferentiGroup(request):
@@ -153,10 +140,8 @@ def viewDeleteReferentiGroup(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            tasks = request.POST.getlist('list[]')
-            for task in tasks:
-                referente = RubricaReferenti.objects.get(id=int(task))
-                referente.delete()
+            for task in request.POST.getlist('list[]'):
+                RubricaReferenti.objects.get(id=int(task)).delete()
         return render(request, "Homepage/HomePageAmministrazione.html")
 
 def viewUpdateReferente(request, id):
@@ -164,36 +149,22 @@ def viewUpdateReferente(request, id):
         return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
-            referente = RubricaReferenti.objects.get(id=id)
-            form = formReferente(request.POST, instance=referente)
+            form = formReferente(request.POST, instance=RubricaReferenti.objects.get(id=id))
             if (form.is_valid()):
                 form.save()
                 return redirect('AllReferenti')
             else:
                 return render(request, "Amministrazione/Referente/UpdateReferente.html", {'form': form})
         else:
-            referente = RubricaReferenti.objects.get(id=id)
-            form = formReferente(instance=referente)
+            form = formReferente(instance=RubricaReferenti.objects.get(id=id))
             return render(request, "Amministrazione/Referente/UpdateReferente.html", {'form': form})
 
 def viewAllProtocols(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        protocolli = Protocollo.objects.all()
-        sum_parcelle = 0
-        protocollo_filter = ProtocolloFilter(request.GET, queryset=protocolli.order_by("-identificativo"))
-        today = date.today()
-        for proto in protocollo_filter.qs:
-            d = datetime.strptime(str(proto.data_scadenza), "%Y-%m-%d")
-            data_scadenza = d.date()
-            if proto.data_consegna != None:
-                proto.status = None
-            else:
-                proto.status = (data_scadenza - today).days
-                cursor = connection.cursor()
-                cursor.execute("""update Contabilita_protocollo set status = {} where identificativo = '{}'""".format(proto.status, proto.identificativo))
-            sum_parcelle = sum_parcelle + proto.parcella
+        protocollo_filter = ProtocolloFilter(request.GET, queryset=Protocollo.objects.all().order_by("-identificativo"))
+        sum_parcelle = round(protocollo_filter.qs.aggregate(Sum('parcella'))['parcella__sum'],2)
         context = {"filter": protocollo_filter, 'filter_queryset': protocollo_filter.qs, 'sum_p': sum_parcelle}
         return render(request, "Amministrazione/Protocollo/AllProtocols.html", context)
 
@@ -207,16 +178,10 @@ def viewCreateProtocol(request):
             cursor = connection.cursor()
             cursor.execute("""select count from Contabilita_calendariocontatore as c where c.id={}""".format(anno))
             rows = cursor.fetchone()
-            cursor = connection.cursor()
             cursor.execute("""update Contabilita_calendariocontatore  set count={} where id={}""".format(str(rows[0] + 1), anno))
             form.set_identificativo(str('{0:03}'.format(rows[0] + 1)) + "-" + anno[2:4])
-            today = date.today()
-            d = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d")
-            data_scadenza = d.date()
-            if form['data_consegna'].value() != '':
-                form.set_status(0)
-            else:
-                form.set_status((data_scadenza - today).days)
+            data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
+            form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
             if (form.is_valid()):
                 form.save()
                 return redirect('AllProtocols')
@@ -230,8 +195,7 @@ def viewDeleteProtocol(request, id):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        protocol = Protocollo.objects.get(id=id)
-        protocol.delete()
+        Protocollo.objects.get(id=id).delete()
         return redirect('AllProtocols')
 
 def viewDeleteProtocolsGroup(request):
@@ -239,10 +203,8 @@ def viewDeleteProtocolsGroup(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            tasks = request.POST.getlist('list[]')
-            for task in tasks:
-                protocol = Protocollo.objects.get(id=int(task))
-                protocol.delete()
+            for task in request.POST.getlist('list[]'):
+                Protocollo.objects.get(id=int(task)).delete()
         return render(request, "Homepage/HomePageAmministrazione.html")
 
 def viewUpdateProtocol(request, id):
@@ -250,49 +212,29 @@ def viewUpdateProtocol(request, id):
         return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
-            protocol = Protocollo.objects.get(id=id)
-            form = formProtocolUpdate(request.POST, instance=protocol)
+            form = formProtocolUpdate(request.POST, instance=Protocollo.objects.get(id=id))
             anno = form['data_registrazione'].value()[0:4]
             cursor = connection.cursor()
             cursor.execute("""select count from Contabilita_calendariocontatore as c where c.id={}""".format(anno))
             rows = cursor.fetchone()
-            cursor = connection.cursor()
             cursor.execute("""update Contabilita_calendariocontatore  set count={} where id={}""".format(str(rows[0] + 1), anno))
-            today = date.today()
-            d = datetime.strptime(form['data_scadenza'].value(), "%d/%m/%Y")
-            data_scadenza = d.date()
-            if form['data_consegna'].value() != '':
-                form.set_status(0)
-            else:
-                form.set_status((data_scadenza - today).days)
+            data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%d/%m/%Y").date()
+            form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
             if (form.is_valid()):
                 form.save()
                 return redirect('AllProtocols')
             else:
                 return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
         else:
-            protocol = Protocollo.objects.get(id=id)
-            form = formProtocolUpdate(instance=protocol)
+            form = formProtocolUpdate(instance=Protocollo.objects.get(id=id))
             return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
 
 def viewAllConsulenze(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        consulenze = Consulenza.objects.all()
-        sum_compensi = 0
-        consulenza_filter = ConsulenzaFilter(request.GET, queryset=consulenze.order_by("-id"))
-        today = date.today()
-        for cons in consulenza_filter.qs:
-            d = datetime.strptime(str(cons.data_scadenza), "%Y-%m-%d")
-            data_scadenza = d.date()
-            if cons.data_consegna != None:
-                cons.status = None
-            else:
-                cons.status = (data_scadenza - today).days
-                cursor = connection.cursor()
-                cursor.execute("""update Contabilita_consulenza set status = {} where id = '{}'""".format(cons.status, cons.id))
-            sum_compensi = sum_compensi + cons.compenso
+        consulenza_filter = ConsulenzaFilter(request.GET, queryset=Consulenza.objects.all().order_by("-id"))
+        sum_compensi = round(consulenza_filter.qs.aggregate(Sum('compenso'))['compenso__sum'], 2)
         context = {"filter": consulenza_filter, 'filter_queryset': consulenza_filter.qs, 'sum_c': sum_compensi}
         return render(request, "Amministrazione/Consulenza/AllConsulenze.html", context)
 
@@ -302,13 +244,8 @@ def viewCreateConsulenza(request):
     else:
         if (request.method == "POST"):
             form = formConsulenza(request.POST)
-            today = date.today()
-            d = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d")
-            data_scadenza = d.date()
-            if form['data_consegna'].value() != '':
-                form.set_status(0)
-            else:
-                form.set_status((data_scadenza - today).days)
+            data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
+            form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
             if (form.is_valid()):
                 form.save()
                 return redirect('AllConsulenze')
@@ -322,8 +259,7 @@ def viewDeleteConsulenza(request, id):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        consulenza = Consulenza.objects.get(id=id)
-        consulenza.delete()
+        Consulenza.objects.get(id=id).delete()
         return redirect('AllConsulenze')
 
 def viewDeleteConsulenzeGroup(request):
@@ -331,10 +267,8 @@ def viewDeleteConsulenzeGroup(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            tasks = request.POST.getlist('list[]')
-            for task in tasks:
-                consulenza = Consulenza.objects.get(id=int(task))
-                consulenza.delete()
+            for task in request.POST.getlist('list[]'):
+                Consulenza.objects.get(id=int(task)).delete()
         return render(request, "Homepage/HomePageAmministrazione.html")
 
 def viewUpdateConsulenza(request, id):
@@ -342,34 +276,24 @@ def viewUpdateConsulenza(request, id):
         return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
-            consulenza = Consulenza.objects.get(id=id)
-            form = formConsulenzaUpdate(request.POST, instance=consulenza)
-            today = date.today()
-            d = datetime.strptime(form['data_scadenza'].value(), "%d/%m/%Y")
-            data_scadenza = d.date()
-            if form['data_consegna'].value() != '':
-                form.set_status(0)
-            else:
-                form.set_status((data_scadenza - today).days)
+            form = formConsulenzaUpdate(request.POST, instance=Consulenza.objects.get(id=id))
+            data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%d/%m/%Y").date()
+            form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
             if (form.is_valid()):
                 form.save()
                 return redirect('AllConsulenze')
             else:
                 return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': form})
         else:
-            consulenza = Consulenza.objects.get(id=id)
-            form = formConsulenzaUpdate(instance=consulenza)
+            form = formConsulenzaUpdate(instance=Consulenza.objects.get(id=id))
             return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': form})
 
 def viewAllRicavi(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        ricavi = Ricavo.objects.all()
-        ricavo_filter = RicavoFilter(request.GET, queryset=ricavi.order_by("-data_registrazione"))
-        sum_ricavi = 0
-        for ricavo in ricavo_filter.qs:
-            sum_ricavi = sum_ricavi + ricavo.importo
+        ricavo_filter = RicavoFilter(request.GET, queryset=Ricavo.objects.all().order_by("-data_registrazione"))
+        sum_ricavi = round(ricavo_filter.qs.aggregate(Sum('importo'))['importo__sum'], 2)
         context = {"filter": ricavo_filter, 'filter_queryset': ricavo_filter.qs, 'sum_r': sum_ricavi}
         return render(request, "Contabilita/Ricavo/AllRicavi.html", context)
 
@@ -381,14 +305,10 @@ def viewCreateRicavo(request):
             form = formRicavo(request.POST)
             if (form.is_valid()):
                 if (form['protocollo'].value() != ""):
-                    if (form.Check1()):
-                        form.save()
-                    else:
-                        messages.error(request, 'ATTENZIONE. Il Ricavo inserito non rispetta i vincoli di parcella del protocollo')
-                    return redirect('AllRicavi')
+                    form.save() if (form.Check1()) else messages.error(request, 'ATTENZIONE. Il Ricavo inserito non rispetta i vincoli di parcella del protocollo')
                 else:
                     form.save()
-                    return redirect('AllRicavi')
+                return redirect('AllRicavi')
             else:
                 return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
         else:
@@ -399,8 +319,7 @@ def viewDeleteRicavo(request, id):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        ricavo = Ricavo.objects.get(id=id)
-        ricavo.delete()
+        Ricavo.objects.get(id=id).delete()
         return redirect('AllRicavi')
 
 def viewDeleteRicaviGroup(request):
@@ -408,10 +327,8 @@ def viewDeleteRicaviGroup(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            tasks = request.POST.getlist('list[]')
-            for task in tasks:
-                ricavo = Ricavo.objects.get(id=int(task))
-                ricavo.delete()
+            for task in request.POST.getlist('list[]'):
+                Ricavo.objects.get(id=int(task)).delete()
         return render(request, "Homepage/HomePageContabilita.html")
 
 def viewUpdateRicavo(request, id):
@@ -423,30 +340,22 @@ def viewUpdateRicavo(request, id):
             form = formRicavoUpdate(request.POST, instance=ricavo)
             if (form.is_valid()):
                 if (form['protocollo'].value() != ""):
-                    if (form.Check2(ricavo)):
-                        form.save()
-                    else:
-                        messages.error(request, 'ATTENZIONE. Il Ricavo inserito non rispetta i vincoli di parcella del protocollo')
-                    return redirect('AllRicavi')
+                    form.save() if (form.Check2(ricavo)) else messages.error(request, 'ATTENZIONE. Il Ricavo inserito non rispetta i vincoli di parcella del protocollo')
                 else:
                     form.save()
-                    return redirect('AllRicavi')
+                return redirect('AllRicavi')
             else:
                 return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
         else:
-            ricavo = Ricavo.objects.get(id=id)
-            form = formRicavoUpdate(instance=ricavo)
+            form = formRicavoUpdate(instance=Ricavo.objects.get(id=id))
             return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
 
 def viewAllSpeseCommessa(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        spesecommessa = SpesaCommessa.objects.all()
-        spesacommessa_filter = SpesaCommessaFilter(request.GET, queryset=spesecommessa.order_by("-data_registrazione"))
-        sum_spesecommessa = 0
-        for s in spesacommessa_filter.qs:
-            sum_spesecommessa = sum_spesecommessa + s.importo
+        spesacommessa_filter = SpesaCommessaFilter(request.GET, queryset=SpesaCommessa.objects.all().order_by("-data_registrazione"))
+        sum_spesecommessa = round(spesacommessa_filter.qs.aggregate(Sum('importo'))['importo__sum'], 2)
         return render(request, "Contabilita/SpesaCommessa/AllSpeseCommessa.html", {"filter": spesacommessa_filter, 'filter_queryset': spesacommessa_filter.qs, 'sum_s': sum_spesecommessa})
 
 def viewCreateSpesaCommessa(request):
@@ -468,8 +377,7 @@ def viewDeleteSpesaCommessa(request, id):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        spesacommessa = SpesaCommessa.objects.get(id=id)
-        spesacommessa.delete()
+        SpesaCommessa.objects.get(id=id).delete()
         return redirect('AllSpeseCommessa')
 
 def viewDeleteSpeseCommessaGroup(request):
@@ -477,10 +385,8 @@ def viewDeleteSpeseCommessaGroup(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            tasks = request.POST.getlist('list[]')
-            for task in tasks:
-                spesacommessa = SpesaCommessa.objects.get(id=int(task))
-                spesacommessa.delete()
+            for task in request.POST.getlist('list[]'):
+                SpesaCommessa.objects.get(id=int(task)).delete()
         return render(request, "Homepage/HomePageContabilita.html")
 
 def viewUpdateSpesaCommessa(request, id):
@@ -488,16 +394,14 @@ def viewUpdateSpesaCommessa(request, id):
         return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
-            spesacommessa = SpesaCommessa.objects.get(id=id)
-            form = formSpesaCommessaUpdate(request.POST, instance=spesacommessa)
+            form = formSpesaCommessaUpdate(request.POST, instance=SpesaCommessa.objects.get(id=id))
             if (form.is_valid()):
                 form.save()
                 return redirect('AllSpeseCommessa')
             else:
                 return render(request, "Contabilita/SpesaCommessa/UpdateSpesaCommessa.html", {'form': form})
         else:
-            spesacommessa = SpesaCommessa.objects.get(id=id)
-            form = formSpesaCommessaUpdate(instance=spesacommessa)
+            form = formSpesaCommessaUpdate(instance=SpesaCommessa.objects.get(id=id))
             return render(request, "Contabilita/SpesaCommessa/UpdateSpesaCommessa.html", {'form': form})
 
 def viewAllSoci(request):
@@ -505,6 +409,7 @@ def viewAllSoci(request):
         return redirect("/accounts/login/")
     else:
         saldi = list()
+        cursor = connection.cursor()
         soci = Socio.objects.all().order_by("-percentuale")
         for tipo_saldo in ['CARTA', 'DEPOSITO']:
             query = """ SELECT coalesce(sum(t1.saldo),0)
@@ -524,7 +429,6 @@ def viewAllSoci(request):
                         SELECT -importo as saldo
                         FROM Contabilita_guadagnoeffettivo
                         WHERE provenienza='{t[tipo]}') t1""".format(t={'tipo': tipo_saldo})
-            cursor = connection.cursor()
             cursor.execute(query)
             rows = cursor.fetchone()
             saldi.append(rows[0])
@@ -546,14 +450,9 @@ def viewUpdateSocio(request, id):
                 if (float(sum) + float(form['percentuale'].value()) < 1.00):
                     form.save()
                     messages.warning(request, 'Le percentuali non sono distrubuite completamente')
-                    return redirect('AllSoci')
                 else:
-                    if (float(sum) + float(form['percentuale'].value()) > 1.00):
-                        messages.error(request, 'ATTENZIONE. Percentuale inserita invalida')
-                        return redirect('AllSoci')
-                    else:
-                        form.save()
-                        return redirect('AllSoci')
+                    messages.error(request, 'ATTENZIONE. Percentuale inserita invalida') if (float(sum) + float(form['percentuale'].value()) > 1.00) else form.save()
+                return redirect('AllSoci')
             else:
                 return render(request, "Contabilita/Socio/UpdateSocio.html", {'form': form, 'socio': socio})
         else:
@@ -565,11 +464,8 @@ def viewAllSpeseGestione(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        spesegestione = SpesaGestione.objects.all()
-        spesagestione_filter = SpesaGestioneFilter(request.GET, queryset=spesegestione.order_by("-data_registrazione"))
-        sum_spesegestione = 0
-        for s in spesagestione_filter.qs:
-            sum_spesegestione = sum_spesegestione + s.importo
+        spesagestione_filter = SpesaGestioneFilter(request.GET, queryset=SpesaGestione.objects.all().order_by("-data_registrazione"))
+        sum_spesegestione = round(spesagestione_filter.qs.aggregate(Sum('importo'))['importo__sum'], 2)
         return render(request, "Contabilita/SpesaGestione/AllSpeseGestione.html", {"filter": spesagestione_filter, 'filter_queryset': spesagestione_filter.qs, 'sum_s': sum_spesegestione})
 
 def viewCreateSpesaGestione(request):
@@ -591,8 +487,7 @@ def viewDeleteSpesaGestione(request, id):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        spesagestione = SpesaGestione.objects.get(id=id)
-        spesagestione.delete()
+        SpesaGestione.objects.get(id=id).delete()
         return redirect('AllSpeseGestione')
 
 def viewDeleteSpeseGestioneGroup(request):
@@ -600,10 +495,8 @@ def viewDeleteSpeseGestioneGroup(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            tasks = request.POST.getlist('list[]')
-            for task in tasks:
-                spesagestione = SpesaGestione.objects.get(id=int(task))
-                spesagestione.delete()
+            for task in request.POST.getlist('list[]'):
+                SpesaGestione.objects.get(id=int(task)).delete()
         return render(request, "Homepage/HomePageContabilita.html")
 
 def viewUpdateSpesaGestione(request, id):
@@ -611,27 +504,22 @@ def viewUpdateSpesaGestione(request, id):
         return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
-            spesagestione = SpesaGestione.objects.get(id=id)
-            form = formSpesaGestioneUpdate(request.POST, instance=spesagestione)
+            form = formSpesaGestioneUpdate(request.POST, instance=SpesaGestione.objects.get(id=id))
             if (form.is_valid()):
                 form.save()
                 return redirect('AllSpeseGestione')
             else:
                 return render(request, "Contabilita/SpesaGestione/UpdateSpesaGestione.html", {'form': form})
         else:
-            spesagestione = SpesaGestione.objects.get(id=id)
-            form = formSpesaGestioneUpdate(instance=spesagestione)
+            form = formSpesaGestioneUpdate(instance=SpesaGestione.objects.get(id=id))
             return render(request, "Contabilita/SpesaGestione/UpdateSpesaGestione.html", {'form': form})
 
 def viewAllGuadagniEffettivi(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        guadagnieffettivi = GuadagnoEffettivo.objects.all()
-        guadagnoeffettivo_filter = GuadagnoEffettivoFilter(request.GET, queryset=guadagnieffettivi.order_by("-data_registrazione"))
-        sum_guadagnieffettivi = 0
-        for g in guadagnoeffettivo_filter.qs:
-            sum_guadagnieffettivi = sum_guadagnieffettivi + g.importo
+        guadagnoeffettivo_filter = GuadagnoEffettivoFilter(request.GET, queryset=GuadagnoEffettivo.objects.all().order_by("-data_registrazione"))
+        sum_guadagnieffettivi = round(guadagnoeffettivo_filter.qs.aggregate(Sum('importo'))['importo__sum'], 2)
         return render(request, "Contabilita/GuadagnoEffettivo/AllGuadagniEffettivi.html", {"filter": guadagnoeffettivo_filter, "filter_queryset": guadagnoeffettivo_filter.qs, 'sum_g': sum_guadagnieffettivi})
 
 def viewCreateGuadagnoEffettivo(request):
@@ -653,8 +541,7 @@ def viewDeleteGuadagnoEffettivo(request, id):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        guadagnoefettivo = GuadagnoEffettivo.objects.get(id=id)
-        guadagnoefettivo.delete()
+        GuadagnoEffettivo.objects.get(id=id).delete()
         return redirect('AllGuadagniEffettivi')
 
 def viewDeleteGuadagniEffettiviGroup(request):
@@ -662,10 +549,8 @@ def viewDeleteGuadagniEffettiviGroup(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            tasks = request.POST.getlist('list[]')
-            for task in tasks:
-                guadagnoeffettivo = GuadagnoEffettivo.objects.get(id=int(task))
-                guadagnoeffettivo.delete()
+            for task in request.POST.getlist('list[]'):
+                GuadagnoEffettivo.objects.get(id=int(task)).delete()
         return render(request, "Homepage/HomePageContabilita.html")
 
 def viewUpdateGuadagnoEffettivo(request, id):
@@ -673,20 +558,17 @@ def viewUpdateGuadagnoEffettivo(request, id):
         return redirect("/accounts/login/")
     else:
         if (request.method == "POST"):
-            guadagnoeffettivo = GuadagnoEffettivo.objects.get(id=id)
-            form = formGuadagnoEffettivoUpdate(request.POST, instance=guadagnoeffettivo)
+            form = formGuadagnoEffettivoUpdate(request.POST, instance=GuadagnoEffettivo.objects.get(id=id))
             if (form.is_valid()):
                 form.save()
                 return redirect('AllGuadagniEffettivi')
             else:
                 return render(request, "Contabilita/GuadagnoEffettivo/UpdateGuadagnoEffettivo.html", {'form': form})
         else:
-            guadagnoeffettivo = GuadagnoEffettivo.objects.get(id=id)
-            form = formGuadagnoEffettivoUpdate(instance=guadagnoeffettivo)
+            form = formGuadagnoEffettivoUpdate(instance=GuadagnoEffettivo.objects.get(id=id))
             return render(request, "Contabilita/GuadagnoEffettivo/UpdateGuadagnoEffettivo.html", {'form': form})
 
 def execute_query_1(year):
-    anno = str(year)
     query = """ select '01/GENNAIO' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1  
                 where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-01-31' 
@@ -738,11 +620,10 @@ def execute_query_1(year):
                 select 'TOTALE' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1
                 where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-12-31'
-                ORDER BY mese ASC;""".format(d={'year': anno})
+                ORDER BY mese ASC;""".format(d={'year': str(year)})
     cursor = connection.cursor()
     cursor.execute(query)
-    rows = cursor.fetchall()
-    return rows
+    return cursor.fetchall()
 
 def viewResocontoSpeseGestione(request):
     if not request.user.is_authenticated:
@@ -759,7 +640,6 @@ def viewResocontoSpeseGestione(request):
             return render(request, "Contabilita/ResocontoSpeseGestione.html", {'form': form, 'tabella_output1': []})
 
 def execute_query_2(year):
-    anno = str(year)
     query = """ select '01/GENNAIO' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico
                 from Contabilita_ricavo t1  
                 where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-01-31' 
@@ -811,11 +691,10 @@ def execute_query_2(year):
                 select 'TOTALE' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_ricavo t1
                 where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-12-31'
-                ORDER BY mese ASC;""".format(d={'year': anno})
+                ORDER BY mese ASC;""".format(d={'year': str(year)})
     cursor = connection.cursor()
     cursor.execute(query)
-    rows = cursor.fetchall()
-    return rows
+    return cursor.fetchall()
 
 def viewResocontoRicavi(request):
     if not request.user.is_authenticated:
@@ -832,117 +711,115 @@ def viewResocontoRicavi(request):
             return render(request, "Contabilita/ResocontoRicavi.html", {'form': form, 'tabella_output2': []})
 
 def execute_query_3(year):
-    anno = str(year)
-    query = """select '01/GENNAIO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-01-01' and t2.data_registrazione <= '{d[year]}-01-31') -
-              (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-01-31') as GuadagniTeorici,
-              coalesce(sum(t1.importo),0) as GuadagniEffettivi, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico,
-              (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-01-01' and t2.data_registrazione <= '{d[year]}-01-31') -
-              (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-01-31')-coalesce(sum(t1.importo),0) as DIfferenza
-            from Contabilita_guadagnoeffettivo t1
+    query = """ select '01/GENNAIO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-01-01' and t2.data_registrazione <= '{d[year]}-01-31') -
+               (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-01-31') as GuadagniTeorici,
+               coalesce(sum(t1.importo),0) as GuadagniEffettivi, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico,
+               (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-01-01' and t2.data_registrazione <= '{d[year]}-01-31') -
+               (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-01-31')-coalesce(sum(t1.importo),0) as DIfferenza
+               from Contabilita_guadagnoeffettivo t1
 
-            Where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-01-31'
-            union
-            select '02/FEBBRAIO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-02-01' and t2.data_registrazione <= '{d[year]}-02-28') -
+               Where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-01-31'
+               union
+               select '02/FEBBRAIO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-02-01' and t2.data_registrazione <= '{d[year]}-02-28') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-02-01' and t1.data_registrazione <= '{d[year]}-02-28') as GuadagniTeorici,
                                       coalesce(sum(t1.importo),0) as GuadagniEffettivi, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico,
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-02-01' and t2.data_registrazione <= '{d[year]}-02-28') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-02-01' and t1.data_registrazione <= '{d[year]}-02-28')-coalesce(sum(t1.importo),0) as DIfferenza
-            from Contabilita_guadagnoeffettivo t1
-            Where t1.data_registrazione >= '{d[year]}-02-01' and t1.data_registrazione <= '{d[year]}-02-28'
-            union
-            select '03/MARZO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-03-01' and t2.data_registrazione <= '{d[year]}-03-31') -
+               from Contabilita_guadagnoeffettivo t1
+               Where t1.data_registrazione >= '{d[year]}-02-01' and t1.data_registrazione <= '{d[year]}-02-28'
+               union
+               select '03/MARZO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-03-01' and t2.data_registrazione <= '{d[year]}-03-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-03-01' and t1.data_registrazione <= '{d[year]}-03-31') as GuadagniTeorici,
                                       coalesce(sum(t1.importo),0) as GuadagniEffettivi, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico,
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-03-01' and t2.data_registrazione <= '{d[year]}-03-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-03-01' and t1.data_registrazione <= '{d[year]}-03-31')-coalesce(sum(t1.importo),0) as DIfferenza
-            from Contabilita_guadagnoeffettivo t1
-            Where t1.data_registrazione >= '{d[year]}-03-01' and t1.data_registrazione <= '{d[year]}-03-31'
-            union
-            select '04/APRILE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-04-01' and t2.data_registrazione <= '{d[year]}-04-30') -
+               from Contabilita_guadagnoeffettivo t1
+               Where t1.data_registrazione >= '{d[year]}-03-01' and t1.data_registrazione <= '{d[year]}-03-31'
+               union
+               select '04/APRILE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-04-01' and t2.data_registrazione <= '{d[year]}-04-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-04-01' and t1.data_registrazione <= '{d[year]}-04-30') as GuadagniTeorici,
                                       coalesce(sum(t1.importo),0) as GuadagniEffettivi, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico,
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-04-01' and t2.data_registrazione <= '{d[year]}-04-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-04-01' and t1.data_registrazione <= '{d[year]}-04-30')-coalesce(sum(t1.importo),0) as DIfferenza
-            from Contabilita_guadagnoeffettivo t1
+               from Contabilita_guadagnoeffettivo t1
 
-            Where t1.data_registrazione >= '{d[year]}-04-01' and t1.data_registrazione <= '{d[year]}-04-30'
-            union
-            select '05/MAGGIO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-05-01' and t2.data_registrazione <= '{d[year]}-05-31') -
+               Where t1.data_registrazione >= '{d[year]}-04-01' and t1.data_registrazione <= '{d[year]}-04-30'
+               union
+               select '05/MAGGIO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-05-01' and t2.data_registrazione <= '{d[year]}-05-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-05-01' and t1.data_registrazione <= '{d[year]}-05-31') as GuadagniTeorici,
                                       coalesce(sum(t1.importo),0) as GuadagniEffettivi, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico,
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-05-01' and t2.data_registrazione <= '{d[year]}-05-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-05-01' and t1.data_registrazione <= '{d[year]}-05-31')-coalesce(sum(t1.importo),0) as DIfferenza
-            from Contabilita_guadagnoeffettivo t1
-            Where t1.data_registrazione >= '{d[year]}-05-01' and t1.data_registrazione <= '{d[year]}-05-31'
-            union
-            select '06/GIUGNO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-06-01' and t2.data_registrazione <= '{d[year]}-06-30') -
+               from Contabilita_guadagnoeffettivo t1
+               Where t1.data_registrazione >= '{d[year]}-05-01' and t1.data_registrazione <= '{d[year]}-05-31'
+               union
+               select '06/GIUGNO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-06-01' and t2.data_registrazione <= '{d[year]}-06-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-06-01' and t1.data_registrazione <= '{d[year]}-06-30') as GuadagniTeorici,
                                       coalesce(sum(t1.importo),0) as GuadagniEffettivi, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico,
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-06-01' and t2.data_registrazione <= '{d[year]}-06-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-06-01' and t1.data_registrazione <= '{d[year]}-06-30')-coalesce(sum(t1.importo),0) as DIfferenza
-            from Contabilita_guadagnoeffettivo t1
-            Where t1.data_registrazione >= '{d[year]}-06-01' and t1.data_registrazione <= '{d[year]}-06-30'
-            union
-            select '07/LUGLIO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-07-01' and t2.data_registrazione <= '{d[year]}-07-31') -
+               from Contabilita_guadagnoeffettivo t1
+               Where t1.data_registrazione >= '{d[year]}-06-01' and t1.data_registrazione <= '{d[year]}-06-30'
+               union
+               select '07/LUGLIO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-07-01' and t2.data_registrazione <= '{d[year]}-07-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-07-01' and t1.data_registrazione <= '{d[year]}-07-31') as GuadagniTeorici,
                                       coalesce(sum(t1.importo),0) as GuadagniEffettivi, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico,
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-07-01' and t2.data_registrazione <= '{d[year]}-07-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-07-01' and t1.data_registrazione <= '{d[year]}-07-31')-coalesce(sum(t1.importo),0) as DIfferenza
-            from Contabilita_guadagnoeffettivo t1
-            Where t1.data_registrazione >= '{d[year]}-07-01' and t1.data_registrazione <= '{d[year]}-07-31'
-            union
-            select '08/AGOSTO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-08-01' and t2.data_registrazione <= '{d[year]}-08-31') -
+               from Contabilita_guadagnoeffettivo t1
+               Where t1.data_registrazione >= '{d[year]}-07-01' and t1.data_registrazione <= '{d[year]}-07-31'
+               union
+               select '08/AGOSTO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-08-01' and t2.data_registrazione <= '{d[year]}-08-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-08-01' and t1.data_registrazione <= '{d[year]}-08-31') as GuadagniTeorici,
                                       coalesce(sum(t1.importo),0) as GuadagniEffettivi, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico,
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-08-01' and t2.data_registrazione <= '{d[year]}-08-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-08-01' and t1.data_registrazione <= '{d[year]}-08-31')-coalesce(sum(t1.importo),0) as DIfferenza
-            from Contabilita_guadagnoeffettivo t1
-            Where t1.data_registrazione >= '{d[year]}-08-01' and t1.data_registrazione <= '{d[year]}-08-31'
-            union
-            select '09/SETTEMBRE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-09-01' and t2.data_registrazione <= '{d[year]}-09-30') -
+               from Contabilita_guadagnoeffettivo t1
+               Where t1.data_registrazione >= '{d[year]}-08-01' and t1.data_registrazione <= '{d[year]}-08-31'
+               union
+               select '09/SETTEMBRE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-09-01' and t2.data_registrazione <= '{d[year]}-09-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-09-01' and t1.data_registrazione <= '{d[year]}-09-30') as GuadagniTeorici,
                                       coalesce(sum(t1.importo),0) as GuadagniEffettivi, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico,
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-09-01' and t2.data_registrazione <= '{d[year]}-09-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-09-01' and t1.data_registrazione <= '{d[year]}-09-30')-coalesce(sum(t1.importo),0) as DIfferenza
-            from Contabilita_guadagnoeffettivo t1
-            Where t1.data_registrazione >= '{d[year]}-09-01' and t1.data_registrazione <= '{d[year]}-09-30'
-            union
-            select '10/OTTOBRE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-10-01' and t2.data_registrazione <= '{d[year]}-10-31') -
+               from Contabilita_guadagnoeffettivo t1
+               Where t1.data_registrazione >= '{d[year]}-09-01' and t1.data_registrazione <= '{d[year]}-09-30'
+               union
+               select '10/OTTOBRE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-10-01' and t2.data_registrazione <= '{d[year]}-10-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-10-01' and t1.data_registrazione <= '{d[year]}-10-31') as GuadagniTeorici,
                                       coalesce(sum(t1.importo),0) as GuadagniEffettivi, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico,
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-10-01' and t2.data_registrazione <= '{d[year]}-10-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-10-01' and t1.data_registrazione <= '{d[year]}-10-31')-coalesce(sum(t1.importo),0) as DIfferenza
-            from Contabilita_guadagnoeffettivo t1
-            Where t1.data_registrazione >= '{d[year]}-10-01' and t1.data_registrazione <= '{d[year]}-10-31'
-            union
-            select '11/NOVEMBRE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-11-01' and t2.data_registrazione <= '{d[year]}-11-30') -
+               from Contabilita_guadagnoeffettivo t1
+               Where t1.data_registrazione >= '{d[year]}-10-01' and t1.data_registrazione <= '{d[year]}-10-31'
+               union
+               select '11/NOVEMBRE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-11-01' and t2.data_registrazione <= '{d[year]}-11-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-11-01' and t1.data_registrazione <= '{d[year]}-11-30') as GuadagniTeorici,
                                       coalesce(sum(t1.importo),0) as GuadagniEffettivi, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico,
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-11-01' and t2.data_registrazione <= '{d[year]}-11-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-11-01' and t1.data_registrazione <= '{d[year]}-11-30')-coalesce(sum(t1.importo),0) as DIfferenza
-            from Contabilita_guadagnoeffettivo t1
-            Where t1.data_registrazione >= '{d[year]}-11-01' and t1.data_registrazione <= '{d[year]}-11-30'
-            union
-            select '12/DICEMBRE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-12-01' and t2.data_registrazione <= '{d[year]}-12-31') -
+               from Contabilita_guadagnoeffettivo t1
+               Where t1.data_registrazione >= '{d[year]}-11-01' and t1.data_registrazione <= '{d[year]}-11-30'
+               union
+               select '12/DICEMBRE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-12-01' and t2.data_registrazione <= '{d[year]}-12-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-12-01' and t1.data_registrazione <= '{d[year]}-12-31') as GuadagniTeorici,
                                       coalesce(sum(t1.importo),0) as GuadagniEffettivi, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico,
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-12-01' and t2.data_registrazione <= '{d[year]}-12-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-12-01' and t1.data_registrazione <= '{d[year]}-12-31')-coalesce(sum(t1.importo),0) as DIfferenza
-            from Contabilita_guadagnoeffettivo t1
-            Where t1.data_registrazione >= '2018-12-01' and t1.data_registrazione <= '2018-12-31'
-            union
-            select 'TOTALE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 Where t2.data_registrazione >= '{d[year]}-01-01' and t2.data_registrazione <= '{d[year]}-12-31') -
+               from Contabilita_guadagnoeffettivo t1
+               Where t1.data_registrazione >= '2018-12-01' and t1.data_registrazione <= '2018-12-31'
+               union
+               select 'TOTALE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 Where t2.data_registrazione >= '{d[year]}-01-01' and t2.data_registrazione <= '{d[year]}-12-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 Where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-12-31') as GuadagniTeorici,
                                       coalesce(sum(t1.importo),0) as GuadagniEffettivi, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico,
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 Where t2.data_registrazione >= '{d[year]}-01-01' and t2.data_registrazione <= '{d[year]}-12-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 Where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-12-31')-coalesce(sum(t1.importo),0) as DIfferenza
-            from Contabilita_guadagnoeffettivo t1
-            Where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-12-31'	  
-            ORDER BY mese ASC;""".format(d={'year': anno})
+               from Contabilita_guadagnoeffettivo t1
+               Where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-12-31'	  
+               ORDER BY mese ASC;""".format(d={'year': str(year)})
     cursor = connection.cursor()
     cursor.execute(query)
-    rows = cursor.fetchall()
-    return rows
+    return cursor.fetchall()
 
 def viewGestioneGuadagniEffettivi(request):
     if not request.user.is_authenticated:
@@ -951,12 +828,9 @@ def viewGestioneGuadagniEffettivi(request):
         if (request.method == "POST"):
             form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
             if (form.is_valid()):
-                return render(request, "Contabilita/GestioneGuadagniEffettivi.html",
-                              {'form': form, 'tabella_output3': execute_query_3(form['year'].value()),
-                               'year': form['year'].value()})
+                return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': execute_query_3(form['year'].value()), 'year': form['year'].value()})
             else:
-                return render(request, "Contabilita/GestioneGuadagniEffettivi.html",
-                              {'form': form, 'tabella_output3': []})
+                return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': []})
         else:
             form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi()
             return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': []})
@@ -977,8 +851,7 @@ def execute_query_4():
                WHERE saldo != 0 and t1.cliente_id = t4.id and t1.referente_id = t5.id"""
     cursor = connection.cursor()
     cursor.execute(query)
-    rows = cursor.fetchall()
-    return rows
+    return cursor.fetchall()
 
 def viewContabilitaProtocolli(request):
     if not request.user.is_authenticated:
@@ -987,17 +860,12 @@ def viewContabilitaProtocolli(request):
         return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': execute_query_4()})
 
 def export_input_table_xls(request, list, model):
-    fields_models = {'protocollo': ['Identificativo', 'Data Registrazione', 'Nominativo Cliente', 'Telefono Cliente',
-                                    'Nominativo Referente', 'Telefono Referente', 'Indirizzo', 'Pratica', 'Parcella',
-                                    'Note', 'Data Scadenza', 'Data Consegna', 'Responsabile'],
-                     'ricavo': ['Data Registrazione', 'Movimento', 'Importo', 'Fattura', 'Intestatario Fattura',
-                                'Id Protocollo', 'Indirizzo Protocollo', 'Note'],
-                     'spesacommessa': ['Data Registrazione', 'Importo', 'Id Protocollo', 'Indirizzo Protocollo',
-                                       'Note'],
+    fields_models = {'protocollo': ['Identificativo', 'Data Registrazione', 'Nominativo Cliente', 'Telefono Cliente', 'Nominativo Referente', 'Telefono Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Scadenza', 'Data Consegna', 'Responsabile'],
+                     'ricavo': ['Data Registrazione', 'Movimento', 'Importo', 'Fattura', 'Intestatario Fattura', 'Id Protocollo', 'Indirizzo Protocollo', 'Note'],
+                     'spesacommessa': ['Data Registrazione', 'Importo', 'Id Protocollo', 'Indirizzo Protocollo', 'Note'],
                      'spesagestione': ['Data Registrazione', 'Importo', 'Causale', 'Fattura'],
                      'guadagnoeffettivo': ['Data Registrazione', 'Importo'],
-                     'consulenza': ['Data Registrazione', 'Richiedente', 'Indirizzo', 'Attivita', 'Compenso', 'Note',
-                                    'Data Scadenza', 'Data Consegna', 'Responsabile'],
+                     'consulenza': ['Data Registrazione', 'Richiedente', 'Indirizzo', 'Attivita', 'Compenso', 'Note', 'Data Scadenza', 'Data Consegna', 'Responsabile'],
                      'rubricaclienti': ['Nominativo', 'Telefono', 'Mail', 'Note'],
                      'rubricareferenti': ['Nominativo', 'Telefono', 'Mail', 'Note']}
     name_file = request.POST.get("fname")
@@ -1047,13 +915,11 @@ def export_output_table_xls(request, numquery, year):
         rows = execute_query_2(year)
     if int(numquery) == 3:
         output = 'guadagni_eff'
-        columns = ['Mese', 'Guadagni Teorici (€)', 'Guadagni Effettivi (€)', 'Daniele (€)', 'Laura (€)', 'Federico (€)',
-                   'GT - GE (€)']
+        columns = ['Mese', 'Guadagni Teorici (€)', 'Guadagni Effettivi (€)', 'Daniele (€)', 'Laura (€)', 'Federico (€)', 'GT - GE (€)']
         rows = execute_query_3(year)
     if int(numquery) == 4:
         output = 'contabilita_protocolli'
-        columns = ['Identificativo', 'Cliente', 'Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Entrate', 'Uscite',
-                   'Saldo']
+        columns = ['Identificativo', 'Cliente', 'Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Entrate', 'Uscite', 'Saldo']
         rows = execute_query_4()
     wb = xlwt.Workbook(encoding='utf-8')
     if year == 'no':

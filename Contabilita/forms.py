@@ -163,18 +163,10 @@ class formRicavo(forms.ModelForm):
         query="""SELECT coalesce(sum(r.importo),0) as tot
                  FROM Contabilita_ricavo r
                  WHERE r.protocollo_id={}""".format(str(id_protocollo))
-
         cursor = connection.cursor()
         cursor.execute(query)
         rows = cursor.fetchone()
-
-        x=rows[0]
-        y=int(self.data['importo'])
-        z=protocollo.parcella
-        if(x+y<=z):
-            return True
-        else:
-            return False
+        return rows[0] + int(self.data['importo']) <= protocollo.parcella
 
 class formRicavoUpdate(forms.ModelForm):
     class Meta:
@@ -199,17 +191,10 @@ class formRicavoUpdate(forms.ModelForm):
         query="""SELECT coalesce(sum(r.importo),0) as tot
                  FROM Contabilita_ricavo r
                  WHERE r.protocollo_id={} AND r.id!={}""".format(str(id_protocollo), re.findall("(\d+)", str(id_ricavo))[0])
-
         cursor = connection.cursor()
         cursor.execute(query);
         rows = cursor.fetchone()
-        x=rows[0]
-        y=float(self.data['importo'])
-        z=protocollo.parcella
-        if(x+y<=z):
-            return True
-        else:
-            return False
+        return rows[0] + float(self.data['importo']) <= protocollo.parcella
 
 class formSpesaCommessa(forms.ModelForm):
     class Meta:
