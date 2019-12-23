@@ -163,7 +163,7 @@ def viewAllProtocols(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        protocollo_filter = ProtocolloFilter(request.GET, queryset=Protocollo.objects.all().order_by("-identificativo"))
+        protocollo_filter = ProtocolloFilter(request.GET, queryset=Protocollo.objects.all().order_by("-data_registrazione__year", "-identificativo"))
         sum_parcelle = round(protocollo_filter.qs.aggregate(Sum('parcella'))['parcella__sum'],2)
         context = {"filter": protocollo_filter, 'filter_queryset': protocollo_filter.qs, 'sum_p': sum_parcelle}
         return render(request, "Amministrazione/Protocollo/AllProtocols.html", context)
@@ -176,9 +176,9 @@ def viewCreateProtocol(request):
             form = formProtocol(request.POST)
             anno = form['data_registrazione'].value()[0:4]
             cursor = connection.cursor()
-            cursor.execute("""select count from Contabilita_calendariocontatore as c where c.id={}""".format(anno))
+            cursor.execute("""select count from Contabilita_calendariocontatore as c where c.id = :anno""", {'anno': anno})
             rows = cursor.fetchone()
-            cursor.execute("""update Contabilita_calendariocontatore  set count={} where id={}""".format(str(rows[0] + 1), anno))
+            cursor.execute("""update Contabilita_calendariocontatore  set count = :count where id = :id""",{'count': str(cursor.fetchone()[0] + 1), 'id': anno})
             form.set_identificativo(str('{0:03}'.format(rows[0] + 1)) + "-" + anno[2:4])
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
             form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
@@ -213,11 +213,11 @@ def viewUpdateProtocol(request, id):
     else:
         if (request.method == "POST"):
             form = formProtocolUpdate(request.POST, instance=Protocollo.objects.get(id=id))
-            anno = form['data_registrazione'].value()[0:4]
-            cursor = connection.cursor()
-            cursor.execute("""select count from Contabilita_calendariocontatore as c where c.id={}""".format(anno))
-            rows = cursor.fetchone()
-            cursor.execute("""update Contabilita_calendariocontatore  set count={} where id={}""".format(str(rows[0] + 1), anno))
+            anno = form['data_registrazione'].value()[-4:]
+            if anno != str(Protocollo.objects.get(id=id).data_registrazione.year):
+                cursor = connection.cursor()
+                cursor.execute("""select count from Contabilita_calendariocontatore as c where c.id = :anno""", {'anno': anno})
+                cursor.execute("""update Contabilita_calendariocontatore  set count = :count where id = :id""",{'count': str(cursor.fetchone()[0] + 1), 'id': anno})
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%d/%m/%Y").date()
             form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
             if (form.is_valid()):
@@ -412,26 +412,24 @@ def viewAllSoci(request):
         cursor = connection.cursor()
         soci = Socio.objects.all().order_by("-percentuale")
         for tipo_saldo in ['CARTA', 'DEPOSITO']:
-            query = """ SELECT coalesce(sum(t1.saldo),0)
-                        FROM(
-                        SELECT importo as saldo
-                        FROM Contabilita_ricavo
-                        WHERE destinazione='{t[tipo]}'
-                        UNION
-                        SELECT -importo as saldo
-                        FROM Contabilita_spesagestione
-                        WHERE provenienza='{t[tipo]}'
-                        UNION
-                        SELECT -importo as saldo
-                        FROM Contabilita_spesacommessa
-                        WHERE provenienza='{t[tipo]}'
-                        UNION
-                        SELECT -importo as saldo
-                        FROM Contabilita_guadagnoeffettivo
-                        WHERE provenienza='{t[tipo]}') t1""".format(t={'tipo': tipo_saldo})
-            cursor.execute(query)
-            rows = cursor.fetchone()
-            saldi.append(rows[0])
+            cursor.execute("""  SELECT coalesce(sum(t1.saldo),0)
+                                FROM(
+                                SELECT importo as saldo
+                                FROM Contabilita_ricavo
+                                WHERE destinazione = :provenienza
+                                UNION
+                                SELECT -importo as saldo
+                                FROM Contabilita_spesagestione
+                                WHERE provenienza = :provenienza
+                                UNION
+                                SELECT -importo as saldo
+                                FROM Contabilita_spesacommessa
+                                WHERE provenienza = :provenienza
+                                UNION
+                                SELECT -importo as saldo
+                                FROM Contabilita_guadagnoeffettivo
+                                WHERE provenienza = :provenienza) t1""", {'provenienza': tipo_saldo})
+            saldi.append(cursor.fetchone()[0])
         return render(request, "Contabilita/Socio/AllSoci.html", {"tabella_soci": soci, "lista_saldi": saldi})
 
 def viewUpdateSocio(request, id):
@@ -569,57 +567,58 @@ def viewUpdateGuadagnoEffettivo(request, id):
             return render(request, "Contabilita/GuadagnoEffettivo/UpdateGuadagnoEffettivo.html", {'form': form})
 
 def execute_query_1(year):
+    y = "'{}'".format(year)
     query = """ select '01/GENNAIO' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1  
-                where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-01-31' 
+                where strftime('%m', t1.data_registrazione) = '01' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 UNION
                 select '02/FEBBRAIO' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1  
-                where t1.data_registrazione >= '{d[year]}-02-01' and t1.data_registrazione <= '{d[year]}-02-28' 
+                where strftime('%m', t1.data_registrazione) = '02' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 UNION
                 select '03/MARZO' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1  
-                where t1.data_registrazione >= '{d[year]}-03-01' and t1.data_registrazione <= '{d[year]}-03-31'
+                where strftime('%m', t1.data_registrazione) = '03' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 UNION
                 select '04/APRILE' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1  
-                where t1.data_registrazione >= '{d[year]}-04-01' and t1.data_registrazione <= '{d[year]}-04-30' 
+                where strftime('%m', t1.data_registrazione) = '04' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 UNION
                 select '05/MAGGIO' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1  
-                where t1.data_registrazione >= '{d[year]}-05-01' and t1.data_registrazione <= '{d[year]}-05-31' 
+                where strftime('%m', t1.data_registrazione) = '05' and strftime('%Y', t1.data_registrazione) = '{d[year]}' 
                 UNION
                 select '06/GIUGNO' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1  
-                where t1.data_registrazione >= '{d[year]}-06-01' and t1.data_registrazione <= '{d[year]}-06-30' 
+                where strftime('%m', t1.data_registrazione) = '06' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 UNION
                 select '07/LUGLIO' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1  
-                where t1.data_registrazione >= '{d[year]}-07-01' and t1.data_registrazione <= '{d[year]}-07-31' 
+                where strftime('%m', t1.data_registrazione) = '07' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 UNION
                 select '08/AGOSTO' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1  
-                where t1.data_registrazione >= '{d[year]}-08-01' and t1.data_registrazione <= '{d[year]}-08-31' 
+                where strftime('%m', t1.data_registrazione) = '08' and strftime('%Y', t1.data_registrazione) = '{d[year]}' 
                 UNION
                 select '09/SETTEMBRE' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1  
-                where t1.data_registrazione >= '{d[year]}-09-01' and t1.data_registrazione <= '{d[year]}-09-30' 
+                where strftime('%m', t1.data_registrazione) = '09' and strftime('%Y', t1.data_registrazione) = '{d[year]}' 
                 UNION
                 select '10/OTTOBRE' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1  
-                where t1.data_registrazione >= '{d[year]}-10-01' and t1.data_registrazione <= '{d[year]}-10-31' 
+                where strftime('%m', t1.data_registrazione) = '10' and strftime('%Y', t1.data_registrazione) = '{d[year]}' 
                 UNION
                 select '11/NOVEMBRE' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1  
-                where t1.data_registrazione >= '{d[year]}-11-01' and t1.data_registrazione <= '{d[year]}-11-30' 
+                where strftime('%m', t1.data_registrazione) = '11' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 UNION
                 select '12/DICEMBRE' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1  
-                where t1.data_registrazione >= '{d[year]}-12-01' and t1.data_registrazione <= '{d[year]}-12-31'
+                where strftime('%m', t1.data_registrazione) = '12' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 UNION
                 select 'TOTALE' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1
-                where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-12-31'
+                where t1.data_registrazione between '{d[year]}-01-01' and '{d[year]}-12-31'
                 ORDER BY mese ASC;""".format(d={'year': str(year)})
     cursor = connection.cursor()
     cursor.execute(query)
@@ -642,51 +641,51 @@ def viewResocontoSpeseGestione(request):
 def execute_query_2(year):
     query = """ select '01/GENNAIO' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico
                 from Contabilita_ricavo t1  
-                where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-01-31' 
+                where strftime('%m', t1.data_registrazione) = '01' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 union
                 select '02/FEBBRAIO' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_ricavo t1  
-                where t1.data_registrazione >= '{d[year]}-02-01' and t1.data_registrazione <= '{d[year]}-02-28' 
+                where strftime('%m', t1.data_registrazione) = '02' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 union
                 select '03/MARZO' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_ricavo t1  
-                where t1.data_registrazione >= '{d[year]}-03-01' and t1.data_registrazione <= '{d[year]}-03-31' 
+                where strftime('%m', t1.data_registrazione) = '03' and strftime('%Y', t1.data_registrazione) = '{d[year]}' 
                 union
                 select '04/APRILE' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_ricavo t1
-                where t1.data_registrazione >= '{d[year]}-04-01' and t1.data_registrazione <= '{d[year]}-04-30' 
+                where strftime('%m', t1.data_registrazione) = '04' and strftime('%Y', t1.data_registrazione) = '{d[year]}' 
                 union
                 select '05/MAGGIO' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_ricavo t1
-                where t1.data_registrazione >= '{d[year]}-05-01' and t1.data_registrazione <= '{d[year]}-05-31' 
+                where strftime('%m', t1.data_registrazione) = '05' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 union
                 select '06/GIUGNO' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_ricavo t1
-                where t1.data_registrazione >= '{d[year]}-06-01' and t1.data_registrazione <= '{d[year]}-06-30' 
+                where strftime('%m', t1.data_registrazione) = '06' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 union
                 select '07/LUGLIO' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_ricavo t1
-                where t1.data_registrazione >= '{d[year]}-07-01' and t1.data_registrazione <= '{d[year]}-07-31' 
+                where strftime('%m', t1.data_registrazione) = '07' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 union
                 select '08/AGOSTO' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_ricavo t1
-                where t1.data_registrazione >= '{d[year]}-08-01' and t1.data_registrazione <= '{d[year]}-08-31' 
+                where strftime('%m', t1.data_registrazione) = '08' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 union
                 select '09/SETTEMBRE' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_ricavo t1
-                where t1.data_registrazione >= '{d[year]}-09-01' and t1.data_registrazione <= '{d[year]}-09-30' 
+                where strftime('%m', t1.data_registrazione) = '09' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 union
                 select '10/OTTOBRE' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_ricavo t1
-                where t1.data_registrazione >= '{d[year]}-10-01' and t1.data_registrazione <= '{d[year]}-10-31' 
+                where strftime('%m', t1.data_registrazione) = '10' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                 union
                 select '11/NOVEMBRE' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_ricavo t1
-                where t1.data_registrazione >= '{d[year]}-11-01' and t1.data_registrazione <= '{d[year]}-11-30' 
+                where strftime('%m', t1.data_registrazione) = '11' and strftime('%Y', t1.data_registrazione) = '{d[year]}' 
                 union
                 select '12/DICEMBRE' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_ricavo t1
-                where t1.data_registrazione >= '{d[year]}-12-01' and t1.data_registrazione <= '{d[year]}-12-31' 
+                where strftime('%m', t1.data_registrazione) = '12' and strftime('%Y', t1.data_registrazione) = '{d[year]}' 
                 union
                 select 'TOTALE' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_ricavo t1
@@ -717,8 +716,7 @@ def execute_query_3(year):
                (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-01-01' and t2.data_registrazione <= '{d[year]}-01-31') -
                (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-01-31')-coalesce(sum(t1.importo),0) as DIfferenza
                from Contabilita_guadagnoeffettivo t1
-
-               Where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-01-31'
+               where strftime('%m', t1.data_registrazione) = '01' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                union
                select '02/FEBBRAIO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-02-01' and t2.data_registrazione <= '{d[year]}-02-28') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-02-01' and t1.data_registrazione <= '{d[year]}-02-28') as GuadagniTeorici,
@@ -726,7 +724,7 @@ def execute_query_3(year):
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-02-01' and t2.data_registrazione <= '{d[year]}-02-28') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-02-01' and t1.data_registrazione <= '{d[year]}-02-28')-coalesce(sum(t1.importo),0) as DIfferenza
                from Contabilita_guadagnoeffettivo t1
-               Where t1.data_registrazione >= '{d[year]}-02-01' and t1.data_registrazione <= '{d[year]}-02-28'
+               where strftime('%m', t1.data_registrazione) = '02' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                union
                select '03/MARZO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-03-01' and t2.data_registrazione <= '{d[year]}-03-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-03-01' and t1.data_registrazione <= '{d[year]}-03-31') as GuadagniTeorici,
@@ -734,7 +732,7 @@ def execute_query_3(year):
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-03-01' and t2.data_registrazione <= '{d[year]}-03-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-03-01' and t1.data_registrazione <= '{d[year]}-03-31')-coalesce(sum(t1.importo),0) as DIfferenza
                from Contabilita_guadagnoeffettivo t1
-               Where t1.data_registrazione >= '{d[year]}-03-01' and t1.data_registrazione <= '{d[year]}-03-31'
+               where strftime('%m', t1.data_registrazione) = '03' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                union
                select '04/APRILE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-04-01' and t2.data_registrazione <= '{d[year]}-04-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-04-01' and t1.data_registrazione <= '{d[year]}-04-30') as GuadagniTeorici,
@@ -742,8 +740,7 @@ def execute_query_3(year):
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-04-01' and t2.data_registrazione <= '{d[year]}-04-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-04-01' and t1.data_registrazione <= '{d[year]}-04-30')-coalesce(sum(t1.importo),0) as DIfferenza
                from Contabilita_guadagnoeffettivo t1
-
-               Where t1.data_registrazione >= '{d[year]}-04-01' and t1.data_registrazione <= '{d[year]}-04-30'
+               where strftime('%m', t1.data_registrazione) = '04' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                union
                select '05/MAGGIO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-05-01' and t2.data_registrazione <= '{d[year]}-05-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-05-01' and t1.data_registrazione <= '{d[year]}-05-31') as GuadagniTeorici,
@@ -751,7 +748,7 @@ def execute_query_3(year):
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-05-01' and t2.data_registrazione <= '{d[year]}-05-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-05-01' and t1.data_registrazione <= '{d[year]}-05-31')-coalesce(sum(t1.importo),0) as DIfferenza
                from Contabilita_guadagnoeffettivo t1
-               Where t1.data_registrazione >= '{d[year]}-05-01' and t1.data_registrazione <= '{d[year]}-05-31'
+               where strftime('%m', t1.data_registrazione) = '05' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                union
                select '06/GIUGNO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-06-01' and t2.data_registrazione <= '{d[year]}-06-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-06-01' and t1.data_registrazione <= '{d[year]}-06-30') as GuadagniTeorici,
@@ -759,7 +756,7 @@ def execute_query_3(year):
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-06-01' and t2.data_registrazione <= '{d[year]}-06-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-06-01' and t1.data_registrazione <= '{d[year]}-06-30')-coalesce(sum(t1.importo),0) as DIfferenza
                from Contabilita_guadagnoeffettivo t1
-               Where t1.data_registrazione >= '{d[year]}-06-01' and t1.data_registrazione <= '{d[year]}-06-30'
+               where strftime('%m', t1.data_registrazione) = '06' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                union
                select '07/LUGLIO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-07-01' and t2.data_registrazione <= '{d[year]}-07-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-07-01' and t1.data_registrazione <= '{d[year]}-07-31') as GuadagniTeorici,
@@ -767,7 +764,7 @@ def execute_query_3(year):
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-07-01' and t2.data_registrazione <= '{d[year]}-07-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-07-01' and t1.data_registrazione <= '{d[year]}-07-31')-coalesce(sum(t1.importo),0) as DIfferenza
                from Contabilita_guadagnoeffettivo t1
-               Where t1.data_registrazione >= '{d[year]}-07-01' and t1.data_registrazione <= '{d[year]}-07-31'
+               where strftime('%m', t1.data_registrazione) = '07' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                union
                select '08/AGOSTO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-08-01' and t2.data_registrazione <= '{d[year]}-08-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-08-01' and t1.data_registrazione <= '{d[year]}-08-31') as GuadagniTeorici,
@@ -775,7 +772,7 @@ def execute_query_3(year):
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-08-01' and t2.data_registrazione <= '{d[year]}-08-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-08-01' and t1.data_registrazione <= '{d[year]}-08-31')-coalesce(sum(t1.importo),0) as DIfferenza
                from Contabilita_guadagnoeffettivo t1
-               Where t1.data_registrazione >= '{d[year]}-08-01' and t1.data_registrazione <= '{d[year]}-08-31'
+               where strftime('%m', t1.data_registrazione) = '08' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                union
                select '09/SETTEMBRE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-09-01' and t2.data_registrazione <= '{d[year]}-09-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-09-01' and t1.data_registrazione <= '{d[year]}-09-30') as GuadagniTeorici,
@@ -783,7 +780,7 @@ def execute_query_3(year):
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-09-01' and t2.data_registrazione <= '{d[year]}-09-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-09-01' and t1.data_registrazione <= '{d[year]}-09-30')-coalesce(sum(t1.importo),0) as DIfferenza
                from Contabilita_guadagnoeffettivo t1
-               Where t1.data_registrazione >= '{d[year]}-09-01' and t1.data_registrazione <= '{d[year]}-09-30'
+               where strftime('%m', t1.data_registrazione) = '09' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                union
                select '10/OTTOBRE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-10-01' and t2.data_registrazione <= '{d[year]}-10-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-10-01' and t1.data_registrazione <= '{d[year]}-10-31') as GuadagniTeorici,
@@ -791,7 +788,7 @@ def execute_query_3(year):
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-10-01' and t2.data_registrazione <= '{d[year]}-10-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-10-01' and t1.data_registrazione <= '{d[year]}-10-31')-coalesce(sum(t1.importo),0) as DIfferenza
                from Contabilita_guadagnoeffettivo t1
-               Where t1.data_registrazione >= '{d[year]}-10-01' and t1.data_registrazione <= '{d[year]}-10-31'
+               where strftime('%m', t1.data_registrazione) = '10' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                union
                select '11/NOVEMBRE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-11-01' and t2.data_registrazione <= '{d[year]}-11-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-11-01' and t1.data_registrazione <= '{d[year]}-11-30') as GuadagniTeorici,
@@ -799,7 +796,7 @@ def execute_query_3(year):
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-11-01' and t2.data_registrazione <= '{d[year]}-11-30') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-11-01' and t1.data_registrazione <= '{d[year]}-11-30')-coalesce(sum(t1.importo),0) as DIfferenza
                from Contabilita_guadagnoeffettivo t1
-               Where t1.data_registrazione >= '{d[year]}-11-01' and t1.data_registrazione <= '{d[year]}-11-30'
+               where strftime('%m', t1.data_registrazione) = '11' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                union
                select '12/DICEMBRE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-12-01' and t2.data_registrazione <= '{d[year]}-12-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-12-01' and t1.data_registrazione <= '{d[year]}-12-31') as GuadagniTeorici,
@@ -807,7 +804,7 @@ def execute_query_3(year):
                                       (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where t2.data_registrazione >= '{d[year]}-12-01' and t2.data_registrazione <= '{d[year]}-12-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where t1.data_registrazione >= '{d[year]}-12-01' and t1.data_registrazione <= '{d[year]}-12-31')-coalesce(sum(t1.importo),0) as DIfferenza
                from Contabilita_guadagnoeffettivo t1
-               Where t1.data_registrazione >= '2018-12-01' and t1.data_registrazione <= '2018-12-31'
+               where strftime('%m', t1.data_registrazione) = '12' and strftime('%Y', t1.data_registrazione) = '{d[year]}'
                union
                select 'TOTALE' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 Where t2.data_registrazione >= '{d[year]}-01-01' and t2.data_registrazione <= '{d[year]}-12-31') -
                                       (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 Where t1.data_registrazione >= '{d[year]}-01-01' and t1.data_registrazione <= '{d[year]}-12-31') as GuadagniTeorici,
@@ -868,9 +865,8 @@ def export_input_table_xls(request, list, model):
                      'consulenza': ['Data Registrazione', 'Richiedente', 'Indirizzo', 'Attivita', 'Compenso', 'Note', 'Data Scadenza', 'Data Consegna', 'Responsabile'],
                      'rubricaclienti': ['Nominativo', 'Telefono', 'Mail', 'Note'],
                      'rubricareferenti': ['Nominativo', 'Telefono', 'Mail', 'Note']}
-    name_file = request.POST.get("fname")
     response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="{}.xls"'.format(name_file)
+    response['Content-Disposition'] = 'attachment; filename="{}.xls"'.format(request.POST.get("fname"))
     wb = xlwt.Workbook(encoding='utf-8')
     ws = wb.add_sheet(model)
     row_num = 0
