@@ -178,7 +178,7 @@ def viewCreateProtocol(request):
             cursor = connection.cursor()
             cursor.execute("""select count from Contabilita_calendariocontatore as c where c.id = :anno""", {'anno': anno})
             rows = cursor.fetchone()
-            cursor.execute("""update Contabilita_calendariocontatore  set count = :count where id = :id""",{'count': str(cursor.fetchone()[0] + 1), 'id': anno})
+            cursor.execute("""update Contabilita_calendariocontatore  set count = :count where id = :id""",{'count': str(rows[0] + 1), 'id': anno})
             form.set_identificativo(str('{0:03}'.format(rows[0] + 1)) + "-" + anno[2:4])
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
             form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
