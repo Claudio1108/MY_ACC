@@ -144,7 +144,6 @@
                 <th>richiedente</th>
                 <th>indirizzo</th>
                 <th>attività</th>
-                <th>compenso</th>
                 <th>note</th>
                 <th>scadenza</th>
                 <th>consegna</th>
@@ -161,7 +160,6 @@
                         <td style='width: 300px;'>{{ b.richiedente|default_if_none:'' }}</td>
                         <td style='width: 350px;'>{{ b.indirizzo }}</td>
                         <td style='width: 100px;'>{{ b.attivita }}</td>
-                        <td style='width: 30px;'>{{ b.compenso }}</td>
                         <td style='width: 500px;'>{{ b.note|safe }}</td>
                         <td style='width: 150px;'>{{ b.data_scadenza }}</td>
                         <td style='width: 150px;'>{{ b.data_consegna|default_if_none:'' }}</td>
@@ -179,7 +177,6 @@
                             <td style='width: 300px;'>{{ b.richiedente|default_if_none:'' }}</td>
                             <td style='width: 350px;'>{{ b.indirizzo }}</td>
                             <td style='width: 100px;'>{{ b.attivita }}</td>
-                            <td style='width: 30px;'>{{ b.compenso }}</td>
                             <td style='width: 500px;'>{{ b.note|safe }}</td>
                             <td style='width: 150px;'>{{ b.data_scadenza }}</td>
                             <td style='width: 150px;'>{{ b.data_consegna|default_if_none:'' }}</td>
@@ -197,7 +194,6 @@
                                 <td style='width: 300px;'>{{ b.richiedente|default_if_none:'' }}</td>
                                 <td style='width: 350px;'>{{ b.indirizzo }}</td>
                                 <td style='width: 100px;'>{{ b.attivita }}</td>
-                                <td style='width: 30px;'>{{ b.compenso }}</td>
                                 <td style='width: 500px;'>{{ b.note|safe }}</td>
                                 <td style='width: 150px;'>{{ b.data_scadenza }}</td>
                                 <td style='width: 150px;'>{{ b.data_consegna|default_if_none:'' }}</td>
@@ -214,7 +210,6 @@
                                 <td style='width: 300px;'>{{ b.richiedente|default_if_none:'' }}</td>
                                 <td style='width: 350px;'>{{ b.indirizzo }}</td>
                                 <td style='width: 100px;'>{{ b.attivita }}</td>
-                                <td style='width: 30px;'>{{ b.compenso }}</td>
                                 <td style='width: 500px;'>{{ b.note|safe }}</td>
                                 <td style='width: 150px;'>{{ b.data_scadenza }}</td>
                                 <td style='width: 150px;'>{{ b.data_consegna|default_if_none:'' }}</td>
