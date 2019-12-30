@@ -164,7 +164,7 @@ def viewAllProtocols(request):
         return redirect("/accounts/login/")
     else:
         protocollo_filter = ProtocolloFilter(request.GET, queryset=Protocollo.objects.all().order_by("-data_registrazione__year", "-identificativo"))
-        sum_parcelle = round(protocollo_filter.qs.aggregate(Sum('parcella'))['parcella__sum'],2)
+        sum_parcelle = round(protocollo_filter.qs.aggregate(Sum('parcella'))['parcella__sum'] or 0, 2)
         context = {"filter": protocollo_filter, 'filter_queryset': protocollo_filter.qs, 'sum_p': sum_parcelle}
         return render(request, "Amministrazione/Protocollo/AllProtocols.html", context)
 
@@ -182,10 +182,14 @@ def viewCreateProtocol(request):
             form.set_identificativo(str('{0:03}'.format(rows[0] + 1)) + "-" + anno[2:4])
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
             form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
-            if (form.is_valid()):
-                form.save()
-                return redirect('AllProtocols')
+            if (form.check_date()):
+                if (form.is_valid()):
+                    form.save()
+                    return redirect('AllProtocols')
+                else:
+                    return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': form})
             else:
+                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o correnti alla Data di Registrazione.')
                 return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': form})
         else:
             form = formProtocol()
@@ -220,10 +224,14 @@ def viewUpdateProtocol(request, id):
                 cursor.execute("""update Contabilita_calendariocontatore  set count = :count where id = :id""",{'count': str(cursor.fetchone()[0] + 1), 'id': anno})
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%d/%m/%Y").date()
             form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
-            if (form.is_valid()):
-                form.save()
-                return redirect('AllProtocols')
+            if (form.check_date()):
+                if (form.is_valid()):
+                    form.save()
+                    return redirect('AllProtocols')
+                else:
+                    return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
             else:
+                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o correnti alla Data di Registrazione.')
                 return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
         else:
             form = formProtocolUpdate(instance=Protocollo.objects.get(id=id))
@@ -234,7 +242,7 @@ def viewAllConsulenze(request):
         return redirect("/accounts/login/")
     else:
         consulenza_filter = ConsulenzaFilter(request.GET, queryset=Consulenza.objects.all().order_by("-id"))
-        sum_compensi = round(consulenza_filter.qs.aggregate(Sum('compenso'))['compenso__sum'], 2)
+        sum_compensi = round(consulenza_filter.qs.aggregate(Sum('compenso'))['compenso__sum'] or 0, 2)
         context = {"filter": consulenza_filter, 'filter_queryset': consulenza_filter.qs, 'sum_c': sum_compensi}
         return render(request, "Amministrazione/Consulenza/AllConsulenze.html", context)
 
@@ -246,10 +254,14 @@ def viewCreateConsulenza(request):
             form = formConsulenza(request.POST)
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
             form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
-            if (form.is_valid()):
-                form.save()
-                return redirect('AllConsulenze')
+            if (form.check_date()):
+                if (form.is_valid()):
+                    form.save()
+                    return redirect('AllConsulenze')
+                else:
+                    return render(request, "Amministrazione/Consulenza/CreateConsulenza.html", {'form': form})
             else:
+                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o correnti alla Data di Registrazione.')
                 return render(request, "Amministrazione/Consulenza/CreateConsulenza.html", {'form': form})
         else:
             form = formConsulenza()
@@ -279,10 +291,14 @@ def viewUpdateConsulenza(request, id):
             form = formConsulenzaUpdate(request.POST, instance=Consulenza.objects.get(id=id))
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%d/%m/%Y").date()
             form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
-            if (form.is_valid()):
-                form.save()
-                return redirect('AllConsulenze')
+            if (form.check_date()):
+                if (form.is_valid()):
+                    form.save()
+                    return redirect('AllConsulenze')
+                else:
+                    return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': form})
             else:
+                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o correnti alla Data di Registrazione.')
                 return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': form})
         else:
             form = formConsulenzaUpdate(instance=Consulenza.objects.get(id=id))
@@ -293,7 +309,7 @@ def viewAllRicavi(request):
         return redirect("/accounts/login/")
     else:
         ricavo_filter = RicavoFilter(request.GET, queryset=Ricavo.objects.all().order_by("-data_registrazione"))
-        sum_ricavi = round(ricavo_filter.qs.aggregate(Sum('importo'))['importo__sum'], 2)
+        sum_ricavi = round(ricavo_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
         context = {"filter": ricavo_filter, 'filter_queryset': ricavo_filter.qs, 'sum_r': sum_ricavi}
         return render(request, "Contabilita/Ricavo/AllRicavi.html", context)
 
@@ -355,7 +371,7 @@ def viewAllSpeseCommessa(request):
         return redirect("/accounts/login/")
     else:
         spesacommessa_filter = SpesaCommessaFilter(request.GET, queryset=SpesaCommessa.objects.all().order_by("-data_registrazione"))
-        sum_spesecommessa = round(spesacommessa_filter.qs.aggregate(Sum('importo'))['importo__sum'], 2)
+        sum_spesecommessa = round(spesacommessa_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
         return render(request, "Contabilita/SpesaCommessa/AllSpeseCommessa.html", {"filter": spesacommessa_filter, 'filter_queryset': spesacommessa_filter.qs, 'sum_s': sum_spesecommessa})
 
 def viewCreateSpesaCommessa(request):
@@ -463,7 +479,7 @@ def viewAllSpeseGestione(request):
         return redirect("/accounts/login/")
     else:
         spesagestione_filter = SpesaGestioneFilter(request.GET, queryset=SpesaGestione.objects.all().order_by("-data_registrazione"))
-        sum_spesegestione = round(spesagestione_filter.qs.aggregate(Sum('importo'))['importo__sum'], 2)
+        sum_spesegestione = round(spesagestione_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
         return render(request, "Contabilita/SpesaGestione/AllSpeseGestione.html", {"filter": spesagestione_filter, 'filter_queryset': spesagestione_filter.qs, 'sum_s': sum_spesegestione})
 
 def viewCreateSpesaGestione(request):
@@ -517,7 +533,7 @@ def viewAllGuadagniEffettivi(request):
         return redirect("/accounts/login/")
     else:
         guadagnoeffettivo_filter = GuadagnoEffettivoFilter(request.GET, queryset=GuadagnoEffettivo.objects.all().order_by("-data_registrazione"))
-        sum_guadagnieffettivi = round(guadagnoeffettivo_filter.qs.aggregate(Sum('importo'))['importo__sum'], 2)
+        sum_guadagnieffettivi = round(guadagnoeffettivo_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
         return render(request, "Contabilita/GuadagnoEffettivo/AllGuadagniEffettivi.html", {"filter": guadagnoeffettivo_filter, "filter_queryset": guadagnoeffettivo_filter.qs, 'sum_g': sum_guadagnieffettivi})
 
 def viewCreateGuadagnoEffettivo(request):

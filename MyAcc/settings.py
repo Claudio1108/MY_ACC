@@ -114,5 +114,5 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # se impostato a True, la sessione scade alla chiusura di tutte le finestre del browser.
 # se impostato a False, il cookie viene memorizzato permanentemente sul browser e non bisognerà più reinserire le credenziali.
-SESSION_COOKIE_AGE = 3600
+SESSION_COOKIE_AGE = 7200
 # la sessione scade dopo n secondi. Dopo un tempo stabilito per poter utilizzare il sito andranno reinserite le credenziali.

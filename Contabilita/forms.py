@@ -53,6 +53,10 @@ class formProtocol(forms.ModelForm):
             'cliente': autocomplete.ModelSelect2(url='cliente_autocomp'),
             'referente': autocomplete.ModelSelect2(url='referente_autocomp')}
 
+    def check_date(self):
+        data = self.data.copy()
+        return data['data_scadenza'] >= data['data_registrazione'] or data['data_consegna'] >= data['data_registrazione']
+
     def set_identificativo(self,value):
         data = self.data.copy()
         data['identificativo'] = value
@@ -87,6 +91,13 @@ class formProtocolUpdate(forms.ModelForm):
             'referente': autocomplete.ModelSelect2(url='referente_autocomp')
         }
 
+    def check_date(self):
+        data = self.data.copy()
+        registrazione = datetime.strptime(data['data_registrazione'], '%d/%m/%Y').strftime('%Y-%m-%d')
+        scadenza = datetime.strptime(data['data_scadenza'], '%d/%m/%Y').strftime('%Y-%m-%d')
+        consegna = datetime.strptime(data['data_consegna'], '%d/%m/%Y').strftime('%Y-%m-%d') if data['data_consegna'] else ''
+        return scadenza >= registrazione or consegna >= registrazione
+
     def set_status(self,value):
         data = self.data.copy()
         data['status'] = value
@@ -112,6 +123,10 @@ class formConsulenza(forms.ModelForm):
             'data_consegna': DateInput(),
             'status' : forms.HiddenInput()}
 
+    def check_date(self):
+        data = self.data.copy()
+        return data['data_scadenza'] >= data['data_registrazione'] or data['data_consegna'] >= data['data_registrazione']
+
     def set_status(self,value):
         data = self.data.copy()
         data['status'] = value
@@ -134,6 +149,13 @@ class formConsulenzaUpdate(forms.ModelForm):
         widgets = {
             'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
             'status': forms.HiddenInput()}
+
+    def check_date(self):
+        data = self.data.copy()
+        registrazione = datetime.strptime(data['data_registrazione'], '%d/%m/%Y').strftime('%Y-%m-%d')
+        scadenza = datetime.strptime(data['data_scadenza'], '%d/%m/%Y').strftime('%Y-%m-%d')
+        consegna = datetime.strptime(data['data_consegna'], '%d/%m/%Y').strftime('%Y-%m-%d') if data['data_consegna'] else ''
+        return scadenza >= registrazione or consegna >= registrazione
 
     def set_status(self, value):
         data = self.data.copy()

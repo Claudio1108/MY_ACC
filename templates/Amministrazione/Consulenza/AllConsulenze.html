@@ -158,7 +158,7 @@
                             <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                         </td>
                         <td style='width: 150px;'>{{ b.data_registrazione }}</td>
-                        <td style='width: 300px;'>{{ b.richiedente }}</td>
+                        <td style='width: 300px;'>{{ b.richiedente|default_if_none:'' }}</td>
                         <td style='width: 350px;'>{{ b.indirizzo }}</td>
                         <td style='width: 100px;'>{{ b.attivita }}</td>
                         <td style='width: 30px;'>{{ b.compenso }}</td>
@@ -176,7 +176,7 @@
                                 <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                             </td>
                             <td style='width: 150px;'>{{ b.data_registrazione }}</td>
-                            <td style='width: 300px;'>{{ b.richiedente }}</td>
+                            <td style='width: 300px;'>{{ b.richiedente|default_if_none:'' }}</td>
                             <td style='width: 350px;'>{{ b.indirizzo }}</td>
                             <td style='width: 100px;'>{{ b.attivita }}</td>
                             <td style='width: 30px;'>{{ b.compenso }}</td>
@@ -194,7 +194,7 @@
                                     <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                                 </td>
                                 <td style='width: 150px;'>{{ b.data_registrazione }}</td>
-                                <td style='width: 300px;'>{{ b.richiedente }}</td>
+                                <td style='width: 300px;'>{{ b.richiedente|default_if_none:'' }}</td>
                                 <td style='width: 350px;'>{{ b.indirizzo }}</td>
                                 <td style='width: 100px;'>{{ b.attivita }}</td>
                                 <td style='width: 30px;'>{{ b.compenso }}</td>
@@ -211,7 +211,7 @@
                                     <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                                 </td>
                                 <td style='width: 150px;'>{{ b.data_registrazione }}</td>
-                                <td style='width: 300px;'>{{ b.richiedente }}</td>
+                                <td style='width: 300px;'>{{ b.richiedente|default_if_none:'' }}</td>
                                 <td style='width: 350px;'>{{ b.indirizzo }}</td>
                                 <td style='width: 100px;'>{{ b.attivita }}</td>
                                 <td style='width: 30px;'>{{ b.compenso }}</td>
