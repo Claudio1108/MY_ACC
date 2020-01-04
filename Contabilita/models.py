@@ -39,7 +39,7 @@ class Protocollo(models.Model):
     note = RichTextField(null=True, blank=True)
     data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None) #obbligatorio
     data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
-    status = models.IntegerField(default=None)
+    status = models.IntegerField(default=None, null=True, blank=True)
     #foreign_key
     responsabile = models.ForeignKey(Socio, on_delete=models.CASCADE, null=True, blank=True)
 
@@ -101,7 +101,7 @@ class Consulenza(models.Model):
     note = RichTextField(null=True, blank=True)
     data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None)  #obbligatorio
     data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
-    status = models.IntegerField(default=None)
+    status = models.IntegerField(default=None, null=True, blank=True)
     # foreign_key
     responsabile = models.ForeignKey(Socio, on_delete=models.CASCADE, null=True, blank=True)
 

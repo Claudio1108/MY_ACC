@@ -181,7 +181,7 @@ def viewCreateProtocol(request):
             cursor.execute("""update Contabilita_calendariocontatore  set count = :count where id = :id""",{'count': str(rows[0] + 1), 'id': anno})
             form.set_identificativo(str('{0:03}'.format(rows[0] + 1)) + "-" + anno[2:4])
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
-            form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
+            form.set_status(None) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
             if (form.check_date()):
                 if (form.is_valid()):
                     form.save()
@@ -223,7 +223,7 @@ def viewUpdateProtocol(request, id):
                 cursor.execute("""select count from Contabilita_calendariocontatore as c where c.id = :anno""", {'anno': anno})
                 cursor.execute("""update Contabilita_calendariocontatore  set count = :count where id = :id""",{'count': str(cursor.fetchone()[0] + 1), 'id': anno})
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%d/%m/%Y").date()
-            form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
+            form.set_status(None) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
             if (form.check_date()):
                 if (form.is_valid()):
                     form.save()
@@ -253,7 +253,7 @@ def viewCreateConsulenza(request):
         if (request.method == "POST"):
             form = formConsulenza(request.POST)
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
-            form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
+            form.set_status(None) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
             if (form.check_date()):
                 if (form.is_valid()):
                     form.save()
@@ -290,7 +290,7 @@ def viewUpdateConsulenza(request, id):
         if (request.method == "POST"):
             form = formConsulenzaUpdate(request.POST, instance=Consulenza.objects.get(id=id))
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%d/%m/%Y").date()
-            form.set_status(0) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
+            form.set_status(None) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
             if (form.check_date()):
                 if (form.is_valid()):
                     form.save()
