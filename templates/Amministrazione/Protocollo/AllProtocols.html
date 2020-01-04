@@ -4,6 +4,7 @@
 {% block name %}TABELLA DEI PROTOCOLLI{% endblock %}
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <script>
         $(document).ready(function(){
           $('[data-toggle="tooltip"]').tooltip();
@@ -101,20 +102,22 @@
 
 {% block content %}
     <form method="get">
-        <table border="5">
+        <table border="1" rules="none" bgcolor="#D3D3D3">
         {% for field in filter.form %}
             {% if field.name == "status" %}
-                <tr><a data-toggle="tooltip" data-html="true" data-placement="top" title="ROSSI<br>min = vuoto - max = -1<br>GIALLI<br>min = 1 - max = 3<br>VERDI<br>min = 4 - max = vuoto">{{ field.label }}</a> {{ field }}</tr>
+            <tr>
+                <td><a data-toggle="tooltip" data-html="true" data-placement="top" title="ROSSI<br>min = vuoto - max = -1<br>GIALLI<br>min = 0 - max = 3<br>VERDI<br>min = 4 - max = vuoto">{{ field.label }}</a></td>
+                <td> {{ field }}</td>
+            </tr>
             {% else %}
-                {% if forloop.counter|divisibleby:"2" %}
-                    <tr>{{ field.label }} {{ field }}</tr></br></br>
-                {% else %}
-                    <tr>{{ field.label }} {{ field }}</tr>&nbsp;&nbsp;&nbsp;
-                {% endif %}
+                <tr>
+                    <td>{{ field.label }}</td>
+                    <td>{{ field }}</td>
+                </tr>
             {% endif %}
         {% endfor %}
         </table></br>
-        <button type="submit">Filtra</button>
+	    <button type="submit"><i class="fa fa-filter" aria-hidden="true"></i> Filtra</button>
     </form>
     </br>
     <table align="left" style="width:100%">
@@ -191,7 +194,7 @@
                             <td style='width: 15px;' align="center"><a href="/DeleteProtocol/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Protocollo ?')">X</a></td>
                         </tr>
                     {% else %}
-                        {% if b.status > 0 and b.status <= 3 %}
+                        {% if b.status >= 0 and b.status <= 3 %}
                             <tr style="background-color:yellow">
                                 <td style='width: 10px;'>
                                     <input type="checkbox" class="checks" name="b1" value={{b.id}}>

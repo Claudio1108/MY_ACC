@@ -4,6 +4,7 @@
 {% block name %}TABELLA DEI REFERENTI{% endblock %}
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <script type="text/javascript">
 
         	function selectAll(){
@@ -60,16 +61,15 @@
 
 {% block content %}
     <form method="get">
-        <table border="5">
+        <table border="1" rules="none" bgcolor="#D3D3D3">
         {% for field in filter.form %}
-            {% if forloop.counter|divisibleby:"2" %}
-                <tr>{{ field.label }} {{ field }}</tr></br></br>
-            {% else %}
-                <tr>{{ field.label }} {{ field }}</tr>&nbsp;&nbsp;&nbsp;
-            {% endif %}
+            <tr>
+                <td>{{ field.label }}</td>
+                <td>{{ field }}</td>
+            </tr>
         {% endfor %}
         </table></br>
-        <button type="submit">Filtra</button>
+	    <button type="submit"><i class="fa fa-filter" aria-hidden="true"></i> Filtra</button>
     </form>
     </br>
     <table align="left" style="width:100%">
