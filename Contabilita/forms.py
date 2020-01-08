@@ -182,13 +182,11 @@ class formRicavo(forms.ModelForm):
     def Check1(self):
         id_protocollo = self.data['protocollo']
         protocollo = Protocollo.objects.get(id=id_protocollo)
-        query="""SELECT coalesce(sum(r.importo),0) as tot
-                 FROM Contabilita_ricavo r
-                 WHERE r.protocollo_id={}""".format(str(id_protocollo))
         cursor = connection.cursor()
-        cursor.execute(query)
-        rows = cursor.fetchone()
-        return rows[0] + int(self.data['importo']) <= protocollo.parcella
+        cursor.execute("""SELECT coalesce(sum(r.importo),0) as tot
+                          FROM Contabilita_ricavo r
+                          WHERE r.protocollo_id = :proto_id""", {'proto_id': str(id_protocollo)})
+        return cursor.fetchone()[0] + float(self.data['importo']) <= protocollo.parcella
 
 class formRicavoUpdate(forms.ModelForm):
     class Meta:
@@ -210,13 +208,11 @@ class formRicavoUpdate(forms.ModelForm):
     def Check2(self, id_ricavo):
         id_protocollo = self.data['protocollo']
         protocollo = Protocollo.objects.get(id=id_protocollo)
-        query="""SELECT coalesce(sum(r.importo),0) as tot
-                 FROM Contabilita_ricavo r
-                 WHERE r.protocollo_id={} AND r.id!={}""".format(str(id_protocollo), re.findall("(\d+)", str(id_ricavo))[0])
         cursor = connection.cursor()
-        cursor.execute(query);
-        rows = cursor.fetchone()
-        return rows[0] + float(self.data['importo']) <= protocollo.parcella
+        cursor.execute("""SELECT coalesce(sum(r.importo),0) as tot
+                          FROM Contabilita_ricavo r
+                          WHERE r.protocollo_id = :proto_id  AND r.id != :ricavo_id""", {'proto_id': str(id_protocollo), 'ricavo_id': re.findall("(\d+)", str(id_ricavo))[0]})
+        return cursor.fetchone()[0] + float(self.data['importo']) <= protocollo.parcella
 
 class formSpesaCommessa(forms.ModelForm):
     class Meta:
@@ -250,8 +246,7 @@ class formSocio(forms.ModelForm):
     class Meta:
         model = Socio
         fields = ["percentuale"]
-        labels = {
-            "percentuale": ""}
+        labels = {"percentuale": ""}
 
 class formSpesaGestione(forms.ModelForm):
     class Meta:
@@ -263,8 +258,7 @@ class formSpesaGestione(forms.ModelForm):
             "causale": "Causale ",
             "fattura": "Fattura ",
             "provenienza": "Provenienza "}
-        widgets = {
-            'data_registrazione': DateInput()}
+        widgets = {'data_registrazione': DateInput()}
 
 class formSpesaGestioneUpdate(forms.ModelForm):
     class Meta:
@@ -276,8 +270,7 @@ class formSpesaGestioneUpdate(forms.ModelForm):
             "causale": "Causale ",
             "fattura": "Fattura ",
             "provenienza": "Provenienza "}
-        widgets = {
-            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
+        widgets = {'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
 
 class formGuadagnoEffettivo(forms.ModelForm):
     class Meta:
@@ -287,8 +280,7 @@ class formGuadagnoEffettivo(forms.ModelForm):
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
             "provenienza": "Provenienza "}
-        widgets = {
-            'data_registrazione': DateInput()}
+        widgets = {'data_registrazione': DateInput()}
 
 class formGuadagnoEffettivoUpdate(forms.ModelForm):
     class Meta:
@@ -298,8 +290,7 @@ class formGuadagnoEffettivoUpdate(forms.ModelForm):
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
             "provenienza": "Provenienza "}
-        widgets = {
-            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
+        widgets = {'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
 
 class form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(forms.Form):
     year = forms.IntegerField(required = True, initial=datetime.now().year, label='Anno')

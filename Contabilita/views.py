@@ -72,8 +72,7 @@ def viewCreateCliente(request):
             else:
                 return render(request, "Amministrazione/Cliente/CreateCliente.html", {'form': form})
         else:
-            form = formCliente()
-            return render(request, "Amministrazione/Cliente/CreateCliente.html", {'form': form})
+            return render(request, "Amministrazione/Cliente/CreateCliente.html", {'form': formCliente()})
 
 def viewDeleteCliente(request, id):
     if not request.user.is_authenticated:
@@ -103,8 +102,7 @@ def viewUpdateCliente(request, id):
             else:
                 return render(request, "Amministrazione/Cliente/UpdateCliente.html", {'form': form})
         else:
-            form = formCliente(instance=RubricaClienti.objects.get(id=id))
-            return render(request, "Amministrazione/Cliente/UpdateCliente.html", {'form': form})
+            return render(request, "Amministrazione/Cliente/UpdateCliente.html", {'form': formCliente(instance=RubricaClienti.objects.get(id=id))})
 
 def viewAllReferenti(request):
     if not request.user.is_authenticated:
@@ -125,8 +123,7 @@ def viewCreateReferente(request):
             else:
                 return render(request, "Amministrazione/Referente/CreateReferente.html", {'form': form})
         else:
-            form = formReferente()
-            return render(request, "Amministrazione/Referente/CreateReferente.html", {'form': form})
+            return render(request, "Amministrazione/Referente/CreateReferente.html", {'form': formReferente()})
 
 def viewDeleteReferente(request, id):
     if not request.user.is_authenticated:
@@ -156,8 +153,7 @@ def viewUpdateReferente(request, id):
             else:
                 return render(request, "Amministrazione/Referente/UpdateReferente.html", {'form': form})
         else:
-            form = formReferente(instance=RubricaReferenti.objects.get(id=id))
-            return render(request, "Amministrazione/Referente/UpdateReferente.html", {'form': form})
+            return render(request, "Amministrazione/Referente/UpdateReferente.html", {'form': formReferente(instance=RubricaReferenti.objects.get(id=id))})
 
 def viewAllProtocols(request):
     if not request.user.is_authenticated:
@@ -165,8 +161,7 @@ def viewAllProtocols(request):
     else:
         protocollo_filter = ProtocolloFilter(request.GET, queryset=Protocollo.objects.all().order_by("-data_registrazione__year", "-identificativo"))
         sum_parcelle = round(protocollo_filter.qs.aggregate(Sum('parcella'))['parcella__sum'] or 0, 2)
-        context = {"filter": protocollo_filter, 'filter_queryset': protocollo_filter.qs, 'sum_p': sum_parcelle}
-        return render(request, "Amministrazione/Protocollo/AllProtocols.html", context)
+        return render(request, "Amministrazione/Protocollo/AllProtocols.html", {"filter": protocollo_filter, 'filter_queryset': protocollo_filter.qs, 'sum_p': sum_parcelle})
 
 def viewCreateProtocol(request):
     if not request.user.is_authenticated:
@@ -192,8 +187,7 @@ def viewCreateProtocol(request):
                 messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o correnti alla Data di Registrazione.')
                 return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': form})
         else:
-            form = formProtocol()
-            return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': form})
+            return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': formProtocol()})
 
 def viewDeleteProtocol(request, id):
     if not request.user.is_authenticated:
@@ -234,8 +228,7 @@ def viewUpdateProtocol(request, id):
                 messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o correnti alla Data di Registrazione.')
                 return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
         else:
-            form = formProtocolUpdate(instance=Protocollo.objects.get(id=id))
-            return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
+            return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': formProtocolUpdate(instance=Protocollo.objects.get(id=id))})
 
 def viewAllConsulenze(request):
     if not request.user.is_authenticated:
@@ -243,8 +236,7 @@ def viewAllConsulenze(request):
     else:
         consulenza_filter = ConsulenzaFilter(request.GET, queryset=Consulenza.objects.all().order_by("-id"))
         sum_compensi = round(consulenza_filter.qs.aggregate(Sum('compenso'))['compenso__sum'] or 0, 2)
-        context = {"filter": consulenza_filter, 'filter_queryset': consulenza_filter.qs, 'sum_c': sum_compensi}
-        return render(request, "Amministrazione/Consulenza/AllConsulenze.html", context)
+        return render(request, "Amministrazione/Consulenza/AllConsulenze.html", {"filter": consulenza_filter, 'filter_queryset': consulenza_filter.qs, 'sum_c': sum_compensi})
 
 def viewCreateConsulenza(request):
     if not request.user.is_authenticated:
@@ -264,8 +256,7 @@ def viewCreateConsulenza(request):
                 messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o correnti alla Data di Registrazione.')
                 return render(request, "Amministrazione/Consulenza/CreateConsulenza.html", {'form': form})
         else:
-            form = formConsulenza()
-            return render(request, "Amministrazione/Consulenza/CreateConsulenza.html", {'form': form})
+            return render(request, "Amministrazione/Consulenza/CreateConsulenza.html", {'form': formConsulenza()})
 
 def viewDeleteConsulenza(request, id):
     if not request.user.is_authenticated:
@@ -301,8 +292,7 @@ def viewUpdateConsulenza(request, id):
                 messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o correnti alla Data di Registrazione.')
                 return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': form})
         else:
-            form = formConsulenzaUpdate(instance=Consulenza.objects.get(id=id))
-            return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': form})
+            return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': formConsulenzaUpdate(instance=Consulenza.objects.get(id=id))})
 
 def viewAllRicavi(request):
     if not request.user.is_authenticated:
@@ -310,8 +300,7 @@ def viewAllRicavi(request):
     else:
         ricavo_filter = RicavoFilter(request.GET, queryset=Ricavo.objects.all().order_by("-data_registrazione"))
         sum_ricavi = round(ricavo_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
-        context = {"filter": ricavo_filter, 'filter_queryset': ricavo_filter.qs, 'sum_r': sum_ricavi}
-        return render(request, "Contabilita/Ricavo/AllRicavi.html", context)
+        return render(request, "Contabilita/Ricavo/AllRicavi.html", {"filter": ricavo_filter, 'filter_queryset': ricavo_filter.qs, 'sum_r': sum_ricavi})
 
 def viewCreateRicavo(request):
     if not request.user.is_authenticated:
@@ -320,16 +309,16 @@ def viewCreateRicavo(request):
         if (request.method == "POST"):
             form = formRicavo(request.POST)
             if (form.is_valid()):
-                if (form['protocollo'].value() != ""):
-                    form.save() if (form.Check1()) else messages.error(request, 'ATTENZIONE. Il Ricavo inserito non rispetta i vincoli di parcella del protocollo')
+                if (form['protocollo'].value() != "" and not form.Check1()):
+                    messages.error(request, 'ATTENZIONE! Il Ricavo inserito non rispetta i limiti di parcella del protocollo.')
+                    return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
                 else:
                     form.save()
-                return redirect('AllRicavi')
+                    return redirect('AllRicavi')
             else:
                 return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
         else:
-            form = formRicavo()
-            return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
+            return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': formRicavo()})
 
 def viewDeleteRicavo(request, id):
     if not request.user.is_authenticated:
@@ -355,16 +344,16 @@ def viewUpdateRicavo(request, id):
             ricavo = Ricavo.objects.get(id=id)
             form = formRicavoUpdate(request.POST, instance=ricavo)
             if (form.is_valid()):
-                if (form['protocollo'].value() != ""):
-                    form.save() if (form.Check2(ricavo)) else messages.error(request, 'ATTENZIONE. Il Ricavo inserito non rispetta i vincoli di parcella del protocollo')
+                if (form['protocollo'].value() != "" and not form.Check2(ricavo)):
+                    messages.error(request, 'ATTENZIONE! Il Ricavo modificato non rispetta i limiti di parcella del protocollo.')
+                    return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
                 else:
                     form.save()
-                return redirect('AllRicavi')
+                    return redirect('AllRicavi')
             else:
                 return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
         else:
-            form = formRicavoUpdate(instance=Ricavo.objects.get(id=id))
-            return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
+            return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': formRicavoUpdate(instance=Ricavo.objects.get(id=id))})
 
 def viewAllSpeseCommessa(request):
     if not request.user.is_authenticated:
@@ -386,8 +375,7 @@ def viewCreateSpesaCommessa(request):
             else:
                 return render(request, "Contabilita/SpesaCommessa/CreateSpesaCommessa.html", {'form': form})
         else:
-            form = formSpesaCommessa()
-            return render(request, "Contabilita/SpesaCommessa/CreateSpesaCommessa.html", {'form': form})
+            return render(request, "Contabilita/SpesaCommessa/CreateSpesaCommessa.html", {'form': formSpesaCommessa()})
 
 def viewDeleteSpesaCommessa(request, id):
     if not request.user.is_authenticated:
@@ -417,8 +405,7 @@ def viewUpdateSpesaCommessa(request, id):
             else:
                 return render(request, "Contabilita/SpesaCommessa/UpdateSpesaCommessa.html", {'form': form})
         else:
-            form = formSpesaCommessaUpdate(instance=SpesaCommessa.objects.get(id=id))
-            return render(request, "Contabilita/SpesaCommessa/UpdateSpesaCommessa.html", {'form': form})
+            return render(request, "Contabilita/SpesaCommessa/UpdateSpesaCommessa.html", {'form': formSpesaCommessaUpdate(instance=SpesaCommessa.objects.get(id=id))})
 
 def viewAllSoci(request):
     if not request.user.is_authenticated:
@@ -456,16 +443,13 @@ def viewUpdateSocio(request, id):
             socio = Socio.objects.get(id=id)
             form = formSocio(request.POST, instance=socio)
             soci = Socio.objects.all()
-            sum = 0
-            for soc in soci:
-                if (soc.id != id):
-                    sum += soc.percentuale
+            sum_percentuali = sum(soc.percentuale for soc in soci if (soc.id != id))
             if (form.is_valid()):
-                if (float(sum) + float(form['percentuale'].value()) < 1.00):
+                if (float(sum_percentuali) + float(form['percentuale'].value()) < 1.00):
                     form.save()
                     messages.warning(request, 'Le percentuali non sono distrubuite completamente')
                 else:
-                    messages.error(request, 'ATTENZIONE. Percentuale inserita invalida') if (float(sum) + float(form['percentuale'].value()) > 1.00) else form.save()
+                    messages.error(request, 'ATTENZIONE! Percentuale inserita invalida.') if (float(sum_percentuali) + float(form['percentuale'].value()) > 1.00) else form.save()
                 return redirect('AllSoci')
             else:
                 return render(request, "Contabilita/Socio/UpdateSocio.html", {'form': form, 'socio': socio})
@@ -494,8 +478,7 @@ def viewCreateSpesaGestione(request):
             else:
                 return render(request, "Contabilita/SpesaGestione/CreateSpesaGestione.html", {'form': form})
         else:
-            form = formSpesaGestione()
-            return render(request, "Contabilita/SpesaGestione/CreateSpesaGestione.html", {'form': form})
+            return render(request, "Contabilita/SpesaGestione/CreateSpesaGestione.html", {'form': formSpesaGestione()})
 
 def viewDeleteSpesaGestione(request, id):
     if not request.user.is_authenticated:
@@ -525,8 +508,7 @@ def viewUpdateSpesaGestione(request, id):
             else:
                 return render(request, "Contabilita/SpesaGestione/UpdateSpesaGestione.html", {'form': form})
         else:
-            form = formSpesaGestioneUpdate(instance=SpesaGestione.objects.get(id=id))
-            return render(request, "Contabilita/SpesaGestione/UpdateSpesaGestione.html", {'form': form})
+            return render(request, "Contabilita/SpesaGestione/UpdateSpesaGestione.html", {'form': formSpesaGestioneUpdate(instance=SpesaGestione.objects.get(id=id))})
 
 def viewAllGuadagniEffettivi(request):
     if not request.user.is_authenticated:
@@ -548,8 +530,7 @@ def viewCreateGuadagnoEffettivo(request):
             else:
                 return render(request, "Contabilita/GuadagnoEffettivo/CreateGuadagnoEffettivo.html", {'form': form})
         else:
-            form = formGuadagnoEffettivo()
-            return render(request, "Contabilita/GuadagnoEffettivo/CreateGuadagnoEffettivo.html", {'form': form})
+            return render(request, "Contabilita/GuadagnoEffettivo/CreateGuadagnoEffettivo.html", {'form': formGuadagnoEffettivo()})
 
 def viewDeleteGuadagnoEffettivo(request, id):
     if not request.user.is_authenticated:
@@ -579,8 +560,7 @@ def viewUpdateGuadagnoEffettivo(request, id):
             else:
                 return render(request, "Contabilita/GuadagnoEffettivo/UpdateGuadagnoEffettivo.html", {'form': form})
         else:
-            form = formGuadagnoEffettivoUpdate(instance=GuadagnoEffettivo.objects.get(id=id))
-            return render(request, "Contabilita/GuadagnoEffettivo/UpdateGuadagnoEffettivo.html", {'form': form})
+            return render(request, "Contabilita/GuadagnoEffettivo/UpdateGuadagnoEffettivo.html", {'form': formGuadagnoEffettivoUpdate(instance=GuadagnoEffettivo.objects.get(id=id))})
 
 def execute_query_1(year):
     query = """ select '01/GENNAIO' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
@@ -650,8 +630,7 @@ def viewResocontoSpeseGestione(request):
             else:
                 return render(request, "Contabilita/ResocontoSpeseGestione.html", {'form': form, 'tabella_output1': []})
         else:
-            form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi()
-            return render(request, "Contabilita/ResocontoSpeseGestione.html", {'form': form, 'tabella_output1': []})
+            return render(request, "Contabilita/ResocontoSpeseGestione.html", {'form': form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(), 'tabella_output1': []})
 
 def execute_query_2(year):
     query = """ select '01/GENNAIO' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico
@@ -721,8 +700,7 @@ def viewResocontoRicavi(request):
             else:
                 return render(request, "Contabilita/ResocontoRicavi.html", {'form': form, 'tabella_output2': []})
         else:
-            form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi()
-            return render(request, "Contabilita/ResocontoRicavi.html", {'form': form, 'tabella_output2': []})
+            return render(request, "Contabilita/ResocontoRicavi.html", {'form': form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(), 'tabella_output2': []})
 
 def execute_query_3(year):
     query = """ select '01/GENNAIO' as mese, (select coalesce(sum(t2.importo),0) from Contabilita_ricavo t2 where strftime('%m', t1.data_registrazione) = '01' and strftime('%Y', t1.data_registrazione) = '{d[year]}') -
@@ -844,8 +822,7 @@ def viewGestioneGuadagniEffettivi(request):
             else:
                 return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': []})
         else:
-            form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi()
-            return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': []})
+            return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(), 'tabella_output3': []})
 
 def execute_query_4():
     query = """SELECT t1.identificativo, t4.nominativo as cliente, t1.referente_id, t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
