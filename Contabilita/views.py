@@ -173,7 +173,7 @@ def viewCreateProtocol(request):
             cursor = connection.cursor()
             cursor.execute("""select count from Contabilita_calendariocontatore as c where c.id = :anno""", {'anno': anno})
             rows = cursor.fetchone()
-            cursor.execute("""update Contabilita_calendariocontatore  set count = :count where id = :id""",{'count': str(rows[0] + 1), 'id': anno})
+            cursor.execute("""update Contabilita_calendariocontatore  set count = :count where id = :id""", {'count': str(rows[0] + 1), 'id': anno})
             form.set_identificativo(str('{0:03}'.format(rows[0] + 1)) + "-" + anno[2:4])
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
             form.set_status(None) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
@@ -215,7 +215,7 @@ def viewUpdateProtocol(request, id):
             if anno != str(Protocollo.objects.get(id=id).data_registrazione.year):
                 cursor = connection.cursor()
                 cursor.execute("""select count from Contabilita_calendariocontatore as c where c.id = :anno""", {'anno': anno})
-                cursor.execute("""update Contabilita_calendariocontatore  set count = :count where id = :id""",{'count': str(cursor.fetchone()[0] + 1), 'id': anno})
+                cursor.execute("""update Contabilita_calendariocontatore  set count = :count where id = :id""", {'count': str(cursor.fetchone()[0] + 1), 'id': anno})
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%d/%m/%Y").date()
             form.set_status(None) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
             if (form.check_date()):
@@ -299,8 +299,10 @@ def viewAllRicavi(request):
         return redirect("/accounts/login/")
     else:
         ricavo_filter = RicavoFilter(request.GET, queryset=Ricavo.objects.all().order_by("-data_registrazione"))
+        sum_ricavi_for_proto = [(r1.id, r1.protocollo.parcella - sum(r2.importo for r2 in ricavo_filter.qs if r1.protocollo == r2.protocollo)) if r1.protocollo is not None
+                                else (r1.id,0) for r1 in ricavo_filter.qs ]
         sum_ricavi = round(ricavo_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
-        return render(request, "Contabilita/Ricavo/AllRicavi.html", {"filter": ricavo_filter, 'filter_queryset': ricavo_filter.qs, 'sum_r': sum_ricavi})
+        return render(request, "Contabilita/Ricavo/AllRicavi.html", {"filter": ricavo_filter, 'sum_r': sum_ricavi, 'info': zip(ricavo_filter.qs, sum_ricavi_for_proto)})
 
 def viewCreateRicavo(request):
     if not request.user.is_authenticated:
@@ -310,7 +312,7 @@ def viewCreateRicavo(request):
             form = formRicavo(request.POST)
             if (form.is_valid()):
                 if (form['protocollo'].value() != "" and not form.Check1()):
-                    messages.error(request, 'ATTENZIONE! Il Ricavo inserito non rispetta i limiti di parcella del protocollo.')
+                    messages.error(request, 'ATTENZIONE! Il Ricavo inserito non rispetta i limiti di parcella del protocollo assegnato.')
                     return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
                 else:
                     form.save()
@@ -345,7 +347,7 @@ def viewUpdateRicavo(request, id):
             form = formRicavoUpdate(request.POST, instance=ricavo)
             if (form.is_valid()):
                 if (form['protocollo'].value() != "" and not form.Check2(ricavo)):
-                    messages.error(request, 'ATTENZIONE! Il Ricavo modificato non rispetta i limiti di parcella del protocollo.')
+                    messages.error(request, 'ATTENZIONE! Il Ricavo modificato non rispetta i limiti di parcella del protocollo assegnato.')
                     return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
                 else:
                     form.save()
@@ -825,21 +827,20 @@ def viewGestioneGuadagniEffettivi(request):
             return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(), 'tabella_output3': []})
 
 def execute_query_4():
-    query = """SELECT t1.identificativo, t4.nominativo as cliente, t1.referente_id, t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
-                            (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as uscite,
-                            t1.parcella-(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id)+
-                            (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as saldo
-               FROM   Contabilita_protocollo t1, Contabilita_rubricaclienti t4
-               WHERE saldo != 0 and t1.cliente_id = t4.id and t1.referente_id is NULL
-               union
-               SELECT t1.identificativo, t4.nominativo as cliente, t5.nominativo, t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
-                            (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as uscite,
-                            t1.parcella-(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id)+
-                            (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as saldo
-               FROM   Contabilita_protocollo t1, Contabilita_rubricaclienti t4, Contabilita_rubricareferenti t5
-               WHERE saldo != 0 and t1.cliente_id = t4.id and t1.referente_id = t5.id"""
     cursor = connection.cursor()
-    cursor.execute(query)
+    cursor.execute("""SELECT t1.identificativo, t4.nominativo as cliente, t1.referente_id, t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
+                            (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as uscite,
+                            t1.parcella-(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id)+
+                            (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as saldo
+                       FROM   Contabilita_protocollo t1, Contabilita_rubricaclienti t4
+                       WHERE saldo != 0 and t1.cliente_id = t4.id and t1.referente_id is NULL
+                       union
+                       SELECT t1.identificativo, t4.nominativo as cliente, t5.nominativo, t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
+                            (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as uscite,
+                            t1.parcella-(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id)+
+                            (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as saldo
+                       FROM   Contabilita_protocollo t1, Contabilita_rubricaclienti t4, Contabilita_rubricareferenti t5
+                       WHERE saldo != 0 and t1.cliente_id = t4.id and t1.referente_id = t5.id""")
     return cursor.fetchall()
 
 def viewContabilitaProtocolli(request):

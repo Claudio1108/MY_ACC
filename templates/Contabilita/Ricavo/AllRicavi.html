@@ -78,6 +78,7 @@
                 <input type="button" onclick='selectAll()' value="Seleziona Tutti"/>
                 <input type="button" onclick='unSelectAll()' value="Deseleziona Tutti"/>
                 <input type="button" onclick='deleteGroup()' value="Elimina Selezionati"/>
+                <a href="{% url 'CreateRicavo' %}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style="font-size: 110%;">&#43;</span> Aggiungi</a>
             </td>
             <td>
                 <div align="right">
@@ -104,22 +105,40 @@
             <th>destinazione</th>
             <th colspan="2">Operazioni</th>
         </tr>
-        {% for b in filter_queryset %}
-        <tr>
-            <td style='width: 10px;'>
-                <input type="checkbox" class="checks" name="b1" value={{b.id}}>
-            </td>
-            <td>{{ b.data_registrazione }}</td>
-            <td>{{ b.movimento|default_if_none:'' }}</td>
-            <td style='width: 100px; overflow: auto'>{{ b.importo }} €</td>
-            <td>{{ b.fattura }}</td>
-            <td>{{ b.intestatario_fattura|default_if_none:'' }}</td>
-            <td style='width: 350px; overflow: auto'>{{ b.protocollo|default_if_none:'' }}</td>
-            <td style='width: 500px; overflow: auto'>{{ b.note|safe }}</td>
-            <td>{{ b.destinazione|default_if_none:'' }}</td>
-            <td style='width: 15px;' align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
-            <td style='width: 15px;' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')">X</a></td>
-        </tr>
+        {% for b,c in info %}
+            {% if c.1 < 0 %}
+                <tr style="background-color:red;">
+                    <td style='width: 10px;'>
+                        <input type="checkbox" class="checks" name="b1" value={{b.id}}>
+                    </td>
+                    <td>{{ b.data_registrazione }}</td>
+                    <td>{{ b.movimento|default_if_none:'' }}</td>
+                    <td style='width: 100px; overflow: auto'>{{ b.importo }} €</td>
+                    <td>{{ b.fattura }}</td>
+                    <td>{{ b.intestatario_fattura|default_if_none:'' }}</td>
+                    <td style='width: 350px; overflow: auto'>{{ b.protocollo|default_if_none:'' }}</td>
+                    <td style='width: 500px; overflow: auto'>{{ b.note|safe }}</td>
+                    <td>{{ b.destinazione|default_if_none:'' }}</td>
+                    <td style='width: 15px;' align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
+                    <td style='width: 15px;' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')">X</a></td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td style='width: 10px;'>
+                        <input type="checkbox" class="checks" name="b1" value={{b.id}}>
+                    </td>
+                    <td>{{ b.data_registrazione }}</td>
+                    <td>{{ b.movimento|default_if_none:'' }}</td>
+                    <td style='width: 100px; overflow: auto'>{{ b.importo }} €</td>
+                    <td>{{ b.fattura }}</td>
+                    <td>{{ b.intestatario_fattura|default_if_none:'' }}</td>
+                    <td style='width: 350px; overflow: auto'>{{ b.protocollo|default_if_none:'' }}</td>
+                    <td style='width: 500px; overflow: auto'>{{ b.note|safe }}</td>
+                    <td>{{ b.destinazione|default_if_none:'' }}</td>
+                    <td style='width: 15px;' align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
+                    <td style='width: 15px;' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')">X</a></td>
+                </tr>
+            {% endif %}
         {% endfor %}
     </table>
     <div class="alert alert-primary" role="alert">
