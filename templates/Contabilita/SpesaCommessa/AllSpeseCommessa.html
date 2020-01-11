@@ -13,7 +13,6 @@
 						items[i].checked=true;
 				}
 			}
-
 			function unSelectAll(){
 				var items=document.getElementsByName('b1');
 				for(var i=0; i<items.length; i++){
@@ -21,7 +20,6 @@
 						items[i].checked=false;
 				}
 			}
-
 			function getSelected(){
 				var checks=document.getElementsByName('b1');
 				var list = new Array();
@@ -32,7 +30,6 @@
 				}
 				return list;
 			}
-
             function deleteGroup(){
                   var list=getSelected();
                   if(list.length > 0){
@@ -68,30 +65,32 @@
             </tr>
         {% endfor %}
         </table></br>
-	    <button type="submit"><i class="fa fa-filter" aria-hidden="true"></i> Filtra</button>
+	    <button type="submit" class="btn btn-light"><i class="fa fa-filter" aria-hidden="true"></i> Filtra</button>
     </form>
     </br>
     <table align="left" style="width:100%">
         <tr>
             <td>
-                <input type="button" onclick='selectAll()' value="Seleziona Tutti"/>
-                <input type="button" onclick='unSelectAll()' value="Deseleziona Tutti"/>
-                <input type="button" onclick='deleteGroup()' value="Elimina Selezionati"/>
+                <a onclick="selectAll()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Seleziona Tutti</a>
+                <a onclick="unSelectAll()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Deseleziona Tutti</a>
+                <a onclick="deleteGroup()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Elimina Selezionati</a>
                 <a href="{% url 'CreateSpesaCommessa' %}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style="font-size: 110%;">&#43;</span> Aggiungi</a>
             </td>
             <td>
                 <div align="right">
                 <form method="post" action="{% url 'export_input_table_xls' list=filter.qs model='spesacommessa' %}">
                     {% csrf_token %}
-                     <input type="text" name="fname" placeholder="<NomeFile>" required>
-                    <button type="submit">DOWNLOAD Excel</button>
+                    <div class="input-group">
+                        <input class="form-control form-control" type="text" name="fname" placeholder="<NomeFileDownload>" required>
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-download"></i> DOWNLOAD Excel</button>
+                    </div>
                 </form>
                 </div>
             </td>
         </tr>
     </table>
 
-    <table width="100%" border="1" cellpadding="5" cellspacing="0">
+    <table width="100%" border="1" cellpadding="5" cellspacing="0" bgcolor="#D3D3D3">
         <tr>
             <th></th>
             <th>registrazione</th>
@@ -111,8 +110,8 @@
             <td style='width: 350px; overflow: auto'>{{ b.protocollo|default_if_none:'' }}</td>
             <td style='width: 450px; overflow: auto'>{{ b.note|safe }}</td>
             <td>{{ b.provenienza|default_if_none:'' }}</td>
-            <td style='width: 15px;' align="center"><a href="/UpdateSpesaCommessa/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">=></a></td>
-            <td style='width: 15px;' align="center"><a href="/DeleteSpesaCommessa/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Spesa di Commessa ?')">X</a></td>
+            <td style='width: 15px;' align="center"><a href="/UpdateSpesaCommessa/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
+            <td style='width: 15px;' align="center"><a href="/DeleteSpesaCommessa/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Spesa di Commessa ?')"><span aria-hidden="true">&times;</span></a></td>
         </tr>
         {% endfor %}
     </table>

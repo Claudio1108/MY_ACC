@@ -15,7 +15,7 @@
                                 {{ form.as_table }}
                             </td>
                             <td>
-                                <input type="submit" class="btn btn-primary" value="Crea">
+                                <input type="submit" class="btn btn-primary" value="&#8595; Crea">
                             </td>
                         </tr>
                     </table>
@@ -25,15 +25,15 @@
                 <div align="right">
                 <form method="post" action="{% url 'export_output_table_xls' numquery=2 year=year %}">
                     {% csrf_token %}
-                     <input type="text" name="fname" placeholder="<NomeFile>" required>
-                    <button type="submit">DOWNLOAD Excel</button>
+                    <input type="text" name="fname" placeholder="<NomeFileDownload>" required>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-download"></i> DOWNLOAD Excel</button>
                 </form>
                 </div>
             </td>
         </tr>
     </table>
 
-    <table width="100%" border="1" cellpadding="5" cellspacing="0">
+    <table width="100%" border="1" cellpadding="5" cellspacing="0" bgcolor="#D3D3D3">
         <tr>
             <th>Mese</th>
             <th>Ricavi (€)</th>

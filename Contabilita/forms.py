@@ -2,8 +2,8 @@ import re
 from datetime import datetime
 from django import forms
 from .models import *
-from django.db import connection
 from dal import autocomplete
+from Contabilita import sqlite_queries as sqlite
 
 class DateInput(forms.DateInput):
     input_type = 'date'
@@ -182,11 +182,7 @@ class formRicavo(forms.ModelForm):
     def Check1(self):
         id_protocollo = self.data['protocollo']
         protocollo = Protocollo.objects.get(id=id_protocollo)
-        cursor = connection.cursor()
-        cursor.execute("""SELECT coalesce(sum(r.importo),0) as tot
-                          FROM Contabilita_ricavo r
-                          WHERE r.protocollo_id = :proto_id""", {'proto_id': str(id_protocollo)})
-        return cursor.fetchone()[0] + float(self.data['importo']) <= protocollo.parcella
+        return sqlite.extract_sum_all_importi_ricavi_of_protocol(str(id_protocollo)) + float(self.data['importo']) <= protocollo.parcella
 
 class formRicavoUpdate(forms.ModelForm):
     class Meta:
@@ -208,11 +204,8 @@ class formRicavoUpdate(forms.ModelForm):
     def Check2(self, id_ricavo):
         id_protocollo = self.data['protocollo']
         protocollo = Protocollo.objects.get(id=id_protocollo)
-        cursor = connection.cursor()
-        cursor.execute("""SELECT coalesce(sum(r.importo),0) as tot
-                          FROM Contabilita_ricavo r
-                          WHERE r.protocollo_id = :proto_id  AND r.id != :ricavo_id""", {'proto_id': str(id_protocollo), 'ricavo_id': re.findall("(\d+)", str(id_ricavo))[0]})
-        return cursor.fetchone()[0] + float(self.data['importo']) <= protocollo.parcella
+        return sqlite.extract_sum_importi_ricavi_of_protocol_excluding_specific_ricavo(str(id_protocollo),
+                re.findall("(\d+)", str(id_ricavo))[0]) + float(self.data['importo']) <= protocollo.parcella
 
 class formSpesaCommessa(forms.ModelForm):
     class Meta:
