@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}AllSoci{% endblock title %}
-{% block name %}TABELLA SOCI{% endblock %}
+{% block name %}SOCI{% endblock %}
 {% block content %}
 
         {% if messages %}
@@ -17,33 +17,37 @@
             </ul>
         {% endif %}
 
-        <table width="100%" border="1" cellpadding="5" cellspacing="0" bgcolor="#D3D3D3">
-            <tr>
-                <th>nome</th>
-                <th>cognome</th>
-                <th>percentuale</th>
-                <th colspan="2">Operazioni</th>
-            </tr>
-            {% for b in tabella_soci %}
-            <tr>
-                <td>{{ b.nome }}</td>
-                <td>{{ b.cognome }}</td>
-                <td>{{ b.percentuale }}</td>
-                <td align="center"><a href="/UpdateSocio/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">MODIFICA PERCENTUALE</a></td>
-            </tr>
-            {% endfor %}
+        <table width="100%" border="1" cellpadding="5" cellspacing="0">
+            <thead bgcolor="#383838" style="color:white;">
+                <tr>
+                    <th>nome</th>
+                    <th>cognome</th>
+                    <th>percentuale</th>
+                    <th colspan="2">Operazioni</th>
+                </tr>
+            </thead>
+            <tbody bgcolor="#585858" style="color:white;">
+                {% for b in tabella_soci %}
+                <tr>
+                    <td>{{ b.nome }}</td>
+                    <td>{{ b.cognome }}</td>
+                    <td>{{ b.percentuale }}</td>
+                    <td align="center"><a href="/UpdateSocio/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true">MODIFICA PERCENTUALE</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
         </br></br>
         <table align="left" border="0">
             <tr>
                 <td align="center"><img width="50" src="{% static 'images/cartedicredito.jpg'%}"></td>
-                <td align="center">SALDO CARTA = </td>
-                <td>{{ lista_saldi.0 }} €</td>
+                <td align="center"><b>SALDO CARTA =</b></td>
+                <td><b>{{ lista_saldi.0 }} €</b></td>
             </tr>
             <tr>
                 <td align="center"><img width="50" src="{% static 'images/cassaforte.png'%}"></td>
-                <td align="center">SALDO DEPOSITO = </td>
-                <td >{{ lista_saldi.1 }} €</td>
+                <td align="center"><b>SALDO DEPOSITO = </b></td>
+                <td><b>{{ lista_saldi.1 }} €</b></td>
             </tr>
         </table>
 

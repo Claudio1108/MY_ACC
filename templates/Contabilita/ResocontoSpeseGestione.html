@@ -33,33 +33,37 @@
         </tr>
     </table>
 
-    <table width="100%" border="1" cellpadding="5" cellspacing="0" bgcolor="#D3D3D3">
-        <tr>
-            <th>Mese</th>
-            <th>Spese di gestione (€)</th>
-            <th>Daniele (€)</th>
-            <th>Laura (€)</th>
-            <th>Federico (€)</th>
-        </tr>
-        {% for item in tabella_output1 %}
-            {% if forloop.last %}
-                <tr>
-                    <td><b>{{ item.0 }}</b></td>
-                    <td><b>{{ item.1 }}</b></td>
-                    <td><b>{{ item.2 }}</b></td>
-                    <td><b>{{ item.3 }}</b></td>
-                    <td><b>{{ item.4 }}</b></td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td>{{ item.0 }}</td>
-                    <td>{{ item.1 }}</td>
-                    <td>{{ item.2 }}</td>
-                    <td>{{ item.3 }}</td>
-                    <td>{{ item.4 }}</td>
-                </tr>
-            {% endif %}
-        {% endfor %}
+    <table width="100%" border="1" cellpadding="5" cellspacing="0">
+        <thead bgcolor="#383838" style="color:white;">
+            <tr>
+                <th>Mese</th>
+                <th>Spese di gestione (€)</th>
+                <th>Daniele (€)</th>
+                <th>Laura (€)</th>
+                <th>Federico (€)</th>
+            </tr>
+        </thead>
+        <tbody bgcolor="#585858" style="color:white;">
+            {% for item in tabella_output1 %}
+                {% if forloop.last %}
+                    <tr>
+                        <td><b>{{ item.0 }}</b></td>
+                        <td><b>{{ item.1 }}</b></td>
+                        <td><b>{{ item.2 }}</b></td>
+                        <td><b>{{ item.3 }}</b></td>
+                        <td><b>{{ item.4 }}</b></td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td>{{ item.0 }}</td>
+                        <td>{{ item.1 }}</td>
+                        <td>{{ item.2 }}</td>
+                        <td>{{ item.3 }}</td>
+                        <td>{{ item.4 }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
     </table>
 
 {% endblock %}

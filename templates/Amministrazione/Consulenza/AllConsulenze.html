@@ -1,7 +1,7 @@
 {% extends 'base4.html' %}
 {% load static %}
 {% block title %}AllConsulenze{% endblock title %}
-{% block name %}TABELLA DELLE CONSULENZE{% endblock %}
+{% block name %}CONSULENZE{% endblock %}
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
@@ -143,19 +143,21 @@
     </table>
 
     <div style="height:500px; overflow-x:scroll; overflow-y:scroll; border:1px solid black;">
-        <table width="150%" border="1" cellpadding="5" cellspacing="0" bgcolor="#D3D3D3">
-            <tr>
-                <th></th>
-                <th>registrazione</th>
-                <th>richiedente</th>
-                <th>indirizzo</th>
-                <th>attività</th>
-                <th>note</th>
-                <th>scadenza</th>
-                <th>consegna</th>
-                <th>responsabile</th>
-                <th colspan="2">Operazioni</th>
-            </tr>
+        <table width="150%" border="1" cellpadding="5" cellspacing="0">
+            <thead bgcolor="#383838" style="color:white;">
+                <tr>
+                    <th></th>
+                    <th>registrazione</th>
+                    <th>richiedente</th>
+                    <th>indirizzo</th>
+                    <th>attività</th>
+                    <th>note</th>
+                    <th>scadenza</th>
+                    <th>consegna</th>
+                    <th>responsabile</th>
+                    <th colspan="2">Operazioni</th>
+                </tr>
+            </thead>
             {% for b in filter_queryset %}
                 {% if b.data_consegna is not None %}
                     <tr style="background-color:white">

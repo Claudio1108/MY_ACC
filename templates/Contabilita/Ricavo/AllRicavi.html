@@ -1,7 +1,7 @@
 {% extends 'base2.html' %}
 {% load static %}
 {% block title %}AllRicavi{% endblock title %}
-{% block name %}TABELLA DEI RICAVI{% endblock %}
+{% block name %}RICAVI{% endblock %}
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
@@ -91,19 +91,21 @@
         </tr>
     </table>
 
-    <table width="100%" border="1" cellpadding="5" cellspacing="0" bgcolor="#D3D3D3">
-        <tr>
-            <th></th>
-            <th>registrazione</th>
-            <th>movimento</th>
-            <th>importo</th>
-            <th>fattura</th>
-            <th>intestatario fattura</th>
-            <th>protocollo</th>
-            <th>note</th>
-            <th>destinazione</th>
-            <th colspan="2">Operazioni</th>
-        </tr>
+    <table width="100%" border="1" cellpadding="5" cellspacing="0">
+        <thead bgcolor="#383838" style="color:white;">
+            <tr>
+                <th></th>
+                <th>registrazione</th>
+                <th>movimento</th>
+                <th>importo</th>
+                <th>fattura</th>
+                <th>intestatario fattura</th>
+                <th>protocollo</th>
+                <th>note</th>
+                <th>destinazione</th>
+                <th colspan="2">Operazioni</th>
+            </tr>
+        </thead>
         {% for b,c in info %}
             {% if c.1 < 0 %}
                 <tr style="background-color:red;">
@@ -122,7 +124,7 @@
                     <td style='width: 15px;' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')"><span aria-hidden="true">&times;</span></a></td>
                 </tr>
             {% else %}
-                <tr>
+                <tr style="background-color:#585858; color:white;">
                     <td style='width: 10px;'>
                         <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                     </td>
