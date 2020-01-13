@@ -9,6 +9,7 @@ from datetime import date, datetime
 from django.http import HttpResponse
 from dal import autocomplete
 from Contabilita import sqlite_queries as sqlite
+from django.db import connection
 # from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 class ProtocolloAutocomplete(autocomplete.Select2QuerySetView):
@@ -160,6 +161,16 @@ def viewAllProtocols(request):
         return redirect("/accounts/login/")
     else:
         protocollo_filter = ProtocolloFilter(request.GET, queryset=Protocollo.objects.all().order_by("-data_registrazione__year", "-identificativo"))
+        today = date.today()
+        cursor = connection.cursor()
+        for proto in protocollo_filter.qs:
+            d = datetime.strptime(str(proto.data_scadenza), "%Y-%m-%d")
+            data_scadenza = d.date()
+            if proto.data_consegna != None:
+                proto.status = None
+            else:
+                proto.status = (data_scadenza - today).days
+                cursor.execute("""update Contabilita_protocollo set status = {} where identificativo = '{}'""".format(proto.status,proto.identificativo))
         sum_parcelle = round(protocollo_filter.qs.aggregate(Sum('parcella'))['parcella__sum'] or 0, 2)
         return render(request, "Amministrazione/Protocollo/AllProtocols.html", {"filter": protocollo_filter, 'filter_queryset': protocollo_filter.qs, 'sum_p': sum_parcelle})
 
@@ -232,6 +243,16 @@ def viewAllConsulenze(request):
         return redirect("/accounts/login/")
     else:
         consulenza_filter = ConsulenzaFilter(request.GET, queryset=Consulenza.objects.all().order_by("-id"))
+        today = date.today()
+        cursor = connection.cursor()
+        for cons in consulenza_filter.qs:
+            d = datetime.strptime(str(cons.data_scadenza), "%Y-%m-%d")
+            data_scadenza = d.date()
+            if cons.data_consegna != None:
+                cons.status = None
+            else:
+                cons.status = (data_scadenza - today).days
+                cursor.execute("""update Contabilita_consulenza set status = {} where id = '{}'""".format(cons.status, cons.id))
         sum_compensi = round(consulenza_filter.qs.aggregate(Sum('compenso'))['compenso__sum'] or 0, 2)
         return render(request, "Amministrazione/Consulenza/AllConsulenze.html", {"filter": consulenza_filter, 'filter_queryset': consulenza_filter.qs, 'sum_c': sum_compensi})
 
