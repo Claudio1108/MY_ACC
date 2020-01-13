@@ -98,6 +98,11 @@ class formProtocolUpdate(forms.ModelForm):
         consegna = datetime.strptime(data['data_consegna'], '%d/%m/%Y').strftime('%Y-%m-%d') if data['data_consegna'] else ''
         return scadenza >= registrazione or consegna >= registrazione
 
+    def set_identificativo(self,value):
+        data = self.data.copy()
+        data['identificativo'] = value
+        self.data = data
+
     def set_status(self,value):
         data = self.data.copy()
         data['status'] = value

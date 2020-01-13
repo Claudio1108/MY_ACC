@@ -161,16 +161,13 @@ def viewAllProtocols(request):
         return redirect("/accounts/login/")
     else:
         protocollo_filter = ProtocolloFilter(request.GET, queryset=Protocollo.objects.all().order_by("-data_registrazione__year", "-identificativo"))
-        today = date.today()
-        cursor = connection.cursor()
         for proto in protocollo_filter.qs:
-            d = datetime.strptime(str(proto.data_scadenza), "%Y-%m-%d")
-            data_scadenza = d.date()
+            data_scadenza = datetime.strptime(str(proto.data_scadenza), "%Y-%m-%d").date()
             if proto.data_consegna != None:
                 proto.status = None
             else:
-                proto.status = (data_scadenza - today).days
-                cursor.execute("""update Contabilita_protocollo set status = {} where identificativo = '{}'""".format(proto.status,proto.identificativo))
+                proto.status = (data_scadenza - date.today()).days
+                sqlite.update_status_protocol(proto.status, '{}{}{}'.format("'",proto.identificativo,"'"))
         sum_parcelle = round(protocollo_filter.qs.aggregate(Sum('parcella'))['parcella__sum'] or 0, 2)
         return render(request, "Amministrazione/Protocollo/AllProtocols.html", {"filter": protocollo_filter, 'filter_queryset': protocollo_filter.qs, 'sum_p': sum_parcelle})
 
@@ -181,8 +178,8 @@ def viewCreateProtocol(request):
         if (request.method == "POST"):
             form = formProtocol(request.POST)
             anno = form['data_registrazione'].value()[0:4]
-            rows = sqlite.extract_progressive_number_protocol(anno)
-            sqlite.update_progressive_number_protocol(str(rows[0] + 1), anno)
+            rows = sqlite.extract_progressive_number_calendar(anno)
+            sqlite.update_progressive_number_calendar(str(rows[0] + 1), anno)
             form.set_identificativo(str('{0:03}'.format(rows[0] + 1)) + "-" + anno[2:4])
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
             form.set_status(None) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
@@ -221,14 +218,16 @@ def viewUpdateProtocol(request, id):
         if (request.method == "POST"):
             form = formProtocolUpdate(request.POST, instance=Protocollo.objects.get(id=id))
             anno = form['data_registrazione'].value()[-4:]
+            rows = sqlite.extract_progressive_number_calendar(anno)
             if anno != str(Protocollo.objects.get(id=id).data_registrazione.year):
-                rows = sqlite.extract_progressive_number_protocol(anno)
-                sqlite.update_progressive_number_protocol(str(rows[0] + 1), anno)
+                sqlite.update_progressive_number_calendar(str(rows[0] + 1), anno)
+                form.set_identificativo(str('{0:03}'.format(rows[0] + 1)) + "-" + anno[2:4])
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%d/%m/%Y").date()
             form.set_status(None) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
             if (form.check_date()):
                 if (form.is_valid()):
                     form.save()
+                    anno != str(Protocollo.objects.get(id=id).data_registrazione.year) and Protocollo.objects.filter(id=id).update(identificativo=str('{0:03}'.format(rows[0] + 1))+ "-" + anno[2:4])
                     return redirect('AllProtocols')
                 else:
                     return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
@@ -243,16 +242,13 @@ def viewAllConsulenze(request):
         return redirect("/accounts/login/")
     else:
         consulenza_filter = ConsulenzaFilter(request.GET, queryset=Consulenza.objects.all().order_by("-id"))
-        today = date.today()
-        cursor = connection.cursor()
         for cons in consulenza_filter.qs:
-            d = datetime.strptime(str(cons.data_scadenza), "%Y-%m-%d")
-            data_scadenza = d.date()
+            data_scadenza = datetime.strptime(str(cons.data_scadenza), "%Y-%m-%d").date()
             if cons.data_consegna != None:
                 cons.status = None
             else:
-                cons.status = (data_scadenza - today).days
-                cursor.execute("""update Contabilita_consulenza set status = {} where id = '{}'""".format(cons.status, cons.id))
+                cons.status = (data_scadenza - date.today()).days
+                sqlite.update_status_consulenza(cons.status, '{}{}{}'.format("'",cons.id,"'"))
         sum_compensi = round(consulenza_filter.qs.aggregate(Sum('compenso'))['compenso__sum'] or 0, 2)
         return render(request, "Amministrazione/Consulenza/AllConsulenze.html", {"filter": consulenza_filter, 'filter_queryset': consulenza_filter.qs, 'sum_c': sum_compensi})
 
