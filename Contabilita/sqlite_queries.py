@@ -1,23 +1,6 @@
 from django.db import connection
 
 #------------------------- views.py ------------------------
-def extract_progressive_number_calendar(year):
-    cursor = connection.cursor()
-    cursor.execute("""select count from Contabilita_calendariocontatore as c where c.id = :anno""", {'anno': year})
-    return cursor.fetchone()
-
-def update_progressive_number_calendar(count, id):
-    cursor = connection.cursor()
-    cursor.execute("""update Contabilita_calendariocontatore  set count = :count where id = :id""", {'count': count, 'id': id})
-
-def update_status_protocol(new_status, identificativo_proto):
-    cursor = connection.cursor()
-    cursor.execute("""update Contabilita_protocollo set status = :status where identificativo = :identificativo""", {'status': new_status, 'identificativo': identificativo_proto})
-
-def update_status_consulenza(new_status, id_consulenza):
-    cursor = connection.cursor()
-    cursor.execute("""update Contabilita_consulenza set status = :status where id = :id""", {'status': new_status, 'id': id_consulenza})
-
 def calculate_saldo(type_saldo):
     cursor = connection.cursor()
     cursor.execute("""  SELECT coalesce(sum(t1.saldo),0)

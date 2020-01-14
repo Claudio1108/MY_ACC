@@ -9,7 +9,6 @@ from datetime import date, datetime
 from django.http import HttpResponse
 from dal import autocomplete
 from Contabilita import sqlite_queries as sqlite
-from django.db import connection
 # from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 class ProtocolloAutocomplete(autocomplete.Select2QuerySetView):
@@ -167,7 +166,7 @@ def viewAllProtocols(request):
                 proto.status = None
             else:
                 proto.status = (data_scadenza - date.today()).days
-                sqlite.update_status_protocol(proto.status, '{}{}{}'.format("'",proto.identificativo,"'"))
+                Protocollo.objects.filter(identificativo=proto.identificativo).update(status=proto.status)
         sum_parcelle = round(protocollo_filter.qs.aggregate(Sum('parcella'))['parcella__sum'] or 0, 2)
         return render(request, "Amministrazione/Protocollo/AllProtocols.html", {"filter": protocollo_filter, 'filter_queryset': protocollo_filter.qs, 'sum_p': sum_parcelle})
 
@@ -178,9 +177,9 @@ def viewCreateProtocol(request):
         if (request.method == "POST"):
             form = formProtocol(request.POST)
             anno = form['data_registrazione'].value()[0:4]
-            rows = sqlite.extract_progressive_number_calendar(anno)
-            sqlite.update_progressive_number_calendar(str(rows[0] + 1), anno)
-            form.set_identificativo(str('{0:03}'.format(rows[0] + 1)) + "-" + anno[2:4])
+            progressive_number_calendar = CalendarioContatore.objects.filter(id=anno).values('count')[0]['count']
+            CalendarioContatore.objects.filter(id=anno).update(count=str(progressive_number_calendar + 1))
+            form.set_identificativo(str('{0:03}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
             form.set_status(None) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
             if (form.check_date()):
@@ -218,16 +217,16 @@ def viewUpdateProtocol(request, id):
         if (request.method == "POST"):
             form = formProtocolUpdate(request.POST, instance=Protocollo.objects.get(id=id))
             anno = form['data_registrazione'].value()[-4:]
-            rows = sqlite.extract_progressive_number_calendar(anno)
+            progressive_number_calendar = CalendarioContatore.objects.filter(id=anno).values('count')[0]['count']
             if anno != str(Protocollo.objects.get(id=id).data_registrazione.year):
-                sqlite.update_progressive_number_calendar(str(rows[0] + 1), anno)
-                form.set_identificativo(str('{0:03}'.format(rows[0] + 1)) + "-" + anno[2:4])
+                CalendarioContatore.objects.filter(id=anno).update(count=str(progressive_number_calendar + 1))
+                form.set_identificativo(str('{0:03}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%d/%m/%Y").date()
             form.set_status(None) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
             if (form.check_date()):
                 if (form.is_valid()):
                     form.save()
-                    anno != str(Protocollo.objects.get(id=id).data_registrazione.year) and Protocollo.objects.filter(id=id).update(identificativo=str('{0:03}'.format(rows[0] + 1))+ "-" + anno[2:4])
+                    anno != str(Protocollo.objects.get(id=id).data_registrazione.year) and Protocollo.objects.filter(id=id).update(identificativo=str('{0:03}'.format(progressive_number_calendar + 1))+ "-" + anno[2:4])
                     return redirect('AllProtocols')
                 else:
                     return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
@@ -248,7 +247,7 @@ def viewAllConsulenze(request):
                 cons.status = None
             else:
                 cons.status = (data_scadenza - date.today()).days
-                sqlite.update_status_consulenza(cons.status, '{}{}{}'.format("'",cons.id,"'"))
+                Consulenza.objects.filter(id=cons.id).update(status=cons.status)
         sum_compensi = round(consulenza_filter.qs.aggregate(Sum('compenso'))['compenso__sum'] or 0, 2)
         return render(request, "Amministrazione/Consulenza/AllConsulenze.html", {"filter": consulenza_filter, 'filter_queryset': consulenza_filter.qs, 'sum_c': sum_compensi})
 
