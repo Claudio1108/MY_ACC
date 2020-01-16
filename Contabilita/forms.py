@@ -5,8 +5,10 @@ from .models import *
 from dal import autocomplete
 from Contabilita import sqlite_queries as sqlite
 
+
 class DateInput(forms.DateInput):
-    input_type = 'date'
+    input_type = "date"
+
 
 class formCliente(forms.ModelForm):
     class Meta:
@@ -16,7 +18,9 @@ class formCliente(forms.ModelForm):
             "nominativo": "Nome - Cognome* ",
             "tel": "Telefono* ",
             "mail": "Mail ",
-            "note": "Note "}
+            "note": "Note ",
+        }
+
 
 class formReferente(forms.ModelForm):
     class Meta:
@@ -26,7 +30,9 @@ class formReferente(forms.ModelForm):
             "nominativo": "Azienda - Nome - Cognome* ",
             "tel": "Telefono* ",
             "mail": "Mail ",
-            "note": "Note "}
+            "note": "Note ",
+        }
+
 
 class formProtocol(forms.ModelForm):
     class Meta:
@@ -42,30 +48,35 @@ class formProtocol(forms.ModelForm):
             "data_registrazione": "Data Registrazione* ",
             "data_scadenza": "Data Scadenza* ",
             "data_consegna": "Data Consegna ",
-            "responsabile": "Responsabile "
+            "responsabile": "Responsabile ",
         }
         widgets = {
-            'data_registrazione': DateInput(),
-            'data_scadenza': DateInput(),
-            'data_consegna': DateInput(),
-            'identificativo' : forms.HiddenInput(),
-            'status' : forms.HiddenInput(),
-            'cliente': autocomplete.ModelSelect2(url='cliente_autocomp'),
-            'referente': autocomplete.ModelSelect2(url='referente_autocomp')}
+            "data_registrazione": DateInput(),
+            "data_scadenza": DateInput(),
+            "data_consegna": DateInput(),
+            "identificativo": forms.HiddenInput(),
+            "status": forms.HiddenInput(),
+            "cliente": autocomplete.ModelSelect2(url="cliente_autocomp"),
+            "referente": autocomplete.ModelSelect2(url="referente_autocomp"),
+        }
 
     def check_date(self):
         data = self.data.copy()
-        return data['data_scadenza'] >= data['data_registrazione'] or data['data_consegna'] >= data['data_registrazione']
+        return (
+            data["data_scadenza"] >= data["data_registrazione"]
+            or data["data_consegna"] >= data["data_registrazione"]
+        )
 
-    def set_identificativo(self,value):
+    def set_identificativo(self, value):
         data = self.data.copy()
-        data['identificativo'] = value
+        data["identificativo"] = value
         self.data = data
 
-    def set_status(self,value):
+    def set_status(self, value):
         data = self.data.copy()
-        data['status'] = value
+        data["status"] = value
         self.data = data
+
 
 class formProtocolUpdate(forms.ModelForm):
     class Meta:
@@ -81,32 +92,39 @@ class formProtocolUpdate(forms.ModelForm):
             "data_registrazione": "Data Registrazione* ",
             "data_scadenza": "Data Scadenza* ",
             "data_consegna": "Data Consegna ",
-            "responsabile": "Responsabile "
+            "responsabile": "Responsabile ",
         }
         widgets = {
-            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
-            'identificativo': forms.HiddenInput(),
-            'status': forms.HiddenInput(),
-            'cliente': autocomplete.ModelSelect2(url='cliente_autocomp'),
-            'referente': autocomplete.ModelSelect2(url='referente_autocomp')
+            "data_registrazione": forms.DateInput(attrs={"class": "datepicker"}),
+            "identificativo": forms.HiddenInput(),
+            "status": forms.HiddenInput(),
+            "cliente": autocomplete.ModelSelect2(url="cliente_autocomp"),
+            "referente": autocomplete.ModelSelect2(url="referente_autocomp"),
         }
 
     def check_date(self):
         data = self.data.copy()
-        registrazione = datetime.strptime(data['data_registrazione'], '%d/%m/%Y').strftime('%Y-%m-%d')
-        scadenza = datetime.strptime(data['data_scadenza'], '%d/%m/%Y').strftime('%Y-%m-%d')
-        consegna = datetime.strptime(data['data_consegna'], '%d/%m/%Y').strftime('%Y-%m-%d') if data['data_consegna'] else ''
+        registrazione = datetime.strptime(data["data_registrazione"], "%d/%m/%Y").strftime(
+            "%Y-%m-%d"
+        )
+        scadenza = datetime.strptime(data["data_scadenza"], "%d/%m/%Y").strftime("%Y-%m-%d")
+        consegna = (
+            datetime.strptime(data["data_consegna"], "%d/%m/%Y").strftime("%Y-%m-%d")
+            if data["data_consegna"]
+            else ""
+        )
         return scadenza >= registrazione or consegna >= registrazione
 
-    def set_identificativo(self,value):
+    def set_identificativo(self, value):
         data = self.data.copy()
-        data['identificativo'] = value
+        data["identificativo"] = value
         self.data = data
 
-    def set_status(self,value):
+    def set_status(self, value):
         data = self.data.copy()
-        data['status'] = value
+        data["status"] = value
         self.data = data
+
 
 class formConsulenza(forms.ModelForm):
     class Meta:
@@ -121,21 +139,27 @@ class formConsulenza(forms.ModelForm):
             "note": "Note ",
             "data_scadenza": "Data Scadenza* ",
             "data_consegna": "Data Consegna ",
-            "responsabile": "Responsabile "}
+            "responsabile": "Responsabile ",
+        }
         widgets = {
-            'data_registrazione': DateInput(),
-            'data_scadenza': DateInput(),
-            'data_consegna': DateInput(),
-            'status' : forms.HiddenInput()}
+            "data_registrazione": DateInput(),
+            "data_scadenza": DateInput(),
+            "data_consegna": DateInput(),
+            "status": forms.HiddenInput(),
+        }
 
     def check_date(self):
         data = self.data.copy()
-        return data['data_scadenza'] >= data['data_registrazione'] or data['data_consegna'] >= data['data_registrazione']
+        return (
+            data["data_scadenza"] >= data["data_registrazione"]
+            or data["data_consegna"] >= data["data_registrazione"]
+        )
 
-    def set_status(self,value):
+    def set_status(self, value):
         data = self.data.copy()
-        data['status'] = value
+        data["status"] = value
         self.data = data
+
 
 class formConsulenzaUpdate(forms.ModelForm):
     class Meta:
@@ -150,27 +174,45 @@ class formConsulenzaUpdate(forms.ModelForm):
             "note": "Note ",
             "data_scadenza": "Data Scadenza* ",
             "data_consegna": "Data Consegna ",
-            "responsabile": "Responsabile "}
+            "responsabile": "Responsabile ",
+        }
         widgets = {
-            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
-            'status': forms.HiddenInput()}
+            "data_registrazione": forms.DateInput(attrs={"class": "datepicker"}),
+            "status": forms.HiddenInput(),
+        }
 
     def check_date(self):
         data = self.data.copy()
-        registrazione = datetime.strptime(data['data_registrazione'], '%d/%m/%Y').strftime('%Y-%m-%d')
-        scadenza = datetime.strptime(data['data_scadenza'], '%d/%m/%Y').strftime('%Y-%m-%d')
-        consegna = datetime.strptime(data['data_consegna'], '%d/%m/%Y').strftime('%Y-%m-%d') if data['data_consegna'] else ''
+        registrazione = datetime.strptime(data["data_registrazione"], "%d/%m/%Y").strftime(
+            "%Y-%m-%d"
+        )
+        scadenza = datetime.strptime(data["data_scadenza"], "%d/%m/%Y").strftime("%Y-%m-%d")
+        consegna = (
+            datetime.strptime(data["data_consegna"], "%d/%m/%Y").strftime("%Y-%m-%d")
+            if data["data_consegna"]
+            else ""
+        )
         return scadenza >= registrazione or consegna >= registrazione
 
     def set_status(self, value):
         data = self.data.copy()
-        data['status'] = value
+        data["status"] = value
         self.data = data
+
 
 class formRicavo(forms.ModelForm):
     class Meta:
         model = Ricavo
-        fields = ('data_registrazione','movimento','importo','fattura','intestatario_fattura', 'protocollo', 'note', 'destinazione')
+        fields = (
+            "data_registrazione",
+            "movimento",
+            "importo",
+            "fattura",
+            "intestatario_fattura",
+            "protocollo",
+            "note",
+            "destinazione",
+        )
         labels = {
             "data_registrazione": "Data Registrazione* ",
             "movimento": "Movimento ",
@@ -179,15 +221,22 @@ class formRicavo(forms.ModelForm):
             "intestatario_fattura": "Intestatario Fattura ",
             "protocollo": "Protocollo ",
             "note": "Note ",
-            "destinazione": "Destinazione "}
+            "destinazione": "Destinazione ",
+        }
         widgets = {
-            'data_registrazione': DateInput(),
-            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
+            "data_registrazione": DateInput(),
+            "protocollo": autocomplete.ModelSelect2(url="proto_autocomp"),
+        }
 
     def Check1(self):
-        id_protocollo = self.data['protocollo']
+        id_protocollo = self.data["protocollo"]
         protocollo = Protocollo.objects.get(id=id_protocollo)
-        return sqlite.extract_sum_all_importi_ricavi_of_protocol(str(id_protocollo)) + float(self.data['importo']) <= protocollo.parcella
+        return (
+            sqlite.extract_sum_all_importi_ricavi_of_protocol(str(id_protocollo))
+            + float(self.data["importo"])
+            <= protocollo.parcella
+        )
+
 
 class formRicavoUpdate(forms.ModelForm):
     class Meta:
@@ -201,16 +250,24 @@ class formRicavoUpdate(forms.ModelForm):
             "intestatario_fattura": "Intestatario Fattura ",
             "protocollo": "Protocollo ",
             "note": "Note ",
-            "destinazione": "Destinazione "}
+            "destinazione": "Destinazione ",
+        }
         widgets = {
-            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
-            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
+            "data_registrazione": forms.DateInput(attrs={"class": "datepicker"}),
+            "protocollo": autocomplete.ModelSelect2(url="proto_autocomp"),
+        }
 
     def Check2(self, id_ricavo):
-        id_protocollo = self.data['protocollo']
+        id_protocollo = self.data["protocollo"]
         protocollo = Protocollo.objects.get(id=id_protocollo)
-        return sqlite.extract_sum_importi_ricavi_of_protocol_excluding_specific_ricavo(str(id_protocollo),
-                re.findall("(\d+)", str(id_ricavo))[0]) + float(self.data['importo']) <= protocollo.parcella
+        return (
+            sqlite.extract_sum_importi_ricavi_of_protocol_excluding_specific_ricavo(
+                str(id_protocollo), re.findall("(\d+)", str(id_ricavo))[0]
+            )
+            + float(self.data["importo"])
+            <= protocollo.parcella
+        )
+
 
 class formSpesaCommessa(forms.ModelForm):
     class Meta:
@@ -221,10 +278,13 @@ class formSpesaCommessa(forms.ModelForm):
             "importo": "Importo* ",
             "protocollo": "Protocollo ",
             "note": "Note ",
-            "provenienza": "Provenienza "}
+            "provenienza": "Provenienza ",
+        }
         widgets = {
-            'data_registrazione': DateInput(),
-            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
+            "data_registrazione": DateInput(),
+            "protocollo": autocomplete.ModelSelect2(url="proto_autocomp"),
+        }
+
 
 class formSpesaCommessaUpdate(forms.ModelForm):
     class Meta:
@@ -235,16 +295,20 @@ class formSpesaCommessaUpdate(forms.ModelForm):
             "importo": "Importo* ",
             "protocollo": "Protocollo ",
             "note": "Note ",
-            "provenienza": "Provenienza "}
+            "provenienza": "Provenienza ",
+        }
         widgets = {
-            'data_registrazione': forms.DateInput(attrs={'class':'datepicker'}),
-            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
+            "data_registrazione": forms.DateInput(attrs={"class": "datepicker"}),
+            "protocollo": autocomplete.ModelSelect2(url="proto_autocomp"),
+        }
+
 
 class formSocio(forms.ModelForm):
     class Meta:
         model = Socio
         fields = ["percentuale"]
         labels = {"percentuale": ""}
+
 
 class formSpesaGestione(forms.ModelForm):
     class Meta:
@@ -255,8 +319,10 @@ class formSpesaGestione(forms.ModelForm):
             "importo": "Importo* ",
             "causale": "Causale ",
             "fattura": "Fattura ",
-            "provenienza": "Provenienza "}
-        widgets = {'data_registrazione': DateInput()}
+            "provenienza": "Provenienza ",
+        }
+        widgets = {"data_registrazione": DateInput()}
+
 
 class formSpesaGestioneUpdate(forms.ModelForm):
     class Meta:
@@ -267,8 +333,10 @@ class formSpesaGestioneUpdate(forms.ModelForm):
             "importo": "Importo* ",
             "causale": "Causale ",
             "fattura": "Fattura ",
-            "provenienza": "Provenienza "}
-        widgets = {'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
+            "provenienza": "Provenienza ",
+        }
+        widgets = {"data_registrazione": forms.DateInput(attrs={"class": "datepicker"})}
+
 
 class formGuadagnoEffettivo(forms.ModelForm):
     class Meta:
@@ -277,8 +345,10 @@ class formGuadagnoEffettivo(forms.ModelForm):
         labels = {
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
-            "provenienza": "Provenienza "}
-        widgets = {'data_registrazione': DateInput()}
+            "provenienza": "Provenienza ",
+        }
+        widgets = {"data_registrazione": DateInput()}
+
 
 class formGuadagnoEffettivoUpdate(forms.ModelForm):
     class Meta:
@@ -287,8 +357,10 @@ class formGuadagnoEffettivoUpdate(forms.ModelForm):
         labels = {
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
-            "provenienza": "Provenienza "}
-        widgets = {'data_registrazione': forms.DateInput(attrs={'class':'datepicker'})}
+            "provenienza": "Provenienza ",
+        }
+        widgets = {"data_registrazione": forms.DateInput(attrs={"class": "datepicker"})}
+
 
 class form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(forms.Form):
-    year = forms.IntegerField(required = True, initial=datetime.now().year, label='Anno')
+    year = forms.IntegerField(required=True, initial=datetime.now().year, label="Anno")

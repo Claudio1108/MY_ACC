@@ -1,9 +1,10 @@
 from django.db import connection
 
-#------------------------- views.py ------------------------
+# ------------------------- views.py ------------------------
 def calculate_saldo(type_saldo):
     cursor = connection.cursor()
-    cursor.execute("""  SELECT coalesce(sum(t1.saldo),0)
+    cursor.execute(
+        """  SELECT coalesce(sum(t1.saldo),0)
                         FROM(
                         SELECT importo as saldo
                         FROM Contabilita_ricavo
@@ -19,8 +20,11 @@ def calculate_saldo(type_saldo):
                         UNION
                         SELECT -importo as saldo
                         FROM Contabilita_guadagnoeffettivo
-                        WHERE provenienza = :provenienza) t1""", {'provenienza': type_saldo})
+                        WHERE provenienza = :provenienza) t1""",
+        {"provenienza": type_saldo},
+    )
     return cursor.fetchone()[0]
+
 
 def resoconto_spese_gestione(year):
     cursor = connection.cursor()
@@ -75,9 +79,12 @@ def resoconto_spese_gestione(year):
                 select 'TOTALE' as mese, coalesce(sum(t1.importo),0) as SpesediGestione, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                 from Contabilita_spesagestione t1
                 where strftime('%Y', t1.data_registrazione) = '{d[year]}'
-                ORDER BY mese ASC;""".format(d={'year': str(year)})
+                ORDER BY mese ASC;""".format(
+        d={"year": str(year)}
+    )
     cursor.execute(query)
     return cursor.fetchall()
+
 
 def resoconto_ricavi(year):
     cursor = connection.cursor()
@@ -132,9 +139,12 @@ def resoconto_ricavi(year):
                     select 'TOTALE' as mese, coalesce(sum(t1.importo),0) as ricavo, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Daniele'),2) as Daniele , round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Laura'),2) as Laura, round(coalesce(sum(t1.importo),0) * (select t2.percentuale from Contabilita_socio t2 where t2.nome='Federico'),2) as Federico  
                     from Contabilita_ricavo t1
                     where strftime('%Y', t1.data_registrazione) = '{d[year]}'
-                    ORDER BY mese ASC;""".format(d={'year': str(year)})
+                    ORDER BY mese ASC;""".format(
+        d={"year": str(year)}
+    )
     cursor.execute(query)
     return cursor.fetchall()
+
 
 def resoconto_guadagni_effettivi(year):
     cursor = connection.cursor()
@@ -241,13 +251,17 @@ def resoconto_guadagni_effettivi(year):
                                           (select coalesce(sum(t1.importo),0) from Contabilita_spesagestione t1 where strftime('%Y', t1.data_registrazione) = '{d[year]}')-coalesce(sum(t1.importo),0) as DIfferenza
                    from Contabilita_guadagnoeffettivo t1
                    where strftime('%Y', t1.data_registrazione) = '{d[year]}'	  
-                   ORDER BY mese ASC;""".format(d={'year': str(year)})
+                   ORDER BY mese ASC;""".format(
+        d={"year": str(year)}
+    )
     cursor.execute(query)
     return cursor.fetchall()
 
+
 def resoconto_contabilita_protocolli():
     cursor = connection.cursor()
-    cursor.execute(""" SELECT t1.identificativo, t4.nominativo as cliente, t1.referente_id, t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
+    cursor.execute(
+        """ SELECT t1.identificativo, t4.nominativo as cliente, t1.referente_id, t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
                             (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as uscite,
                             t1.parcella-(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id)+
                             (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as saldo
@@ -259,21 +273,29 @@ def resoconto_contabilita_protocolli():
                             t1.parcella-(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id)+
                             (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as saldo
                        FROM   Contabilita_protocollo t1, Contabilita_rubricaclienti t4, Contabilita_rubricareferenti t5
-                       WHERE saldo != 0 and t1.cliente_id = t4.id and t1.referente_id = t5.id """)
+                       WHERE saldo != 0 and t1.cliente_id = t4.id and t1.referente_id = t5.id """
+    )
     return cursor.fetchall()
 
-#------------------------- forms.py ------------------------
+
+# ------------------------- forms.py ------------------------
 def extract_sum_all_importi_ricavi_of_protocol(id_protocollo):
     cursor = connection.cursor()
-    cursor.execute("""SELECT coalesce(sum(r.importo),0) as tot
+    cursor.execute(
+        """SELECT coalesce(sum(r.importo),0) as tot
                       FROM Contabilita_ricavo r
-                      WHERE r.protocollo_id = :proto_id""", {'proto_id': id_protocollo})
+                      WHERE r.protocollo_id = :proto_id""",
+        {"proto_id": id_protocollo},
+    )
     return cursor.fetchone()[0]
+
 
 def extract_sum_importi_ricavi_of_protocol_excluding_specific_ricavo(id_protocollo, id_ricavo):
     cursor = connection.cursor()
-    cursor.execute("""SELECT coalesce(sum(r.importo),0) as tot
+    cursor.execute(
+        """SELECT coalesce(sum(r.importo),0) as tot
                       FROM Contabilita_ricavo r
                       WHERE r.protocollo_id = :proto_id  AND r.id != :ricavo_id""",
-                   {'proto_id': id_protocollo, 'ricavo_id': id_ricavo})
+        {"proto_id": id_protocollo, "ricavo_id": id_ricavo},
+    )
     return cursor.fetchone()[0]

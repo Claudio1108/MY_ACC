@@ -1,0 +1,5 @@
+# Configuration for the Black formatter
+[tool.black]
+line-length = 100
+target-version = ['py36', 'py37', 'py38']
+exclude =  "migrations/"
