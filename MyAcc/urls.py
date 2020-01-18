@@ -6,11 +6,14 @@ from Contabilita import views as contviews
 from django.conf.urls import url
 from Contabilita.views import ProtocolloAutocomplete, ClienteAutocomplete, ReferenteAutocomplete
 
+from django.views.generic.base import TemplateView
+from django.contrib.auth.decorators import login_required
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     url(r"^favicon\.ico$", RedirectView.as_view(url="/static/images/favicon.ico")),
     path("accounts/", include("django.contrib.auth.urls")),
-    path("HomePage", contviews.viewHomePage, name="HomePage"),
+    path("HomePage", login_required(TemplateView.as_view(template_name='Homepage/HomePage.html')), name="HomePage"),
     path("HomePageContabilita", contviews.viewHomePageContabilita, name="HomePageContabilita"),
     path(
         "HomePageAmministrazione",

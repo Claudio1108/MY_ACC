@@ -12,6 +12,9 @@ from dal import autocomplete
 from Contabilita import sqlite_queries as sqlite
 
 # from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.generic.base import TemplateView
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 
 class ProtocolloAutocomplete(autocomplete.Select2QuerySetView):
@@ -44,11 +47,14 @@ class ReferenteAutocomplete(autocomplete.Select2QuerySetView):
         )
 
 
-def viewHomePage(request):
-    if not request.user.is_authenticated:
-        return redirect(settings.LOGIN_URL)
-    else:
-        return render(request, "Homepage/HomePage.html", {"user": request.user})
+@method_decorator(login_required, name='dispatch')
+class HomePageViews(TemplateView):
+    template_name = "Homepage/HomePage.html"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(HomePageViews, self).get_context_data(*args, **kwargs)
+        context['user'] = self.request.user
+        return context
 
 
 def viewHomePageContabilita(request):
