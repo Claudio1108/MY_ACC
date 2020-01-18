@@ -7,6 +7,7 @@ from .forms import *
 from .filters import *
 from datetime import date, datetime
 from django.http import HttpResponse
+from django.conf import settings
 from dal import autocomplete
 from Contabilita import sqlite_queries as sqlite
 
@@ -45,7 +46,7 @@ class ReferenteAutocomplete(autocomplete.Select2QuerySetView):
 
 def viewHomePage(request):
     if not request.user.is_authenticated:
-        return redirect("accounts/login/")
+        return redirect(settings.LOGIN_URL)
     else:
         return render(request, "Homepage/HomePage.html", {"user": request.user})
 
