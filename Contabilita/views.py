@@ -1,20 +1,20 @@
-import re
-import xlwt
-from django.db.models import Sum
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import *
-from .filters import *
 from datetime import date, datetime
-from django.http import HttpResponse
-from django.conf import settings
+
+import xlwt
 from dal import autocomplete
-from Contabilita import sqlite_queries as sqlite
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
 
 # from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic.base import TemplateView
-from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.views.generic.base import TemplateView
+
+from Contabilita import sqlite_queries as sqlite
+from .filters import *
+from .forms import *
 
 
 class ProtocolloAutocomplete(autocomplete.Select2QuerySetView):
@@ -47,9 +47,9 @@ class ReferenteAutocomplete(autocomplete.Select2QuerySetView):
         )
 
 
-@login_required
-class HomePageView(TemplateView):
-    template_name = "Homepage/HomePage.html"
+# In questo modo abbiamo la funzione da usare nei test che usano la view come funzione
+# Inoltre abbiamo anche ridotto ad una linea soltanto la view.
+viewHomePage = login_required(TemplateView.as_view(template_name="Homepage/HomePage.html"))
 
 
 def viewHomePageContabilita(request):

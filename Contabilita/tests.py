@@ -7,7 +7,7 @@ from http import HTTPStatus
 
 from django.urls import reverse
 
-# from Contabilita.views import viewHomePage
+from Contabilita.views import viewHomePage
 
 User = get_user_model()
 
@@ -21,6 +21,7 @@ class ContabilitaViewsTestCase(TestCase):
     Per fare questo tipo di controllo e' necessario usare il client che a volte e' un po' troppo
     lento perche' si carica tutta l'app, ma volendo si puo' usare come strategia
     """
+
     def setUp(self) -> None:
         self.factory = RequestFactory()  # e' una request "finta"
         self.an_user = User.objects.create(email="foo@boo.com")
@@ -39,7 +40,6 @@ class ContabilitaViewsTestCase(TestCase):
 
 
 class ContabilitaViewClientTestCase(TestCase):
-
     def test_home_view_as_not_authenticated_user(self):
         """
         Il test e' esattamente come sopra, ma ovviamente fa una chiamata come se fosse
@@ -52,8 +52,11 @@ class ContabilitaViewClientTestCase(TestCase):
         """
         Se leggi la documentazione, settings.LOGIN_URL e' usato di default dal decorator
         login required e dovrebbe essere il modo per identificare l'url di login
+        
+        Nota: ci aspettiamo che la url restituita per il redirect contenga il next come 
+        definito dalla documentazione di django.contrib.auth.
         """
-        self.assertEqual(response.url, settings.LOGIN_URL)
+        self.assertEqual(response.url, f"{settings.LOGIN_URL}?next={url}")
 
     def test_home_view_as_authenticated_user(self):
         """Test che va un poco piu' a fondo sul funzionamento della view
@@ -74,4 +77,3 @@ class ContabilitaViewClientTestCase(TestCase):
         # ora che abbiamo il client, possiamo usare la response per testare
         # che il template corretto venga caricato
         self.assertTemplateUsed(response, "Homepage/HomePage.html")
-
