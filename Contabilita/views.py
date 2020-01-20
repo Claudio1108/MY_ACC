@@ -47,14 +47,9 @@ class ReferenteAutocomplete(autocomplete.Select2QuerySetView):
         )
 
 
-@method_decorator(login_required, name='dispatch')
+@login_required
 class HomePageViews(TemplateView):
     template_name = "Homepage/HomePage.html"
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(HomePageViews, self).get_context_data(*args, **kwargs)
-        context['user'] = self.request.user
-        return context
 
 
 def viewHomePageContabilita(request):
