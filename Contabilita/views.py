@@ -48,7 +48,7 @@ class ReferenteAutocomplete(autocomplete.Select2QuerySetView):
 
 
 @login_required
-class HomePageViews(TemplateView):
+class HomePageView(TemplateView):
     template_name = "Homepage/HomePage.html"
 
 
