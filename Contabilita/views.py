@@ -9,7 +9,6 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
 # from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 
 from Contabilita import sqlite_queries as sqlite
@@ -51,19 +50,9 @@ class ReferenteAutocomplete(autocomplete.Select2QuerySetView):
 # Inoltre abbiamo anche ridotto ad una linea soltanto la view.
 viewHomePage = login_required(TemplateView.as_view(template_name="Homepage/HomePage.html"))
 
+viewHomePageContabilita = login_required(TemplateView.as_view(template_name="HomePageContabilita.html"))
 
-def viewHomePageContabilita(request):
-    if not request.user.is_authenticated:
-        return redirect("accounts/login/")
-    else:
-        return render(request, "Homepage/HomePageContabilita.html")
-
-
-def viewHomePageAmministrazione(request):
-    if not request.user.is_authenticated:
-        return redirect("accounts/login/")
-    else:
-        return render(request, "Homepage/HomePageAmministrazione.html")
+viewHomePageAmministrazione = login_required(TemplateView.as_view(template_name="Homepage/HomePageAmministrazione.html"))
 
 
 def viewAllClienti(request):
@@ -73,15 +62,6 @@ def viewAllClienti(request):
         cliente_filter = ClienteFilter(
             request.GET, queryset=RubricaClienti.objects.all().order_by("nominativo")
         )
-        # page = request.GET.get('page', 1)
-        # paginator = Paginator(cliente_filter.qs, 20)
-        # try:
-        #     cl = paginator.page(page)
-        # except PageNotAnInteger:
-        #     cl = paginator.page(1)
-        # except EmptyPage:
-        #     cl = paginator.page(paginator.num_pages)
-        # return render(request, "Amministrazione/Cliente/AllClienti.html", { "filter" : cliente_filter, 'cl': cl})
         return render(
             request,
             "Amministrazione/Cliente/AllClienti.html",
