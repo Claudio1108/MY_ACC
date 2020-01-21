@@ -18,7 +18,7 @@ urlpatterns = [
         name="HomePageAmministrazione",
     ),
     # Cliente
-    path("AllClienti/", contviews.viewAllClienti, name="AllClienti"),
+    path("AllClienti/", contviews.viewAllClienti.as_view(), name="AllClienti"),
     path("CreateCliente/", contviews.viewCreateCliente, name="CreateCliente"),
     path("DeleteCliente/<int:id>", contviews.viewDeleteCliente, name="DeleteCliente"),
     url(r"^DeleteClientiGroup/$", contviews.viewDeleteClientiGroup, name="DeleteClientiGroup"),

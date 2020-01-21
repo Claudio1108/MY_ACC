@@ -7,7 +7,7 @@ from http import HTTPStatus
 
 from django.urls import reverse
 
-from Contabilita.views import viewHomePage, viewHomePageAmministrazione, viewHomePageContabilita
+from Contabilita.views import viewHomePage, viewHomePageAmministrazione, viewHomePageContabilita, viewAllClienti
 
 User = get_user_model()
 
@@ -60,6 +60,18 @@ class ContabilitaViewsTestCase(TestCase):
         request = self.factory.get(path="/foo/boo")
         request.user = self.an_user  # simula l'utente loggato
         response = viewHomePageAmministrazione(request)
+        self.assertEqual(response.status_code, HTTPStatus.OK)  # 200
+
+    def test_view_all_clients_for_anonymous_user(self):
+        request = self.factory.get(path="/foo/boo")
+        request.user = AnonymousUser()  # simula l'utente non loggato
+        response = viewAllClienti.as_view()(request)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)  # 302
+
+    def test_view_all_clients_for_user(self):
+        request = self.factory.get(path="/foo/boo")
+        request.user = self.an_user  # simula l'utente loggato
+        response = viewAllClienti.as_view()(request)
         self.assertEqual(response.status_code, HTTPStatus.OK)  # 200
 
 

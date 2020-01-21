@@ -10,6 +10,7 @@ from django.shortcuts import redirect, render
 
 # from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.base import TemplateView
+from django.utils.decorators import method_decorator
 
 from Contabilita import sqlite_queries as sqlite
 from .filters import *
@@ -55,18 +56,34 @@ viewHomePageContabilita = login_required(TemplateView.as_view(template_name="Hom
 viewHomePageAmministrazione = login_required(TemplateView.as_view(template_name="Homepage/HomePageAmministrazione.html"))
 
 
-def viewAllClienti(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
+"""
+Ho provato a modificare anche la view relativa alla visualizzazione dei clienti
+"""
+# def viewAllClienti(request):
+#     if not request.user.is_authenticated:
+#         return redirect("/accounts/login/")
+#     else:
+#         cliente_filter = ClienteFilter(
+#             request.GET, queryset=RubricaClienti.objects.all().order_by("nominativo")
+#         )
+#         return render(
+#             request,
+#             "Amministrazione/Cliente/AllClienti.html",
+#             {"filter": cliente_filter, "filter_queryset": cliente_filter.qs},
+#         )
+
+@method_decorator(login_required, name='dispatch')
+class viewAllClienti(TemplateView):
+    template_name = 'Amministrazione/Cliente/AllClienti.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
         cliente_filter = ClienteFilter(
-            request.GET, queryset=RubricaClienti.objects.all().order_by("nominativo")
+            self.request.GET, queryset=RubricaClienti.objects.all().order_by("nominativo")
         )
-        return render(
-            request,
-            "Amministrazione/Cliente/AllClienti.html",
-            {"filter": cliente_filter, "filter_queryset": cliente_filter.qs},
-        )
+        context['filter'] = cliente_filter
+        context['filter_queryset'] = cliente_filter.qs
+        return context
 
 
 def viewCreateCliente(request):
