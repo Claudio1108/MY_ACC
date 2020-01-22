@@ -7,8 +7,7 @@ from http import HTTPStatus
 
 from django.urls import reverse
 
-from Contabilita.views import viewHomePage, viewHomePageAmministrazione, viewHomePageContabilita, viewAllClienti
-
+from Contabilita.views import viewHomePage, viewHomePageAmministrazione, viewHomePageContabilita, viewAllClienti, viewCreateCliente
 User = get_user_model()
 
 
@@ -26,53 +25,41 @@ class ContabilitaViewsTestCase(TestCase):
         self.factory = RequestFactory()  # e' una request "finta"
         self.an_user = User.objects.create(email="foo@boo.com")
 
-    def test_view_home_page_for_anonymous_user(self):
+    def _test_template_view(self, usr, view, expected_status):
         request = self.factory.get(path="/foo/boo")
-        request.user = AnonymousUser()  # simula l'utente non loggato
-        response = viewHomePage(request)
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)  # 302
+        request.user = usr
+        response = view(request)
+        self.assertEqual(response.status_code, expected_status)
+
+    def test_view_home_page_for_anonymous_user(self):
+        self._test_template_view(AnonymousUser(), viewHomePage, HTTPStatus.FOUND)
 
     def test_view_home_page_for_user(self):
-        request = self.factory.get(path="/foo/boo")
-        request.user = self.an_user  # simula l'utente loggato
-        response = viewHomePage(request)
-        self.assertEqual(response.status_code, HTTPStatus.OK)  # 200
+        self._test_template_view(self.an_user, viewHomePage, HTTPStatus.OK)
 
     def test_view_home_page_contabilita_for_anonymous_user(self):
-        request = self.factory.get(path="/foo/boo")
-        request.user = AnonymousUser()  # simula l'utente non loggato
-        response = viewHomePageContabilita(request)
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)  # 302
+        self._test_template_view(AnonymousUser(), viewHomePageContabilita, HTTPStatus.FOUND)
 
     def test_view_home_page_contabilita_for_user(self):
-        request = self.factory.get(path="/foo/boo")
-        request.user = self.an_user  # simula l'utente loggato
-        response = viewHomePageContabilita(request)
-        self.assertEqual(response.status_code, HTTPStatus.OK)  # 200
+        self._test_template_view(self.an_user, viewHomePageContabilita, HTTPStatus.OK)
 
     def test_view_home_page_amministrazione_for_anonymous_user(self):
-        request = self.factory.get(path="/foo/boo")
-        request.user = AnonymousUser()  # simula l'utente non loggato
-        response = viewHomePageAmministrazione(request)
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)  # 302
+        self._test_template_view(AnonymousUser(), viewHomePageAmministrazione, HTTPStatus.FOUND)
 
     def test_view_home_page_amministrazione_for_user(self):
-        request = self.factory.get(path="/foo/boo")
-        request.user = self.an_user  # simula l'utente loggato
-        response = viewHomePageAmministrazione(request)
-        self.assertEqual(response.status_code, HTTPStatus.OK)  # 200
+        self._test_template_view(self.an_user, viewHomePageAmministrazione, HTTPStatus.OK)
 
     def test_view_all_clients_for_anonymous_user(self):
-        request = self.factory.get(path="/foo/boo")
-        request.user = AnonymousUser()  # simula l'utente non loggato
-        response = viewAllClienti.as_view()(request)
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)  # 302
+        self._test_template_view(AnonymousUser(), viewAllClienti.as_view(), HTTPStatus.FOUND)
 
     def test_view_all_clients_for_user(self):
-        request = self.factory.get(path="/foo/boo")
-        request.user = self.an_user  # simula l'utente loggato
-        response = viewAllClienti.as_view()(request)
-        self.assertEqual(response.status_code, HTTPStatus.OK)  # 200
+        self._test_template_view(self.an_user, viewAllClienti.as_view(), HTTPStatus.OK)
+
+    def test_view_create_client_for_anonymous_user(self):
+        self._test_template_view(AnonymousUser(), viewCreateCliente.as_view(), HTTPStatus.FOUND)
+
+    def test_view_create_client_for_user(self):
+        self._test_template_view(self.an_user, viewCreateCliente.as_view(), HTTPStatus.OK)
 
 
 class ContabilitaViewClientTestCase(TestCase):

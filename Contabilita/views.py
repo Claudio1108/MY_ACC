@@ -10,6 +10,8 @@ from django.shortcuts import redirect, render
 
 # from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.base import TemplateView
+from django.views.generic.list import ListView
+from django.views.generic.edit import CreateView, DeleteView
 from django.utils.decorators import method_decorator
 
 from Contabilita import sqlite_queries as sqlite
@@ -57,8 +59,9 @@ viewHomePageAmministrazione = login_required(TemplateView.as_view(template_name=
 
 
 """
-Ho provato a modificare anche la view relativa alla visualizzazione dei clienti
+Ho provato a modificare anche le view relativa alla visualizzazione dei clienti ed alla creazione di un cliente
 """
+
 # def viewAllClienti(request):
 #     if not request.user.is_authenticated:
 #         return redirect("/accounts/login/")
@@ -73,34 +76,48 @@ Ho provato a modificare anche la view relativa alla visualizzazione dei clienti
 #         )
 
 @method_decorator(login_required, name='dispatch')
-class viewAllClienti(TemplateView):
+class viewAllClienti(ListView):
+    model = RubricaClienti
     template_name = 'Amministrazione/Cliente/AllClienti.html'
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        cliente_filter = ClienteFilter(
-            self.request.GET, queryset=RubricaClienti.objects.all().order_by("nominativo")
-        )
-        context['filter'] = cliente_filter
-        context['filter_queryset'] = cliente_filter.qs
+    def get_queryset(self):
+        return ClienteFilter(self.request.GET, queryset=RubricaClienti.objects.all().order_by("nominativo"))
+
+    def get_context_data(self):
+        context = super(viewAllClienti, self).get_context_data()
+        context['filter'] = self.get_queryset()
+        context['filter_queryset'] = self.get_queryset().qs
         return context
 
 
-def viewCreateCliente(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            form = formCliente(request.POST)
-            if form.is_valid():
-                form.save()
-                return redirect("AllClienti")
-            else:
-                return render(request, "Amministrazione/Cliente/CreateCliente.html", {"form": form})
+# def viewCreateCliente(request):
+#     if not request.user.is_authenticated:
+#         return redirect("/accounts/login/")
+#     else:
+#         if request.method == "POST":
+#             form = formCliente(request.POST)
+#             if form.is_valid():
+#                 form.save()
+#                 return redirect("AllClienti")
+#             else:
+#                 return render(request, "Amministrazione/Cliente/CreateCliente.html", {"form": form})
+#         else:
+#             return render(
+#                 request, "Amministrazione/Cliente/CreateCliente.html", {"form": formCliente()}
+#             )
+
+@method_decorator(login_required, name='dispatch')
+class viewCreateCliente(CreateView):
+    def get(self, request):
+        return render(request, "Amministrazione/Cliente/CreateCliente.html", {"form": formCliente()})
+
+    def post(self, request):
+        form = formCliente(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("AllClienti")
         else:
-            return render(
-                request, "Amministrazione/Cliente/CreateCliente.html", {"form": formCliente()}
-            )
+            return render(request, "Amministrazione/Cliente/CreateCliente.html", {"form": form})
 
 
 def viewDeleteCliente(request, id):
