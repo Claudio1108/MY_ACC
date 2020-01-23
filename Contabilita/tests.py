@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase, RequestFactory, Client
 from django.conf import settings
+from .models import *
+from .serializers import RubricaClientiSerializer
 
 from http import HTTPStatus
 
@@ -60,6 +62,38 @@ class ContabilitaViewsTestCase(TestCase):
 
     def test_view_create_client_for_user(self):
         self._test_template_view(self.an_user, viewCreateCliente.as_view(), HTTPStatus.OK)
+
+
+class GetAllClientiTest(TestCase):
+
+    def setUp(self):
+        RubricaClienti.objects.create(
+            nominativo='Mario Rossi', tel='3345678239', mail='mario.rossi@foo.it', note='Black')
+        RubricaClienti.objects.create(
+            nominativo='Paolo Verdi', tel='3945528822', note='Green')
+        RubricaClienti.objects.create(
+            nominativo='Carlo Gialli', tel='3567834222', mail='carlo.gialli@toto.it')
+        RubricaClienti.objects.create(
+            nominativo='Gianni Neri', tel='3457612987')
+
+    def test_get_all_clienti(self):
+        # client = Client()
+        # response = client.get('AllClienti')
+        # print(response)
+        request = RequestFactory().get(path="/foo/boo")
+        request.user = User.objects.create(email="foo@boo.com")
+        # get API response
+        response = viewAllClienti.as_view()(request)
+        print(response.data)
+        # get data from db
+        clienti = RubricaClienti.objects.all()
+        print(len(clienti))
+
+        #serializer = RubricaClientiSerializer(clienti, many=True)
+
+        # self.assertEqual(response.data, serializer.data)
+        # self.assertEqual(response.status_code, HTTPStatus.OK)
+        # self.assertEqual(len())
 
 
 class ContabilitaViewClientTestCase(TestCase):
