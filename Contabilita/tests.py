@@ -81,7 +81,7 @@ class GetAllClientiTest(TestCase):
     def test_get_all_clienti(self):
         self.client.force_login(self.user)
         rendering_values = self.client.get('/AllClienti/').context['filter_queryset'].order_by('nominativo').values() # valori effettivamente renderizzati
-        db_values = RubricaClienti.objects.all().order_by('nominativo').values() # valori presenti nel db
+        db_values = RubricaClienti.objects.all().order_by('nominativo').values() # valori presenti nel db di testing
         self.assertListEqual(list(db_values), list(rendering_values))
 
     def test_template_render(self):
