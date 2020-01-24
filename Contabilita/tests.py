@@ -67,6 +67,8 @@ class ContabilitaViewsTestCase(TestCase):
 class GetAllClientiTest(TestCase):
 
     def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create(username="foo", first_name="foo", last_name="boo")
         RubricaClienti.objects.create(
             nominativo='Mario Rossi', tel='3345678239', mail='mario.rossi@foo.it', note='Black')
         RubricaClienti.objects.create(
@@ -77,23 +79,16 @@ class GetAllClientiTest(TestCase):
             nominativo='Gianni Neri', tel='3457612987')
 
     def test_get_all_clienti(self):
-        # client = Client()
-        # response = client.get('AllClienti')
-        # print(response)
-        request = RequestFactory().get(path="/foo/boo")
-        request.user = User.objects.create(email="foo@boo.com")
-        # get API response
-        response = viewAllClienti.as_view()(request)
-        print(response.data)
-        # get data from db
-        clienti = RubricaClienti.objects.all()
-        print(len(clienti))
+        self.client.force_login(self.user)
+        rendering_values = self.client.get('/AllClienti/').context['filter_queryset'].order_by('nominativo').values() # valori effettivamente renderizzati
+        db_values = RubricaClienti.objects.all().order_by('nominativo').values() # valori presenti nel db
+        self.assertListEqual(list(db_values), list(rendering_values))
 
-        #serializer = RubricaClientiSerializer(clienti, many=True)
-
-        # self.assertEqual(response.data, serializer.data)
-        # self.assertEqual(response.status_code, HTTPStatus.OK)
-        # self.assertEqual(len())
+    def test_template_render(self):
+        self.client.force_login(self.user)
+        url = reverse('AllClienti')
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, 'Amministrazione/Cliente/AllClienti.html')
 
 
 class ContabilitaViewClientTestCase(TestCase):
