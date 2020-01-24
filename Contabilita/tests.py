@@ -64,9 +64,14 @@ class ContabilitaViewsTestCase(TestCase):
 
 class GetAllClientiTest(TestCase):
 
-    def setUp(self):
-        self.client = Client()
-        self.user = User.objects.create(username="foo", first_name="foo", last_name="boo")
+    def get_response(self):
+        client = Client()
+        user = User.objects.create(username="foo", first_name="foo", last_name="boo")
+        client.force_login(user)
+        url = reverse("AllClienti")
+        return client.get(url)
+
+    def test_get_all_clienti(self):
         RubricaClienti.objects.create(
             nominativo='Mario Rossi', tel='3345678239', mail='mario.rossi@foo.it', note='Black')
         RubricaClienti.objects.create(
@@ -76,17 +81,14 @@ class GetAllClientiTest(TestCase):
         RubricaClienti.objects.create(
             nominativo='Gianni Neri', tel='3457612987')
 
-    def test_get_all_clienti(self):
-        self.client.force_login(self.user)
-        rendering_values = self.client.get('/AllClienti/').context['filter_queryset'].order_by('nominativo').values() # valori effettivamente renderizzati
+        rendering_values = self.get_response().context['filter_queryset']\
+                               .order_by('nominativo').values() # valori effettivamente renderizzati
         db_values = RubricaClienti.objects.all().order_by('nominativo').values() # valori presenti nel db di testing
-        self.assertListEqual(list(db_values), list(rendering_values))
+        self.assertSequenceEqual(list(db_values), list(rendering_values))
 
-    def test_template_render(self):
-        self.client.force_login(self.user)
-        url = reverse('AllClienti')
-        response = self.client.get(url)
-        self.assertTemplateUsed(response, 'Amministrazione/Cliente/AllClienti.html')
+    def test_template_used(self):
+        self.assertTemplateUsed(self.get_response(), 'Amministrazione/Cliente/AllClienti.html')
+
 
 
 class ContabilitaViewClientTestCase(TestCase):
