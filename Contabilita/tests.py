@@ -3,13 +3,11 @@ from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase, RequestFactory, Client
 from django.conf import settings
 from .models import *
-from .serializers import RubricaClientiSerializer
 
 from http import HTTPStatus
-
 from django.urls import reverse
-
 from Contabilita.views import viewHomePage, viewHomePageAmministrazione, viewHomePageContabilita, viewAllClienti, viewCreateCliente
+
 User = get_user_model()
 
 
