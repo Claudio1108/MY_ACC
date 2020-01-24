@@ -2,12 +2,12 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase, RequestFactory, Client
 from django.conf import settings
+from .models import *
 
 from http import HTTPStatus
-
 from django.urls import reverse
-
 from Contabilita.views import viewHomePage, viewHomePageAmministrazione, viewHomePageContabilita, viewAllClienti, viewCreateCliente
+
 User = get_user_model()
 
 
@@ -60,6 +60,33 @@ class ContabilitaViewsTestCase(TestCase):
 
     def test_view_create_client_for_user(self):
         self._test_template_view(self.an_user, viewCreateCliente.as_view(), HTTPStatus.OK)
+
+
+class GetAllClientiTest(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create(username="foo", first_name="foo", last_name="boo")
+        RubricaClienti.objects.create(
+            nominativo='Mario Rossi', tel='3345678239', mail='mario.rossi@foo.it', note='Black')
+        RubricaClienti.objects.create(
+            nominativo='Paolo Verdi', tel='3945528822', note='Green')
+        RubricaClienti.objects.create(
+            nominativo='Carlo Gialli', tel='3567834222', mail='carlo.gialli@toto.it')
+        RubricaClienti.objects.create(
+            nominativo='Gianni Neri', tel='3457612987')
+
+    def test_get_all_clienti(self):
+        self.client.force_login(self.user)
+        rendering_values = self.client.get('/AllClienti/').context['filter_queryset'].order_by('nominativo').values() # valori effettivamente renderizzati
+        db_values = RubricaClienti.objects.all().order_by('nominativo').values() # valori presenti nel db di testing
+        self.assertListEqual(list(db_values), list(rendering_values))
+
+    def test_template_render(self):
+        self.client.force_login(self.user)
+        url = reverse('AllClienti')
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, 'Amministrazione/Cliente/AllClienti.html')
 
 
 class ContabilitaViewClientTestCase(TestCase):
