@@ -2,11 +2,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase, RequestFactory, Client
 from django.conf import settings
-from .models import *
+from Contabilita import models as contabilita_models
 
 from http import HTTPStatus
 from django.urls import reverse
-from Contabilita.views import viewHomePage, viewHomePageAmministrazione, viewHomePageContabilita, viewAllClienti, viewCreateCliente
+from Contabilita import views as contabilita_views
 
 User = get_user_model()
 
@@ -32,34 +32,34 @@ class ContabilitaViewsTestCase(TestCase):
         self.assertEqual(response.status_code, expected_status)
 
     def test_view_home_page_for_anonymous_user(self):
-        self._test_template_view(AnonymousUser(), viewHomePage, HTTPStatus.FOUND)
+        self._test_template_view(AnonymousUser(), contabilita_views.viewHomePage, HTTPStatus.FOUND)
 
     def test_view_home_page_for_user(self):
-        self._test_template_view(self.an_user, viewHomePage, HTTPStatus.OK)
+        self._test_template_view(self.an_user, contabilita_views.viewHomePage, HTTPStatus.OK)
 
     def test_view_home_page_contabilita_for_anonymous_user(self):
-        self._test_template_view(AnonymousUser(), viewHomePageContabilita, HTTPStatus.FOUND)
+        self._test_template_view(AnonymousUser(), contabilita_views.viewHomePageContabilita, HTTPStatus.FOUND)
 
     def test_view_home_page_contabilita_for_user(self):
-        self._test_template_view(self.an_user, viewHomePageContabilita, HTTPStatus.OK)
+        self._test_template_view(self.an_user, contabilita_views.viewHomePageContabilita, HTTPStatus.OK)
 
     def test_view_home_page_amministrazione_for_anonymous_user(self):
-        self._test_template_view(AnonymousUser(), viewHomePageAmministrazione, HTTPStatus.FOUND)
+        self._test_template_view(AnonymousUser(), contabilita_views.viewHomePageAmministrazione, HTTPStatus.FOUND)
 
     def test_view_home_page_amministrazione_for_user(self):
-        self._test_template_view(self.an_user, viewHomePageAmministrazione, HTTPStatus.OK)
+        self._test_template_view(self.an_user, contabilita_views.viewHomePageAmministrazione, HTTPStatus.OK)
 
     def test_view_all_clients_for_anonymous_user(self):
-        self._test_template_view(AnonymousUser(), viewAllClienti.as_view(), HTTPStatus.FOUND)
+        self._test_template_view(AnonymousUser(), contabilita_views.viewAllClienti.as_view(), HTTPStatus.FOUND)
 
     def test_view_all_clients_for_user(self):
-        self._test_template_view(self.an_user, viewAllClienti.as_view(), HTTPStatus.OK)
+        self._test_template_view(self.an_user, contabilita_views.viewAllClienti.as_view(), HTTPStatus.OK)
 
     def test_view_create_client_for_anonymous_user(self):
-        self._test_template_view(AnonymousUser(), viewCreateCliente.as_view(), HTTPStatus.FOUND)
+        self._test_template_view(AnonymousUser(), contabilita_views.viewCreateCliente.as_view(), HTTPStatus.FOUND)
 
     def test_view_create_client_for_user(self):
-        self._test_template_view(self.an_user, viewCreateCliente.as_view(), HTTPStatus.OK)
+        self._test_template_view(self.an_user, contabilita_views.viewCreateCliente.as_view(), HTTPStatus.OK)
 
 
 class GetAllClientiTest(TestCase):
@@ -72,19 +72,20 @@ class GetAllClientiTest(TestCase):
         return client.get(url)
 
     def test_get_all_clienti(self):
-        RubricaClienti.objects.create(
+        contabilita_models.RubricaClienti.objects.create(
             nominativo='Mario Rossi', tel='3345678239', mail='mario.rossi@foo.it', note='Black')
-        RubricaClienti.objects.create(
+        contabilita_models.RubricaClienti.objects.create(
             nominativo='Paolo Verdi', tel='3945528822', note='Green')
-        RubricaClienti.objects.create(
+        contabilita_models.RubricaClienti.objects.create(
             nominativo='Carlo Gialli', tel='3567834222', mail='carlo.gialli@toto.it')
-        RubricaClienti.objects.create(
+        contabilita_models.RubricaClienti.objects.create(
             nominativo='Gianni Neri', tel='3457612987')
 
-        rendering_values = self.get_response().context['filter_queryset']\
-                               .order_by('nominativo').values() # valori effettivamente renderizzati
-        db_values = RubricaClienti.objects.all().order_by('nominativo').values() # valori presenti nel db di testing
-        self.assertSequenceEqual(list(db_values), list(rendering_values))
+        response = self.get_response()
+        values_in_context = response.context['filter_queryset']\
+                               .order_by('nominativo').values()
+        expected_values_in_context = contabilita_models.RubricaClienti.objects.all().order_by('nominativo').values()
+        self.assertSequenceEqual(list(expected_values_in_context), list(values_in_context))
 
     def test_template_used(self):
         self.assertTemplateUsed(self.get_response(), 'Amministrazione/Cliente/AllClienti.html')

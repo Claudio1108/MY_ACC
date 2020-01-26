@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 from django import forms
-from .models import *
+from Contabilita import models as contabilita_models
 from dal import autocomplete
 from Contabilita import sqlite_queries as sqlite
 
@@ -12,7 +12,7 @@ class DateInput(forms.DateInput):
 
 class formCliente(forms.ModelForm):
     class Meta:
-        model = RubricaClienti
+        model = contabilita_models.RubricaClienti
         fields = "__all__"
         labels = {
             "nominativo": "Nome - Cognome* ",
@@ -24,7 +24,7 @@ class formCliente(forms.ModelForm):
 
 class formReferente(forms.ModelForm):
     class Meta:
-        model = RubricaReferenti
+        model = contabilita_models.RubricaReferenti
         fields = "__all__"
         labels = {
             "nominativo": "Azienda - Nome - Cognome* ",
@@ -36,7 +36,7 @@ class formReferente(forms.ModelForm):
 
 class formProtocol(forms.ModelForm):
     class Meta:
-        model = Protocollo
+        model = contabilita_models.Protocollo
         fields = "__all__"
         labels = {
             "cliente": "Cliente* ",
@@ -80,7 +80,7 @@ class formProtocol(forms.ModelForm):
 
 class formProtocolUpdate(forms.ModelForm):
     class Meta:
-        model = Protocollo
+        model = contabilita_models.Protocollo
         fields = "__all__"
         labels = {
             "cliente": "Cliente* ",
@@ -128,7 +128,7 @@ class formProtocolUpdate(forms.ModelForm):
 
 class formConsulenza(forms.ModelForm):
     class Meta:
-        model = Consulenza
+        model = contabilita_models.Consulenza
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
@@ -163,7 +163,7 @@ class formConsulenza(forms.ModelForm):
 
 class formConsulenzaUpdate(forms.ModelForm):
     class Meta:
-        model = Consulenza
+        model = contabilita_models.Consulenza
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
@@ -202,7 +202,7 @@ class formConsulenzaUpdate(forms.ModelForm):
 
 class formRicavo(forms.ModelForm):
     class Meta:
-        model = Ricavo
+        model = contabilita_models.Ricavo
         fields = (
             "data_registrazione",
             "movimento",
@@ -230,7 +230,7 @@ class formRicavo(forms.ModelForm):
 
     def Check1(self):
         id_protocollo = self.data["protocollo"]
-        protocollo = Protocollo.objects.get(id=id_protocollo)
+        protocollo = contabilita_models.Protocollo.objects.get(id=id_protocollo)
         return (
             sqlite.extract_sum_all_importi_ricavi_of_protocol(str(id_protocollo))
             + float(self.data["importo"])
@@ -240,7 +240,7 @@ class formRicavo(forms.ModelForm):
 
 class formRicavoUpdate(forms.ModelForm):
     class Meta:
-        model = Ricavo
+        model = contabilita_models.Ricavo
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
@@ -259,7 +259,7 @@ class formRicavoUpdate(forms.ModelForm):
 
     def Check2(self, id_ricavo):
         id_protocollo = self.data["protocollo"]
-        protocollo = Protocollo.objects.get(id=id_protocollo)
+        protocollo = contabilita_models.Protocollo.objects.get(id=id_protocollo)
         return (
             sqlite.extract_sum_importi_ricavi_of_protocol_excluding_specific_ricavo(
                 str(id_protocollo), re.findall("(\d+)", str(id_ricavo))[0]
@@ -271,7 +271,7 @@ class formRicavoUpdate(forms.ModelForm):
 
 class formSpesaCommessa(forms.ModelForm):
     class Meta:
-        model = SpesaCommessa
+        model = contabilita_models.SpesaCommessa
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
@@ -288,7 +288,7 @@ class formSpesaCommessa(forms.ModelForm):
 
 class formSpesaCommessaUpdate(forms.ModelForm):
     class Meta:
-        model = SpesaCommessa
+        model = contabilita_models.SpesaCommessa
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
@@ -305,14 +305,14 @@ class formSpesaCommessaUpdate(forms.ModelForm):
 
 class formSocio(forms.ModelForm):
     class Meta:
-        model = Socio
+        model = contabilita_models.Socio
         fields = ["percentuale"]
         labels = {"percentuale": ""}
 
 
 class formSpesaGestione(forms.ModelForm):
     class Meta:
-        model = SpesaGestione
+        model = contabilita_models.SpesaGestione
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
@@ -326,7 +326,7 @@ class formSpesaGestione(forms.ModelForm):
 
 class formSpesaGestioneUpdate(forms.ModelForm):
     class Meta:
-        model = SpesaGestione
+        model = contabilita_models.SpesaGestione
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
@@ -340,7 +340,7 @@ class formSpesaGestioneUpdate(forms.ModelForm):
 
 class formGuadagnoEffettivo(forms.ModelForm):
     class Meta:
-        model = GuadagnoEffettivo
+        model = contabilita_models.GuadagnoEffettivo
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
@@ -352,7 +352,7 @@ class formGuadagnoEffettivo(forms.ModelForm):
 
 class formGuadagnoEffettivoUpdate(forms.ModelForm):
     class Meta:
-        model = GuadagnoEffettivo
+        model = contabilita_models.GuadagnoEffettivo
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
