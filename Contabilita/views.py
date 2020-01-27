@@ -1,5 +1,5 @@
 from datetime import date, datetime
-
+import re
 import xlwt
 from dal import autocomplete
 from django.contrib import messages
@@ -703,7 +703,7 @@ def viewUpdateSocio(request, id):
                 )
         else:
             socio = contabilita_models.Socio.objects.get(id=id)
-            form = formSocio(instance=socio)
+            form = contabilita_forms.formSocio(instance=socio)
             return render(
                 request, "Contabilita/Socio/UpdateSocio.html", {"form": form, "socio": socio}
             )
@@ -1057,7 +1057,7 @@ def export_input_table_xls(request, list, model):
         ws.write(row_num, col_num, columns[col_num], font_style)
     font_style = xlwt.XFStyle()
     if model == "protocollo":
-        rows = Protocollo.objects.filter(
+        rows = contabilita_models.Protocollo.objects.filter(
             identificativo__in=re.findall("(\d+-\d+)", list)
         ).values_list(
             "identificativo",
