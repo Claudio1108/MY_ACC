@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
 # from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, DeleteView
@@ -90,7 +91,9 @@ class viewAllClienti(ListView):
         context['filter_queryset'] = self.get_queryset().qs
         return context
 
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#FIRST VERSION CREATE CLIENTE
 # def viewCreateCliente(request):
 #     if not request.user.is_authenticated:
 #         return redirect("/accounts/login/")
@@ -107,37 +110,58 @@ class viewAllClienti(ListView):
 #                 request, "Amministrazione/Cliente/CreateCliente.html", {"form": formCliente()}
 #             )
 
+#SECOND VERSION CREATE CLIENTE
+# @method_decorator(login_required, name='dispatch')
+# class viewCreateCliente(CreateView):
+#     def get(self, request):
+#         return render(request, "Amministrazione/Cliente/CreateCliente.html", {"form": contabilita_forms.formCliente()})
+#
+#     def post(self, request):
+#         form = contabilita_forms.formCliente(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect("AllClienti")
+#         else:
+#             return render(request, "Amministrazione/Cliente/CreateCliente.html", {"form": form})
+
+#LAST VERSION CREATE CLIENTE
 @method_decorator(login_required, name='dispatch')
 class viewCreateCliente(CreateView):
-    def get(self, request):
-        return render(request, "Amministrazione/Cliente/CreateCliente.html", {"form": contabilita_forms.formCliente()})
+    model = contabilita_models.RubricaClienti
+    form_class = contabilita_forms.formCliente
+    success_url = reverse_lazy('AllClienti')
+    template_name = 'Amministrazione/Cliente/CreateCliente.html'
 
-    def post(self, request):
-        form = contabilita_forms.formCliente(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("AllClienti")
-        else:
-            return render(request, "Amministrazione/Cliente/CreateCliente.html", {"form": form})
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+"""
+Per quanto riguarda la conversione della view relativa alla cancellazione di un Cliente, la documentazione di Django
+propone l'utilizzo della classe generica DeleteView la quale per la conferma della cancellazione da parte dell'utente
+fa NECESSARIAMENTE affidamento ad una pagina html (rubricaclienti_confirm_delete.html) che dovremmo aggiungere al progetto. 
+La conferma della cancellazione è un tema che avevo già risolto da front-end mediante l'utilizzo di un piccolo
+banner javascript per la conferma di tale operazione. Come approccio preferisco mantenere il mio, lo trovo più pulito e
+meno macchinoso.
+"""
 
 def viewDeleteCliente(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        contabilita_models.RubricaClienti.objects.get(id=id).delete()
-        return redirect("AllClienti")
+    contabilita_models.RubricaClienti.objects.get(id=id).delete()
+    return redirect("AllClienti")
 
+# @method_decorator(login_required, name='dispatch')
+# class viewDeleteCliente(DeleteView):
+#     model = contabilita_models.RubricaClienti
+#     template_name = 'Amministrazione/Cliente/rubricaclienti_confirm_delete.html'
+#     success_url = "/AllClienti"
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 def viewDeleteClientiGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                contabilita_models.RubricaClienti.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageAmministrazione.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.RubricaClienti.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageAmministrazione.html")
 
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 def viewUpdateCliente(request, id):
     if not request.user.is_authenticated:
@@ -192,21 +216,15 @@ def viewCreateReferente(request):
 
 
 def viewDeleteReferente(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        contabilita_models.RubricaReferenti.objects.get(id=id).delete()
-        return redirect("AllReferenti")
+    contabilita_models.RubricaReferenti.objects.get(id=id).delete()
+    return redirect("AllReferenti")
 
 
 def viewDeleteReferentiGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                contabilita_models.RubricaReferenti.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageAmministrazione.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.RubricaReferenti.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageAmministrazione.html")
 
 
 def viewUpdateReferente(request, id):
@@ -306,21 +324,15 @@ def viewCreateProtocol(request):
 
 
 def viewDeleteProtocol(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        contabilita_models.Protocollo.objects.get(id=id).delete()
-        return redirect("AllProtocols")
+    contabilita_models.Protocollo.objects.get(id=id).delete()
+    return redirect("AllProtocols")
 
 
 def viewDeleteProtocolsGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                contabilita_models.Protocollo.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageAmministrazione.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.Protocollo.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageAmministrazione.html")
 
 
 def viewUpdateProtocol(request, id):
@@ -438,21 +450,15 @@ def viewCreateConsulenza(request):
 
 
 def viewDeleteConsulenza(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        contabilita_models.Consulenza.objects.get(id=id).delete()
-        return redirect("AllConsulenze")
+    contabilita_models.Consulenza.objects.get(id=id).delete()
+    return redirect("AllConsulenze")
 
 
 def viewDeleteConsulenzeGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                contabilita_models.Consulenza.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageAmministrazione.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.Consulenza.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageAmministrazione.html")
 
 
 def viewUpdateConsulenza(request, id):
@@ -541,21 +547,15 @@ def viewCreateRicavo(request):
 
 
 def viewDeleteRicavo(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        contabilita_models.Ricavo.objects.get(id=id).delete()
-        return redirect("AllRicavi")
+    contabilita_models.Ricavo.objects.get(id=id).delete()
+    return redirect("AllRicavi")
 
 
 def viewDeleteRicaviGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                contabilita_models.Ricavo.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageContabilita.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.Ricavo.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageContabilita.html")
 
 
 def viewUpdateRicavo(request, id):
@@ -628,21 +628,15 @@ def viewCreateSpesaCommessa(request):
 
 
 def viewDeleteSpesaCommessa(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        contabilita_models.SpesaCommessa.objects.get(id=id).delete()
-        return redirect("AllSpeseCommessa")
+    contabilita_models.SpesaCommessa.objects.get(id=id).delete()
+    return redirect("AllSpeseCommessa")
 
 
 def viewDeleteSpeseCommessaGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                contabilita_models.SpesaCommessa.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageContabilita.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.SpesaCommessa.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageContabilita.html")
 
 
 def viewUpdateSpesaCommessa(request, id):
@@ -752,21 +746,15 @@ def viewCreateSpesaGestione(request):
 
 
 def viewDeleteSpesaGestione(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        contabilita_models.SpesaGestione.objects.get(id=id).delete()
-        return redirect("AllSpeseGestione")
+    contabilita_models.SpesaGestione.objects.get(id=id).delete()
+    return redirect("AllSpeseGestione")
 
 
 def viewDeleteSpeseGestioneGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                contabilita_models.SpesaGestione.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageContabilita.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.SpesaGestione.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageContabilita.html")
 
 
 def viewUpdateSpesaGestione(request, id):
@@ -835,21 +823,15 @@ def viewCreateGuadagnoEffettivo(request):
 
 
 def viewDeleteGuadagnoEffettivo(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        contabilita_models.GuadagnoEffettivo.objects.get(id=id).delete()
-        return redirect("AllGuadagniEffettivi")
+    contabilita_models.GuadagnoEffettivo.objects.get(id=id).delete()
+    return redirect("AllGuadagniEffettivi")
 
 
 def viewDeleteGuadagniEffettiviGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                contabilita_models.GuadagnoEffettivo.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageContabilita.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.GuadagnoEffettivo.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageContabilita.html")
 
 
 def viewUpdateGuadagnoEffettivo(request, id):
