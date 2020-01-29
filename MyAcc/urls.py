@@ -22,7 +22,7 @@ urlpatterns = [
     path("CreateCliente/", contviews.viewCreateCliente.as_view(), name="CreateCliente"),
     path("DeleteCliente/<int:id>", contviews.viewDeleteCliente, name="DeleteCliente"),
     url(r"^DeleteClientiGroup/$", contviews.viewDeleteClientiGroup, name="DeleteClientiGroup"),
-    path("UpdateCliente/<int:id>", contviews.viewUpdateCliente, name="UpdateCliente"),
+    path("UpdateCliente/<pk>", contviews.viewUpdateCliente.as_view(), name="UpdateCliente"),
     # Referente
     path("AllReferenti/", contviews.viewAllReferenti, name="AllReferenti"),
     path("CreateReferente/", contviews.viewCreateReferente, name="CreateReferente"),

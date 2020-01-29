@@ -12,7 +12,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
-from django.views.generic.edit import CreateView, DeleteView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.utils.decorators import method_decorator
 
 from Contabilita import sqlite_queries as sqlite
@@ -163,24 +163,32 @@ def viewDeleteClientiGroup(request):
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-def viewUpdateCliente(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            form = contabilita_forms.formCliente(request.POST, instance=contabilita_models.RubricaClienti.objects.get(id=id))
-            if form.is_valid():
-                form.save()
-                return redirect("AllClienti")
-            else:
-                return render(request, "Amministrazione/Cliente/UpdateCliente.html", {"form": form})
-        else:
-            return render(
-                request,
-                "Amministrazione/Cliente/UpdateCliente.html",
-                {"form": contabilita_forms.formCliente(instance=contabilita_models.RubricaClienti.objects.get(id=id))},
-            )
+# def viewUpdateCliente(request, id):
+#     if not request.user.is_authenticated:
+#         return redirect("/accounts/login/")
+#     else:
+#         if request.method == "POST":
+#             form = contabilita_forms.formCliente(request.POST, instance=contabilita_models.RubricaClienti.objects.get(id=id))
+#             if form.is_valid():
+#                 form.save()
+#                 return redirect("AllClienti")
+#             else:
+#                 return render(request, "Amministrazione/Cliente/UpdateCliente.html", {"form": form})
+#         else:
+#             return render(
+#                 request,
+#                 "Amministrazione/Cliente/UpdateCliente.html",
+#                 {"form": contabilita_forms.formCliente(instance=contabilita_models.RubricaClienti.objects.get(id=id))},
+#             )
 
+@method_decorator(login_required, name='dispatch')
+class viewUpdateCliente(UpdateView):
+    model = contabilita_models.RubricaClienti
+    form_class = contabilita_forms.formCliente
+    success_url = reverse_lazy('AllClienti')
+    template_name = "Amministrazione/Cliente/UpdateCliente.html"
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 def viewAllReferenti(request):
     if not request.user.is_authenticated:

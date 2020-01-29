@@ -69,6 +69,12 @@ class ContabilitaViewsTestCase(TestCase):
     def test_view_create_client_for_user(self):
         self._test_template_view(self.an_user, contabilita_views.viewCreateCliente.as_view(), HTTPStatus.OK)
 
+    def test_view_update_client_for_anonymous_user(self):
+        pass
+
+    def test_view_update_client_for_user(self):
+        pass
+
 
 class GetAllClientiTest(TestCase):
 
@@ -115,6 +121,9 @@ class CreateClienteTest(TestCase):
         response = get_response("CreateCliente", authenticated_user=True)
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, "Amministrazione/Cliente/CreateCliente.html")
+
+class UpdateClienteTest(TestCase):
+    pass
 
 
 class ContabilitaViewClientTestCase(TestCase):
