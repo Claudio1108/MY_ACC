@@ -6,9 +6,6 @@ from Contabilita import views as contviews
 from django.conf.urls import url
 from Contabilita.views import ProtocolloAutocomplete, ClienteAutocomplete, ReferenteAutocomplete
 
-from django.views.generic.base import TemplateView
-from django.contrib.auth.decorators import login_required
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     url(r"^favicon\.ico$", RedirectView.as_view(url="/static/images/favicon.ico")),
@@ -21,11 +18,11 @@ urlpatterns = [
         name="HomePageAmministrazione",
     ),
     # Cliente
-    path("AllClienti/", contviews.viewAllClienti, name="AllClienti"),
-    path("CreateCliente/", contviews.viewCreateCliente, name="CreateCliente"),
+    path("AllClienti/", contviews.viewAllClienti.as_view(), name="AllClienti"),
+    path("CreateCliente/", contviews.viewCreateCliente.as_view(), name="CreateCliente"),
     path("DeleteCliente/<int:id>", contviews.viewDeleteCliente, name="DeleteCliente"),
     url(r"^DeleteClientiGroup/$", contviews.viewDeleteClientiGroup, name="DeleteClientiGroup"),
-    path("UpdateCliente/<int:id>", contviews.viewUpdateCliente, name="UpdateCliente"),
+    path("UpdateCliente/<pk>", contviews.viewUpdateCliente.as_view(), name="UpdateCliente"),
     # Referente
     path("AllReferenti/", contviews.viewAllReferenti, name="AllReferenti"),
     path("CreateReferente/", contviews.viewCreateReferente, name="CreateReferente"),

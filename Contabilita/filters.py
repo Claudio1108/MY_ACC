@@ -1,5 +1,5 @@
 import django_filters
-from .models import *
+from Contabilita import models as contabilita_models
 
 
 class ClienteFilter(django_filters.FilterSet):
@@ -39,7 +39,7 @@ class ProtocolloFilter(django_filters.FilterSet):
     status = django_filters.RangeFilter(label="Stato Protocollo (min-max) gg ", field_name="status")
 
     class Meta:
-        model = Protocollo
+        model = contabilita_models.Protocollo
         fields = {
             "responsabile": ["exact"],
         }
@@ -64,7 +64,7 @@ class ConsulenzaFilter(django_filters.FilterSet):
     status = django_filters.RangeFilter(label="Stato Consulenza (min-max) gg ", field_name="status")
 
     class Meta:
-        model = Consulenza
+        model = contabilita_models.Consulenza
         fields = {
             "responsabile": ["exact"],
         }
@@ -83,7 +83,7 @@ class SpesaGestioneFilter(django_filters.FilterSet):
     importo = django_filters.RangeFilter(label="Importo (min-max) €", field_name="importo")
 
     class Meta:
-        model = SpesaGestione
+        model = contabilita_models.SpesaGestione
         fields = {
             "provenienza": ["exact"],
         }
@@ -105,7 +105,7 @@ class SpesaCommessaFilter(django_filters.FilterSet):
     importo = django_filters.RangeFilter(label="Importo (min-max) €", field_name="importo")
 
     class Meta:
-        model = SpesaCommessa
+        model = contabilita_models.SpesaCommessa
         fields = {
             "provenienza": ["exact"],
         }
@@ -127,7 +127,7 @@ class RicavoFilter(django_filters.FilterSet):
     importo = django_filters.RangeFilter(label="Importo (min-max) €", field_name="importo")
 
     class Meta:
-        model = Ricavo
+        model = contabilita_models.Ricavo
         fields = {
             "intestatario_fattura": ["exact"],
             "fattura": ["exact"],
@@ -142,7 +142,7 @@ class GuadagnoEffettivoFilter(django_filters.FilterSet):
     importo = django_filters.RangeFilter(label="Importo (min-max) €", field_name="importo")
 
     class Meta:
-        model = GuadagnoEffettivo
+        model = contabilita_models.GuadagnoEffettivo
         fields = {
             "provenienza": ["exact"],
         }
