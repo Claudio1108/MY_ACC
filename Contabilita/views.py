@@ -61,7 +61,7 @@ viewHomePageAmministrazione = login_required(TemplateView.as_view(template_name=
 
 
 """
-Ho provato a modificare anche le view relativa alla visualizzazione dei clienti ed alla creazione di un cliente
+Ho provato a migliorare le view dei Clienti relative alle operazioni di: visualizzazione, creazione e modifica
 """
 
 # def viewAllClienti(request):
