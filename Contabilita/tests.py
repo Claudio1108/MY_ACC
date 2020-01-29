@@ -19,6 +19,8 @@ def get_response(url_name, **kwargs):
     return client.get(url)
 
 
+# UNIT TEST
+
 class ContabilitaViewsTestCase(TestCase):
     """
     Al momento questa semplice classe fa due test distinti su una function view la prima cosa che
@@ -36,7 +38,7 @@ class ContabilitaViewsTestCase(TestCase):
     def _test_template_view(self, usr, view, expected_status):
         request = self.factory.get(path="/foo/boo")
         request.user = usr
-        response = view(request)
+        response = view(request, pk=1) if 'update' in view.__name__.lower()  else  view(request)
         self.assertEqual(response.status_code, expected_status)
 
     def test_view_home_page_for_anonymous_user(self):
@@ -70,11 +72,14 @@ class ContabilitaViewsTestCase(TestCase):
         self._test_template_view(self.an_user, contabilita_views.viewCreateCliente.as_view(), HTTPStatus.OK)
 
     def test_view_update_client_for_anonymous_user(self):
-        pass
+        self._test_template_view(AnonymousUser(), contabilita_views.viewUpdateCliente.as_view(), HTTPStatus.FOUND)
 
     def test_view_update_client_for_user(self):
-        pass
+        contabilita_models.RubricaClienti.objects.create(nominativo='Fabio Bianchi', tel='3398765291')
+        self._test_template_view(self.an_user, contabilita_views.viewUpdateCliente.as_view(), HTTPStatus.OK)
 
+
+# INTEGRATION TEST
 
 class GetAllClientiTest(TestCase):
 
@@ -123,6 +128,7 @@ class CreateClienteTest(TestCase):
         self.assertTemplateUsed(response, "Amministrazione/Cliente/CreateCliente.html")
 
 class UpdateClienteTest(TestCase):
+
     pass
 
 
