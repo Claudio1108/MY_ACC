@@ -602,7 +602,8 @@ def viewContabilitaProtocolli(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': sqlite.resoconto_contabilita_protocolli()})
+        protocols = sqlite.resoconto_contabilita_protocolli()
+        return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': protocols, 'tot_saldo': sum([protocol[8] for protocol in protocols])})
 
 def export_input_table_xls(request, list, model):
     fields_models = {'protocollo': ['Identificativo', 'Data Registrazione', 'Nominativo Cliente', 'Telefono Cliente', 'Nominativo Referente', 'Telefono Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Scadenza', 'Data Consegna', 'Responsabile'],

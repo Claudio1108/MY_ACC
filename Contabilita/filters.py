@@ -10,8 +10,8 @@ class ReferenteFilter(django_filters.FilterSet):
 class ProtocolloFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione (start-end) dd/mm/yyyy')
     identificativo = django_filters.CharFilter(label='Identificativo', field_name='identificativo', lookup_expr='icontains')
-    cliente = django_filters.CharFilter(label='Cliente', field_name='cliente', lookup_expr='icontains')
-    referente = django_filters.CharFilter(label='Referente', field_name='referente', lookup_expr='icontains')
+    cliente = django_filters.CharFilter(label='Cliente', field_name='cliente__nominativo', lookup_expr='icontains')
+    referente = django_filters.CharFilter(label='Referente', field_name='referente__nominativo', lookup_expr='icontains')
     indirizzo = django_filters.CharFilter(label='Indirizzo', field_name='indirizzo', lookup_expr='icontains')
     pratica = django_filters.CharFilter(label='Pratica', field_name='pratica', lookup_expr='icontains')
     data_consegna = django_filters.BooleanFilter(label='Data Consegna',field_name = 'data_consegna', lookup_expr='isnull', exclude=True)
@@ -25,7 +25,7 @@ class ProtocolloFilter(django_filters.FilterSet):
 
 class ConsulenzaFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione (start-end) dd/mm/yyyy')
-    cliente = django_filters.CharFilter(label='Cliente', field_name='cliente', lookup_expr='icontains')
+    richiedente = django_filters.CharFilter(label='Richiedente', field_name='richiedente', lookup_expr='icontains')
     indirizzo = django_filters.CharFilter(label='Indirizzo', field_name='indirizzo', lookup_expr='icontains')
     attivita = django_filters.CharFilter(label='Attività', field_name='attivita', lookup_expr='icontains')
     data_consegna = django_filters.BooleanFilter(label='Data Consegna',field_name = 'data_consegna', lookup_expr='isnull', exclude=True)
