@@ -13,6 +13,7 @@ from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django_filters.views import FilterView
 from django.utils.decorators import method_decorator
 
 from Contabilita import sqlite_queries as sqlite
@@ -74,7 +75,7 @@ Ho provato a migliorare le view dei Clienti relative alle operazioni di: visuali
 #         return render(
 #             request,
 #             "Amministrazione/Cliente/AllClienti.html",
-#             {"filter": cliente_filter, "filter_queryset": cliente_filter.qs},
+#             {"filter": cliente_filter},
 #         )
 
 @method_decorator(login_required, name='dispatch')
@@ -88,8 +89,18 @@ class viewAllClienti(ListView):
     def get_context_data(self):
         context = super(viewAllClienti, self).get_context_data()
         context['filter'] = self.get_queryset()
-        context['filter_queryset'] = self.get_queryset().qs
         return context
+
+# class viewAllClienti(ListView):
+#     model = contabilita_models.RubricaClienti
+#     template_name = 'Amministrazione/Cliente/AllClienti.html'
+#     # filterset_class = contabilita_filters.ClienteFilter
+#     context_object_name = 'filter'
+#
+#     def get_queryset(self):
+#         return contabilita_filters.ClienteFilter(
+#                 self.request.GET, queryset=contabilita_models.RubricaClienti.objects.all().order_by("nominativo")).qs
+
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -976,10 +987,12 @@ def viewContabilitaProtocolli(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
+        protocols = sqlite.resoconto_contabilita_protocolli()
         return render(
             request,
             "Contabilita/ContabilitaProtocolli.html",
-            {"tabella_output4": sqlite.resoconto_contabilita_protocolli()},
+            {"tabella_output4": protocols,
+             'tot_saldo': sum([protocol[8] for protocol in protocols])},
         )
 
 

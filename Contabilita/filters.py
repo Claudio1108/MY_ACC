@@ -22,10 +22,10 @@ class ProtocolloFilter(django_filters.FilterSet):
         label="Identificativo", field_name="identificativo", lookup_expr="icontains"
     )
     cliente = django_filters.CharFilter(
-        label="Cliente", field_name="cliente", lookup_expr="icontains"
+        label="Cliente", field_name="cliente__nominativo", lookup_expr="icontains"
     )
     referente = django_filters.CharFilter(
-        label="Referente", field_name="referente", lookup_expr="icontains"
+        label="Referente", field_name="referente__nominativo", lookup_expr="icontains"
     )
     indirizzo = django_filters.CharFilter(
         label="Indirizzo", field_name="indirizzo", lookup_expr="icontains"
@@ -49,8 +49,8 @@ class ConsulenzaFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(
         label="Data Registrazione (start-end) dd/mm/yyyy"
     )
-    cliente = django_filters.CharFilter(
-        label="Cliente", field_name="cliente", lookup_expr="icontains"
+    richiedente = django_filters.CharFilter(
+        label="Richiedente", field_name="richiedente", lookup_expr="icontains"
     )
     indirizzo = django_filters.CharFilter(
         label="Indirizzo", field_name="indirizzo", lookup_expr="icontains"

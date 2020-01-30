@@ -6,7 +6,10 @@
 
         <table align="left" style="width:100%">
             <tr>
-                <td >
+                <td>
+                    <b>SALDO TOTALE = </b><b>{{ tot_saldo }} €</b>
+                </td>
+                <td>
                     <div align="right">
                     <form method="post" action="{% url 'export_output_table_xls' numquery=4 year='no' %}">
                         {% csrf_token %}
