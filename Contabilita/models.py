@@ -97,7 +97,7 @@ class Consulenza(models.Model):
     richiedente = models.CharField(max_length=40, null=True, blank=True)
     indirizzo = models.CharField(max_length=30)
     attivita = models.CharField(max_length=40)  #obbligatorio
-    compenso = models.DecimalField(max_digits=14, decimal_places=2, blank=True, default=0)
+    compenso = models.DecimalField(max_digits=14, decimal_places=2, default=0)
     note = RichTextField(null=True, blank=True)
     data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None)  #obbligatorio
     data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
