@@ -58,7 +58,7 @@ def viewAllClienti(request):
         # except EmptyPage:
         #     cl = paginator.page(paginator.num_pages)
         # return render(request, "Amministrazione/Cliente/AllClienti.html", { "filter" : cliente_filter, 'cl': cl})
-        return render(request, "Amministrazione/Cliente/AllClienti.html", {"filter": cliente_filter, "filter_queryset": cliente_filter.qs})
+        return render(request, "Amministrazione/Cliente/AllClienti.html", {"filter": cliente_filter, "filter_queryset": list(cliente_filter.qs)})
 
 def viewCreateCliente(request):
     if not request.user.is_authenticated:
@@ -109,7 +109,7 @@ def viewAllReferenti(request):
         return redirect("/accounts/login/")
     else:
         referente_filter = ReferenteFilter(request.GET, queryset=RubricaReferenti.objects.all().order_by("nominativo"))
-        return render(request, "Amministrazione/Referente/AllReferenti.html",{"filter": referente_filter, "filter_queryset": referente_filter.qs})
+        return render(request, "Amministrazione/Referente/AllReferenti.html",{"filter": referente_filter, "filter_queryset": list(referente_filter.qs)})
 
 def viewCreateReferente(request):
     if not request.user.is_authenticated:
@@ -168,7 +168,7 @@ def viewAllProtocols(request):
                 proto.status = (data_scadenza - date.today()).days
                 Protocollo.objects.filter(identificativo=proto.identificativo).update(status=proto.status)
         sum_parcelle = round(protocollo_filter.qs.aggregate(Sum('parcella'))['parcella__sum'] or 0, 2)
-        return render(request, "Amministrazione/Protocollo/AllProtocols.html", {"filter": protocollo_filter, 'filter_queryset': protocollo_filter.qs, 'sum_p': sum_parcelle})
+        return render(request, "Amministrazione/Protocollo/AllProtocols.html", {"filter": protocollo_filter, 'filter_queryset': list(protocollo_filter.qs), 'sum_p': sum_parcelle})
 
 def viewCreateProtocol(request):
     if not request.user.is_authenticated:
@@ -249,7 +249,7 @@ def viewAllConsulenze(request):
                 cons.status = (data_scadenza - date.today()).days
                 Consulenza.objects.filter(id=cons.id).update(status=cons.status)
         sum_compensi = round(consulenza_filter.qs.aggregate(Sum('compenso'))['compenso__sum'] or 0, 2)
-        return render(request, "Amministrazione/Consulenza/AllConsulenze.html", {"filter": consulenza_filter, 'filter_queryset': consulenza_filter.qs, 'sum_c': sum_compensi})
+        return render(request, "Amministrazione/Consulenza/AllConsulenze.html", {"filter": consulenza_filter, 'filter_queryset': list(consulenza_filter.qs), 'sum_c': sum_compensi})
 
 def viewCreateConsulenza(request):
     if not request.user.is_authenticated:
@@ -315,7 +315,7 @@ def viewAllRicavi(request):
         sum_ricavi_for_proto = [(r1.id, r1.protocollo.parcella - sum(r2.importo for r2 in ricavo_filter.qs if r1.protocollo == r2.protocollo)) if r1.protocollo is not None
                                 else (r1.id,0) for r1 in ricavo_filter.qs ]
         sum_ricavi = round(ricavo_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
-        return render(request, "Contabilita/Ricavo/AllRicavi.html", {"filter": ricavo_filter, 'sum_r': sum_ricavi, 'info': zip(ricavo_filter.qs, sum_ricavi_for_proto)})
+        return render(request, "Contabilita/Ricavo/AllRicavi.html", {"filter": ricavo_filter, "filter_queryset": list(ricavo_filter.qs), 'sum_r': sum_ricavi, 'info': zip(ricavo_filter.qs, sum_ricavi_for_proto)})
 
 def viewCreateRicavo(request):
     if not request.user.is_authenticated:
@@ -376,7 +376,7 @@ def viewAllSpeseCommessa(request):
     else:
         spesacommessa_filter = SpesaCommessaFilter(request.GET, queryset=SpesaCommessa.objects.all().order_by("-data_registrazione"))
         sum_spesecommessa = round(spesacommessa_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
-        return render(request, "Contabilita/SpesaCommessa/AllSpeseCommessa.html", {"filter": spesacommessa_filter, 'filter_queryset': spesacommessa_filter.qs, 'sum_s': sum_spesecommessa})
+        return render(request, "Contabilita/SpesaCommessa/AllSpeseCommessa.html", {"filter": spesacommessa_filter, 'filter_queryset': list(spesacommessa_filter.qs), 'sum_s': sum_spesecommessa})
 
 def viewCreateSpesaCommessa(request):
     if not request.user.is_authenticated:
@@ -461,7 +461,7 @@ def viewAllSpeseGestione(request):
     else:
         spesagestione_filter = SpesaGestioneFilter(request.GET, queryset=SpesaGestione.objects.all().order_by("-data_registrazione"))
         sum_spesegestione = round(spesagestione_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
-        return render(request, "Contabilita/SpesaGestione/AllSpeseGestione.html", {"filter": spesagestione_filter, 'filter_queryset': spesagestione_filter.qs, 'sum_s': sum_spesegestione})
+        return render(request, "Contabilita/SpesaGestione/AllSpeseGestione.html", {"filter": spesagestione_filter, 'filter_queryset': list(spesagestione_filter.qs), 'sum_s': sum_spesegestione})
 
 def viewCreateSpesaGestione(request):
     if not request.user.is_authenticated:
@@ -513,7 +513,7 @@ def viewAllGuadagniEffettivi(request):
     else:
         guadagnoeffettivo_filter = GuadagnoEffettivoFilter(request.GET, queryset=GuadagnoEffettivo.objects.all().order_by("-data_registrazione"))
         sum_guadagnieffettivi = round(guadagnoeffettivo_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
-        return render(request, "Contabilita/GuadagnoEffettivo/AllGuadagniEffettivi.html", {"filter": guadagnoeffettivo_filter, "filter_queryset": guadagnoeffettivo_filter.qs, 'sum_g': sum_guadagnieffettivi})
+        return render(request, "Contabilita/GuadagnoEffettivo/AllGuadagniEffettivi.html", {"filter": guadagnoeffettivo_filter, "filter_queryset": list(guadagnoeffettivo_filter.qs), 'sum_g': sum_guadagnieffettivi})
 
 def viewCreateGuadagnoEffettivo(request):
     if not request.user.is_authenticated:

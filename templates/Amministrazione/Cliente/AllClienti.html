@@ -77,7 +77,7 @@
             </td>
             <td>
                 <div align="right">
-                <form method="post" action="{% url 'export_input_table_xls' list=filter.qs model='rubricaclienti' %}">
+                <form method="post" action="{% url 'export_input_table_xls' list=filter_queryset model='rubricaclienti' %}">
                     {% csrf_token %}
                     <div class="input-group">
                         <input class="form-control form-control" type="text" name="fname" placeholder="<NomeFileDownload>" required>
