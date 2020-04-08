@@ -1,7 +1,7 @@
 {% extends 'base2.html' %}
 {% load static %}
 {% block title %}AllRicavi{% endblock title %}
-{% block name %}RICAVI{% endblock %}
+{% block name %}<i>RICAVI</i>{% endblock %}
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
@@ -58,10 +58,10 @@
 {% block content %}
 
     <form method="get">
-        <table border="1" rules="none" bgcolor="#D3D3D3">
+        <table border="0" rules="none">
         {% for field in filter.form %}
             <tr>
-                <td>{{ field.label }}</td>
+                <td><b>{{ field.label }}</b></td>
                 <td>{{ field }}</td>
             </tr>
         {% endfor %}
@@ -95,15 +95,16 @@
         <thead bgcolor="#383838" style="color:white;">
             <tr>
                 <th></th>
-                <th>registrazione</th>
-                <th>movimento</th>
-                <th>importo</th>
-                <th>fattura</th>
-                <th>intestatario fattura</th>
-                <th>protocollo</th>
-                <th>note</th>
-                <th>destinazione</th>
-                <th colspan="2">Operazioni</th>
+                <th>Registrazione</th>
+                <th>Movimento</th>
+                <th>Importo</th>
+                <th>Fattura</th>
+                <th>Intestatario fattura</th>
+                <th>Protocollo</th>
+                <th>Note</th>
+                <th>Destinazione</th>
+                <th>MODIFICA</th>
+                <th>ELIMINA</th>
             </tr>
         </thead>
         {% for b,c in info %}
@@ -121,7 +122,7 @@
                     <td style='width: 500px; overflow: auto'>{{ b.note|safe }}</td>
                     <td>{{ b.destinazione|default_if_none:'' }}</td>
                     <td style='width: 15px;' align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
-                    <td style='width: 15px;' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')"><span aria-hidden="true">&times;</span></a></td>
+                    <td style='width: 15px;' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')"><span aria-hidden="true">X</span></a></td>
                 </tr>
             {% else %}
                 <tr style="background-color:#585858; color:white;">
@@ -137,7 +138,7 @@
                     <td style='width: 500px; overflow: auto'>{{ b.note|safe }}</td>
                     <td>{{ b.destinazione|default_if_none:'' }}</td>
                     <td style='width: 15px;' align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
-                    <td style='width: 15px;' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')"><span aria-hidden="true">&times;</span></a></td>
+                    <td style='width: 15px;' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')"><span aria-hidden="true">X</span></a></td>
                 </tr>
             {% endif %}
         {% endfor %}

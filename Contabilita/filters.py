@@ -66,7 +66,7 @@ class SpesaGestioneFilter(django_filters.FilterSet):
     ))
     fattura = django_filters.CharFilter(label='Fattura', field_name='fattura', lookup_expr='icontains')
     causale = django_filters.CharFilter(label='Causale', field_name='causale', lookup_expr='icontains')
-    importo = django_filters.RangeFilter(label='Importo (€)', field_name='importo', widget=MyRangeWidget(
+    importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
         from_attrs={'placeholder': 'min'},
         to_attrs={'placeholder': 'max'},
     ))
@@ -85,7 +85,7 @@ class SpesaCommessaFilter(django_filters.FilterSet):
     protocollo_exist = django_filters.BooleanFilter(label='Esistenza Protocollo', field_name='protocollo', lookup_expr='isnull', exclude=True)
     protocollo_id = django_filters.CharFilter(label='Protocollo (id)', field_name='protocollo__identificativo', lookup_expr='icontains')
     protocollo_address = django_filters.CharFilter(label='Protocollo (indirizzo)', field_name='protocollo__indirizzo', lookup_expr='icontains')
-    importo = django_filters.RangeFilter(label='Importo (€)', field_name='importo', widget=MyRangeWidget(
+    importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
         from_attrs={'placeholder': 'min'},
         to_attrs={'placeholder': 'max'},
     ))
@@ -104,7 +104,7 @@ class RicavoFilter(django_filters.FilterSet):
     protocollo_exist = django_filters.BooleanFilter(label='Esistenza Protocollo', field_name='protocollo', lookup_expr='isnull', exclude=True)
     protocollo_id = django_filters.CharFilter(label='Protocollo (id)', field_name='protocollo__identificativo', lookup_expr='icontains')
     protocollo_address = django_filters.CharFilter(label='Protocollo (indirizzo)', field_name='protocollo__indirizzo', lookup_expr='icontains')
-    importo = django_filters.RangeFilter(label='Importo (€)', field_name='importo', widget=MyRangeWidget(
+    importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
         from_attrs={'placeholder': 'min'},
         to_attrs={'placeholder': 'max'},
     ))
@@ -122,7 +122,10 @@ class GuadagnoEffettivoFilter(django_filters.FilterSet):
         from_attrs={'placeholder': 'start (dd/mm/yyyy)'},
         to_attrs={'placeholder': 'end (dd/mm/yyyy)'},
     ))
-    importo = django_filters.RangeFilter(label='Importo (min-max) €', field_name='importo')
+    importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
+        from_attrs={'placeholder': 'min'},
+        to_attrs={'placeholder': 'max'},
+    ))
 
     class Meta:
         model = GuadagnoEffettivo

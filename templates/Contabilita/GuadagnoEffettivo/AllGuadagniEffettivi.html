@@ -1,7 +1,7 @@
 {% extends 'base2.html' %}
 {% load static %}
 {% block title %}AllGuadagniEffettivi{% endblock title %}
-{% block name %}GUADAGNI EFFETTIVI{% endblock %}
+{% block name %}<i>GUADAGNI EFFETTIVI</i>{% endblock %}
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
@@ -57,10 +57,10 @@
 
 {% block content %}
     <form method="get">
-        <table border="1" rules="none" bgcolor="#D3D3D3">
+        <table border="0" rules="none">
         {% for field in filter.form %}
             <tr>
-                <td>{{ field.label }}</td>
+                <td><b>{{ field.label }}</b></td>
                 <td>{{ field }}</td>
             </tr>
         {% endfor %}
@@ -94,10 +94,11 @@
         <thead bgcolor="#383838" style="color:white;">
             <tr>
                 <th></th>
-                <th>registrazione</th>
-                <th>importo</th>
-                <th>provenienza</th>
-                <th colspan="2">Operazioni</th>
+                <th>Registrazione</th>
+                <th>Importo</th>
+                <th>Provenienza</th>
+                <th>MODIFICA</th>
+                <th>ELIMINA</th>
             </tr>
         </thead>
         <tbody bgcolor="#585858" style="color:white;">
@@ -110,7 +111,7 @@
                 <td>{{ b.importo }} €</td>
                 <td>{{ b.provenienza|default_if_none:'' }}</td>
                 <td style='width: 15px;' align="center"><a href="/UpdateGuadagnoEffettivo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
-                <td style='width: 15px;' align="center"><a href="/DeleteGuadagnoEffettivo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Guadagno Effettivo ?')"></a><span aria-hidden="true">&times;</span></td>
+                <td style='width: 15px;' align="center"><a href="/DeleteGuadagnoEffettivo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Guadagno Effettivo ?')"><span aria-hidden="true">X</span></a></td>
             </tr>
             {% endfor %}
         </tbody>
