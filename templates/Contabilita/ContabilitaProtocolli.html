@@ -4,52 +4,77 @@
 {% block name %}<i>CONTROLLO CONTABILITA DEI PROTOCOLLI</i>{% endblock %}
 {% block content %}
 
-        <table align="left" style="width:100%">
+
+
+    <table align="left" style="width:100%">
+        <tr>
+            <form method="post" action="{% url 'ContabilitaProtocolli' %}">
+                {% csrf_token %}
+                <b>Referente </b>
+                <input id="referente_filter" type="text" name="filter"></br></br>
+                <button type="submit" class="btn btn-light" onclick="cacheFilter()"><i class="fa fa-filter" aria-hidden="true"></i> Filtra</button>
+            </form>
+        </tr>
+        <tr>
+            <td>
+                <b>SALDO TOTALE = </b><b>{{ tot_saldo }} €</b>
+            </td>
+            <td>
+                <div align="right">
+                <form method="post" action="{% url 'export_output_table_xls' numquery=4 year='no' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="filter" id="box_filter">
+                    <input type="text" name="fname" placeholder="<NomeFileDownload>" required>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-download"></i> DOWNLOAD Excel</button>
+                </form>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <table width="100%" border="1" cellpadding="5" cellspacing="0">
+        <thead bgcolor="#383838" style="color:white;">
             <tr>
-                <td>
-                    <b>SALDO TOTALE = </b><b>{{ tot_saldo }} €</b>
-                </td>
-                <td>
-                    <div align="right">
-                    <form method="post" action="{% url 'export_output_table_xls' numquery=4 year='no' %}">
-                        {% csrf_token %}
-                        <input type="text" name="fname" placeholder="<NomeFileDownload>" required>
-                        <button type="submit" class="btn btn-primary"><i class="fa fa-download"></i> DOWNLOAD Excel</button>
-                    </form>
-                    </div>
-                </td>
+                <th>Identificativo</th>
+                <th>Cliente</th>
+                <th>Referente</th>
+                <th>Indirizzo</th>
+                <th>Pratica</th>
+                <th>Parcella</th>
+                <th>Entrate</th>
+                <th>Uscite</th>
+                <th>Saldo</th>
             </tr>
-        </table>
+        </thead>
+        <tbody bgcolor="#585858" style="color:white;">
+            {% for item in tabella_output4 %}
+            <tr>
+                <td>{{ item.0 }}</td>
+                <td>{{ item.1 }}</td>
+                <td>{{ item.2|default_if_none:'' }}</td>
+                <td>{{ item.3 }}</td>
+                <td>{{ item.4 }}</td>
+                <td>{{ item.5 }}</td>
+                <td>{{ item.6 }}</td>
+                <td>{{ item.7 }}</td>
+                <td>{{ item.8 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-        <table width="100%" border="1" cellpadding="5" cellspacing="0">
-            <thead bgcolor="#383838" style="color:white;">
-                <tr>
-                    <th>Identificativo</th>
-                    <th>Cliente</th>
-                    <th>Referente</th>
-                    <th>Indirizzo</th>
-                    <th>Pratica</th>
-                    <th>Parcella</th>
-                    <th>Entrate</th>
-                    <th>Uscite</th>
-                    <th>Saldo</th>
-                </tr>
-            </thead>
-            <tbody bgcolor="#585858" style="color:white;">
-                {% for item in tabella_output4 %}
-                <tr>
-                    <td>{{ item.0 }}</td>
-                    <td>{{ item.1 }}</td>
-                    <td>{{ item.2|default_if_none:'' }}</td>
-                    <td>{{ item.3 }}</td>
-                    <td>{{ item.4 }}</td>
-                    <td>{{ item.5 }}</td>
-                    <td>{{ item.6 }}</td>
-                    <td>{{ item.7 }}</td>
-                    <td>{{ item.8 }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <script>
 
+        function cacheFilter() {
+            let filter_val = document.getElementById("referente_filter").value;
+            localStorage.setItem('filter', filter_val);
+        }
+
+        window.onload = function(){
+            let filter_val = localStorage.getItem('filter'); // or localStorage.value
+            document.getElementById("box_filter").value = filter_val;
+        }
+
+    </script>
 {% endblock %}
+

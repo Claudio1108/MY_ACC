@@ -245,9 +245,9 @@ def resoconto_guadagni_effettivi(year):
     cursor.execute(query)
     return cursor.fetchall()
 
-def resoconto_contabilita_protocolli():
+def resoconto_contabilita_protocolli(filter):
     cursor = connection.cursor()
-    cursor.execute(""" SELECT t1.identificativo, t4.nominativo as cliente, t1.referente_id, t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
+    cursor.execute(""" SELECT * FROM(SELECT t1.identificativo, t4.nominativo as cliente, t1.referente_id, t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
                             (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as uscite,
                             t1.parcella-(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id)+
                             (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as saldo
@@ -259,8 +259,8 @@ def resoconto_contabilita_protocolli():
                             t1.parcella-(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id)+
                             (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as saldo
                        FROM   Contabilita_protocollo t1, Contabilita_rubricaclienti t4, Contabilita_rubricareferenti t5
-                       WHERE saldo != 0 and t1.cliente_id = t4.id and t1.referente_id = t5.id 
-                       ORDER BY t1.identificativo DESC""")
+                       WHERE saldo != 0 and t1.cliente_id = t4.id and t1.referente_id = t5.id
+                       ORDER BY t1.identificativo DESC) {filter}""".format(filter= f"WHERE referente_id LIKE '%{filter}%';" if filter else ''))
     return cursor.fetchall()
 
 #------------------------- forms.py ------------------------

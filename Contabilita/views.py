@@ -599,10 +599,11 @@ def viewGestioneGuadagniEffettivi(request):
             return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(), 'tabella_output3': []})
 
 def viewContabilitaProtocolli(request):
+    filter = request.POST.get("filter")
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        protocols = sqlite.resoconto_contabilita_protocolli()
+        protocols = sqlite.resoconto_contabilita_protocolli(filter)
         return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': protocols, 'tot_saldo': sum([protocol[8] for protocol in protocols])})
 
 def export_input_table_xls(request, list, model):
@@ -665,7 +666,7 @@ def export_output_table_xls(request, numquery, year):
     if int(numquery) == 4:
         output = 'contabilita_protocolli'
         columns = ['Identificativo', 'Cliente', 'Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Entrate', 'Uscite', 'Saldo']
-        rows = sqlite.resoconto_contabilita_protocolli()
+        rows = sqlite.resoconto_contabilita_protocolli(request.POST.get("filter"))
     wb = xlwt.Workbook(encoding='utf-8')
     if year == 'no':
         name_file = request.POST.get("fname")
