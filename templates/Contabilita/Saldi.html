@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Saldi{% endblock title %}
+{% block name %}<i>Saldi</i>{% endblock %}
+{% block content %}
+    <table align="left" border="0">
+        <tr>
+            <td align="center"><img width="50" src="{% static 'images/cartedicredito.jpg'%}"></td>
+            <td align="center"><b>SALDO CARTA = </b></td>
+            <td><b>{{ lista_saldi.0 }} €</b></td>
+        </tr>
+        <tr>
+            <td align="center"><img width="50" src="{% static 'images/cassaforte.png'%}"></td>
+            <td align="center"><b>SALDO DEPOSITO = </b></td>
+            <td><b>{{ lista_saldi.1 }} €</b></td>
+        </tr>
+    </table>
+{% endblock %}

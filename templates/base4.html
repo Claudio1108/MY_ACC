@@ -6,6 +6,10 @@
     <title>MYACCOUNTING | {% block title %}{% endblock title %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="icon" type="image/png" href="../static/images/internet.png" sizes="32x32">
+    <style>
+        .tableFixHead          { overflow-y: auto; height: 100px; }
+        .tableFixHead thead th { position: sticky; top: 0; }
+    </style>
     {% block scripts %}{% endblock %}
 </head>
 <body style="background-color:#add8e6;">

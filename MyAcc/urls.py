@@ -63,25 +63,18 @@ urlpatterns = [
     path('DeleteSpesaCommessa/<int:id>', contviews.viewDeleteSpesaCommessa, name='DeleteSpesaCommessa'),
     url(r'^DeleteSpeseCommessaGroup/$', contviews.viewDeleteSpeseCommessaGroup, name='DeleteSpeseCommessaGroup'),
     path('UpdateSpesaCommessa/<int:id>', contviews.viewUpdateSpesaCommessa, name='UpdateSpesaCommessa'),
-    #Socio
-    path('AllSoci/', contviews.viewAllSoci, name='AllSoci'),
-    path('UpdateSocio/<int:id>', contviews.viewUpdateSocio, name='UpdateSocio'),
+    #Saldi
+    path('Saldi/', contviews.viewSaldi, name='Saldi'),
     #SpesaGestione
     path('AllSpeseGestione/', contviews.viewAllSpeseGestione, name='AllSpeseGestione'),
     path('CreateSpesaGestione/', contviews.viewCreateSpesaGestione, name='CreateSpesaGestione'),
     path('DeleteSpesaGestione/<int:id>', contviews.viewDeleteSpesaGestione, name='DeleteSpesaGestione'),
     url(r'^DeleteSpeseGestioneGroup/$', contviews.viewDeleteSpeseGestioneGroup, name='DeleteSpeseGestioneGroup'),
     path('UpdateSpesaGestione/<int:id>', contviews.viewUpdateSpesaGestione, name='UpdateSpesaGestione'),
-    #GuadagnoEffettivo
-    path('AllGuadagnoEffettivi/', contviews.viewAllGuadagniEffettivi, name='AllGuadagniEffettivi'),
-    path('CreateGuadagnoEffettivo/', contviews.viewCreateGuadagnoEffettivo, name='CreateGuadagnoEffettivo'),
-    path('DeleteGuadagnoEffettivo/<int:id>', contviews.viewDeleteGuadagnoEffettivo, name='DeleteGuadagnoEffettivo'),
-    url(r'^DeleteGuadagniEffettiviGroup/$', contviews.viewDeleteGuadagniEffettiviGroup, name='DeleteGuadagniEffettiviGroup'),
-    path('UpdateGuadagnoEffettivo/<int:id>', contviews.viewUpdateGuadagnoEffettivo, name='UpdateGuadagnoEffettivo'),
     #Output
     path('ResocontoSpeseGestione/', contviews.viewResocontoSpeseGestione, name='ResocontoSpeseGestione'),
     path('ResocontoRicavi/', contviews.viewResocontoRicavi, name='ResocontoRicavi'),
-    path('GestioneGuadagniEffettivi/', contviews.viewGestioneGuadagniEffettivi, name='GestioneGuadagniEffettivi'),
+    path('ResocontoGuadagni/', contviews.viewResocontoGuadagni, name='ResocontoGuadagni'),
     path('ContabilitaProtocolli/', contviews.viewContabilitaProtocolli, name='ContabilitaProtocolli'),
     #Reporter
     url(r'^export_input_table/xls/\?list=(?P<list>.*)/\?model=(?P<model>.*)$', contviews.export_input_table_xls, name='export_input_table_xls'),

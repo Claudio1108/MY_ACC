@@ -5,7 +5,6 @@ from .models import *
 from dal import autocomplete
 from Contabilita import sqlite_queries as sqlite
 
-YEARS = [x for x in range(1970, 2021)]
 
 class DateInput(forms.DateInput):
     input_type = 'date'
@@ -15,7 +14,7 @@ class formCliente(forms.ModelForm):
         model = RubricaClienti
         fields = "__all__"
         labels = {
-            "nominativo": "Nome - Cognome* ",
+            "nominativo": "Azienda | Nome - Cognome* ",
             "tel": "Telefono* ",
             "mail": "Mail ",
             "note": "Note "}
@@ -25,7 +24,7 @@ class formReferente(forms.ModelForm):
         model = RubricaReferenti
         fields = "__all__"
         labels = {
-            "nominativo": "Azienda - Nome - Cognome* ",
+            "nominativo": "Azienda | Nome - Cognome* ",
             "tel": "Telefono* ",
             "mail": "Mail ",
             "note": "Note "}
@@ -38,13 +37,12 @@ class formProtocol(forms.ModelForm):
             "cliente": "Cliente* ",
             "referente": "Referente ",
             "indirizzo": "Indirizzo* ",
-            "parcella": "Parcella* ",
+            "parcella": "Parcella* (€) ",
             "pratica": "Pratica* ",
             "note": "Note ",
             "data_registrazione": "Data Registrazione* ",
             "data_scadenza": "Data Scadenza* ",
             "data_consegna": "Data Consegna ",
-            "responsabile": "Responsabile "
         }
         widgets = {
             'data_registrazione': DateInput(),
@@ -78,18 +76,14 @@ class formProtocolUpdate(forms.ModelForm):
             "cliente": "Cliente* ",
             "referente": "Referente ",
             "indirizzo": "Indirizzo* ",
-            "parcella": "Parcella* ",
+            "parcella": "Parcella* (€) ",
             "pratica": "Pratica* ",
             "note": "Note ",
             "data_registrazione": "Data Registrazione* ",
             "data_scadenza": "Data Scadenza* ",
             "data_consegna": "Data Consegna ",
-            "responsabile": "Responsabile "
         }
         widgets = {
-            'data_registrazione': forms.SelectDateWidget(years=YEARS),
-            'data_scadenza': forms.SelectDateWidget(years=YEARS),
-            'data_consegna': forms.SelectDateWidget(years=YEARS),
             'identificativo': forms.HiddenInput(),
             'status': forms.HiddenInput(),
             'cliente': autocomplete.ModelSelect2(url='cliente_autocomp'),
@@ -131,7 +125,7 @@ class formConsulenza(forms.ModelForm):
             "richiedente": "Richiedente ",
             "indirizzo": "Indirizzo* ",
             "attivita": "Attività* ",
-            "compenso": "Compenso* ",
+            "compenso": "Compenso* (€) ",
             "note": "Note ",
             "data_scadenza": "Data Scadenza* ",
             "data_consegna": "Data Consegna ",
@@ -161,15 +155,12 @@ class formConsulenzaUpdate(forms.ModelForm):
             "richiedente": "Richiedente ",
             "indirizzo": "Indirizzo* ",
             "attivita": "Attività* ",
-            "compenso": "Compenso* ",
+            "compenso": "Compenso* (€) ",
             "note": "Note ",
             "data_scadenza": "Data Scadenza* ",
             "data_consegna": "Data Consegna ",
             "responsabile": "Responsabile "}
         widgets = {
-            'data_registrazione': forms.SelectDateWidget(years=YEARS),
-            'data_scadenza': forms.SelectDateWidget(years=YEARS),
-            'data_consegna': forms.SelectDateWidget(years=YEARS),
             'status': forms.HiddenInput()}
 
     def check_date(self):
@@ -196,13 +187,12 @@ class formConsulenzaUpdate(forms.ModelForm):
 class formRicavo(forms.ModelForm):
     class Meta:
         model = Ricavo
-        fields = ('data_registrazione','movimento','importo','fattura','intestatario_fattura', 'protocollo', 'note', 'destinazione')
+        fields = ('data_registrazione','movimento','importo','fattura', 'protocollo', 'note', 'destinazione')
         labels = {
             "data_registrazione": "Data Registrazione* ",
             "movimento": "Movimento ",
-            "importo": "Importo* ",
+            "importo": "Importo* (€) ",
             "fattura": "Fattura ",
-            "intestatario_fattura": "Intestatario Fattura ",
             "protocollo": "Protocollo ",
             "note": "Note ",
             "destinazione": "Destinazione "}
@@ -222,14 +212,12 @@ class formRicavoUpdate(forms.ModelForm):
         labels = {
             "data_registrazione": "Data Registrazione* ",
             "movimento": "Movimento ",
-            "importo": "Importo* ",
+            "importo": "Importo* (€) ",
             "fattura": "Fattura ",
-            "intestatario_fattura": "Intestatario Fattura ",
             "protocollo": "Protocollo ",
             "note": "Note ",
             "destinazione": "Destinazione "}
         widgets = {
-            'data_registrazione': forms.SelectDateWidget(years=YEARS),
             'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
 
     def Check2(self, id_ricavo):
@@ -244,7 +232,7 @@ class formSpesaCommessa(forms.ModelForm):
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
-            "importo": "Importo* ",
+            "importo": "Importo* (€) ",
             "protocollo": "Protocollo ",
             "note": "Note ",
             "provenienza": "Provenienza "}
@@ -258,19 +246,12 @@ class formSpesaCommessaUpdate(forms.ModelForm):
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
-            "importo": "Importo* ",
+            "importo": "Importo* (€) ",
             "protocollo": "Protocollo ",
             "note": "Note ",
             "provenienza": "Provenienza "}
         widgets = {
-            'data_registrazione': forms.SelectDateWidget(years=YEARS),
             'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
-
-class formSocio(forms.ModelForm):
-    class Meta:
-        model = Socio
-        fields = ["percentuale"]
-        labels = {"percentuale": ""}
 
 class formSpesaGestione(forms.ModelForm):
     class Meta:
@@ -278,7 +259,7 @@ class formSpesaGestione(forms.ModelForm):
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
-            "importo": "Importo* ",
+            "importo": "Importo* (€) ",
             "causale": "Causale ",
             "fattura": "Fattura ",
             "provenienza": "Provenienza "}
@@ -290,31 +271,10 @@ class formSpesaGestioneUpdate(forms.ModelForm):
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
-            "importo": "Importo* ",
+            "importo": "Importo* (€) ",
             "causale": "Causale ",
             "fattura": "Fattura ",
             "provenienza": "Provenienza "}
-        widgets = {'data_registrazione': forms.SelectDateWidget(years=YEARS),}
-
-class formGuadagnoEffettivo(forms.ModelForm):
-    class Meta:
-        model = GuadagnoEffettivo
-        fields = "__all__"
-        labels = {
-            "data_registrazione": "Data Registrazione* ",
-            "importo": "Importo* ",
-            "provenienza": "Provenienza "}
-        widgets = {'data_registrazione': DateInput()}
-
-class formGuadagnoEffettivoUpdate(forms.ModelForm):
-    class Meta:
-        model = GuadagnoEffettivo
-        fields = "__all__"
-        labels = {
-            "data_registrazione": "Data Registrazione* ",
-            "importo": "Importo* ",
-            "provenienza": "Provenienza "}
-        widgets = {'data_registrazione': forms.SelectDateWidget(years=YEARS),}
 
 class form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(forms.Form):
     year = forms.IntegerField(required = True, initial=datetime.now().year, label='Anno')

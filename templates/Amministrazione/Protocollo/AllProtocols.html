@@ -125,7 +125,7 @@
             <td>
                 <a onclick="selectAll()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Seleziona Tutti</a>
                 <a onclick="unSelectAll()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Deseleziona Tutti</a>
-                <a onclick="deleteGroup()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Elimina Selezionati</a>
+                <a onclick="deleteGroup()" class="btn btn-danger btn-sm" role="button" aria-pressed="true">Elimina Selezionati</a>
                 <a href="{% url 'CreateProtocol' %}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style="font-size: 110%;">&#43;</span> Aggiungi</a>
             </td>
             <td >
@@ -142,23 +142,22 @@
         </tr>
     </table>
 
-    <div style="height:500px; overflow-x:scroll; overflow-y:scroll; border:1px solid black;">
+    <div class="tableFixHead" style="height:500px; overflow-x:scroll; overflow-y:scroll; border:1px solid black; border-collapse: collapse; width: 100%;">
         <table width="150%" border="1" cellpadding="5" cellspacing="0">
-            <thead bgcolor="#383838" style="color:white;">
+            <thead style="color:white;">
                 <tr>
-                    <th></th>
-                    <th>Id</th>
-                    <th>Registrazione</th>
-                    <th>Cliente</th>
-                    <th>Referente</th>
-                    <th>Indirizzo</th>
-                    <th>Pratica</th>
-                    <th>Note</th>
-                    <th>Scadenza</th>
-                    <th>Consegna</th>
-                    <th>Responsabile</th>
-                    <th>MODIFICA</th>
-                    <th>ELIMINA</th>
+                    <th style="background:#383838;"></th>
+                    <th style="background:#383838;">Id</th>
+                    <th style="background:#383838;">Registrazione</th>
+                    <th style="background:#383838;">Cliente</th>
+                    <th style="background:#383838;">Referente</th>
+                    <th style="background:#383838;">Indirizzo</th>
+                    <th style="background:#383838;">Pratica</th>
+                    <th style="background:#383838;">Note</th>
+                    <th style="background:#383838;">Scadenza</th>
+                    <th style="background:#383838;">Consegna</th>
+                    <th style="background:#383838;">MODIFICA</th>
+                    <th style="background:#383838;">ELIMINA</th>
                 </tr>
             </thead>
             {% for b in filter_queryset %}
@@ -176,7 +175,6 @@
                         <td style='width: 450px;'>{{ b.note|safe }}</td>
                         <td style='width: 150px;'>{{ b.data_scadenza }}</td>
                         <td style='width: 150px;'>{{ b.data_consegna|default_if_none:'' }}</td>
-                        <td style='width: 150px;'>{{ b.responsabile|default_if_none:'' }}</td>
                         <td style='width: 15px;' align="center"><a href="/UpdateProtocol/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
                         <td style='width: 15px;' align="center"><a href="/DeleteProtocol/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Protocollo ?')"><span aria-hidden="true">X</span></a></td>
                     </tr>
@@ -195,7 +193,6 @@
                             <td style='width: 450px;'>{{ b.note|safe }}</td>
                             <td style='width: 150px;'>{{ b.data_scadenza }}</td>
                             <td style='width: 150px;'>{{ b.data_consegna|default_if_none:'' }}</td>
-                            <td style='width: 150px;'>{{ b.responsabile|default_if_none:'' }}</td>
                             <td style='width: 15px;' align="center"><a href="/UpdateProtocol/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
                             <td style='width: 15px;' align="center"><a href="/DeleteProtocol/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Protocollo ?')"><span aria-hidden="true">X</span></a></td>
                         </tr>
@@ -214,7 +211,6 @@
                                 <td style='width: 450px;'>{{ b.note|safe }}</td>
                                 <td style='width: 150px;'>{{ b.data_scadenza }}</td>
                                 <td style='width: 150px;'>{{ b.data_consegna|default_if_none:'' }}</td>
-                                <td style='width: 150px;'>{{ b.responsabile|default_if_none:'' }}</td>
                                 <td style='width: 15px;' align="center"><a href="/UpdateProtocol/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
                                 <td style='width: 15px;' align="center"><a href="/DeleteProtocol/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Protocollo ?')"><span aria-hidden="true">X</span></a></td>
                             </tr>
@@ -232,7 +228,6 @@
                                 <td style='width: 450px;'>{{ b.note|safe }}</td>
                                 <td style='width: 150px;'>{{ b.data_scadenza }}</td>
                                 <td style='width: 150px;'>{{ b.data_consegna|default_if_none:'' }}</td>
-                                <td style='width: 150px;'>{{ b.responsabile|default_if_none:'' }}</td>
                                 <td style='width: 15px;' align="center"><a href="/UpdateProtocol/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
                                 <td style='width: 15px;' align="center"><a href="/DeleteProtocol/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Protocollo ?')"><span aria-hidden="true">X</span></a></td>
                             </tr>

@@ -17,9 +17,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# SECRET_KEY = os.getenv("SECRET_KEY")
 SECRET_KEY = '%c%tj3bv#%dpyp^w)bx3zfg3$6g=!xrgh0m(&tll3nj5f8sk!3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = os.environ.get('DEBUG', False)
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1']
@@ -114,5 +116,5 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # se impostato a True, la sessione scade alla chiusura di tutte le finestre del browser.
 # se impostato a False, il cookie viene memorizzato permanentemente sul browser e non bisognerà più reinserire le credenziali.
-SESSION_COOKIE_AGE = 7200
+SESSION_COOKIE_AGE = 36000
 # la sessione scade dopo n secondi. Dopo un tempo stabilito per poter utilizzare il sito andranno reinserite le credenziali.

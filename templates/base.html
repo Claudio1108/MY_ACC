@@ -8,6 +8,10 @@
 	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
     <link rel="icon" type="image/png" href="../static/images/internet.png" sizes="32x32">
 	<link href="http://fonts.googleapis.com/css?family=Cookie" rel="stylesheet" type="text/css">
+    <style>
+        .tableFixHead          { overflow-y: auto; height: 100px; }
+        .tableFixHead thead th { position: sticky; top: 0; }
+    </style>
     {% block scripts %}{% endblock %}
 </head>
 <body style="background-color:#ffdab9;">
@@ -53,20 +57,11 @@
                         </div>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink5" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Guadagni Effettivi
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllGuadagniEffettivi' %}">Visualizza Guadagni Effettivi</a>
-                            <a class="dropdown-item" href="{% url 'CreateGuadagnoEffettivo' %}">Aggiungi Guadagno Effettivi</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink6" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Soci
+                        Saldi
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllSoci' %}">Visualizza Soci</a>
+                            <a class="dropdown-item" href="{% url 'Saldi' %}">Visualizza Saldi</a>
                         </div>
                     </li>
                 </ul>

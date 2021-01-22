@@ -33,12 +33,6 @@ class ProtocolloFilter(django_filters.FilterSet):
         to_attrs={'placeholder':'max'},
     ))
 
-    class Meta:
-        model = Protocollo
-        fields = {
-            'responsabile': ['exact'],
-        }
-
 class ConsulenzaFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione', widget=MyRangeWidget(
         from_attrs={'placeholder': 'start (dd/mm/yyyy)'},
@@ -52,12 +46,6 @@ class ConsulenzaFilter(django_filters.FilterSet):
         from_attrs={'placeholder': 'min'},
         to_attrs={'placeholder': 'max'},
     ))
-
-    class Meta:
-        model = Consulenza
-        fields = {
-            'responsabile': ['exact'],
-        }
 
 class SpesaGestioneFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione', widget=MyRangeWidget(
@@ -112,23 +100,6 @@ class RicavoFilter(django_filters.FilterSet):
     class Meta:
         model = Ricavo
         fields = {
-            'intestatario_fattura': ['exact'],
             'fattura': ['exact'],
             'destinazione': ['exact'],
-        }
-
-class GuadagnoEffettivoFilter(django_filters.FilterSet):
-    data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione', widget=MyRangeWidget(
-        from_attrs={'placeholder': 'start (dd/mm/yyyy)'},
-        to_attrs={'placeholder': 'end (dd/mm/yyyy)'},
-    ))
-    importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
-        from_attrs={'placeholder': 'min'},
-        to_attrs={'placeholder': 'max'},
-    ))
-
-    class Meta:
-        model = GuadagnoEffettivo
-        fields = {
-            'provenienza': ['exact'],
         }

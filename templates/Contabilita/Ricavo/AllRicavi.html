@@ -74,7 +74,7 @@
             <td>
                 <a onclick="selectAll()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Seleziona Tutti</a>
                 <a onclick="unSelectAll()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Deseleziona Tutti</a>
-                <a onclick="deleteGroup()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Elimina Selezionati</a>
+                <a onclick="deleteGroup()" class="btn btn-danger btn-sm" role="button" aria-pressed="true">Elimina Selezionati</a>
                 <a href="{% url 'CreateRicavo' %}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style="font-size: 110%;">&#43;</span> Aggiungi</a>
             </td>
             <td>
@@ -91,58 +91,57 @@
         </tr>
     </table>
 
-    <table width="100%" border="1" cellpadding="5" cellspacing="0">
-        <thead bgcolor="#383838" style="color:white;">
-            <tr>
-                <th></th>
-                <th>Registrazione</th>
-                <th>Movimento</th>
-                <th>Importo</th>
-                <th>Fattura</th>
-                <th>Intestatario fattura</th>
-                <th>Protocollo</th>
-                <th>Note</th>
-                <th>Destinazione</th>
-                <th>MODIFICA</th>
-                <th>ELIMINA</th>
-            </tr>
-        </thead>
-        {% for b,c in info %}
-            {% if c.1 < 0 %}
-                <tr style="background-color:red;">
-                    <td style='width: 10px;'>
-                        <input type="checkbox" class="checks" name="b1" value={{b.id}}>
-                    </td>
-                    <td>{{ b.data_registrazione }}</td>
-                    <td>{{ b.movimento|default_if_none:'' }}</td>
-                    <td style='width: 100px; overflow: auto'>{{ b.importo }} €</td>
-                    <td>{{ b.fattura }}</td>
-                    <td>{{ b.intestatario_fattura|default_if_none:'' }}</td>
-                    <td style='width: 350px; overflow: auto'>{{ b.protocollo|default_if_none:'' }}</td>
-                    <td style='width: 500px; overflow: auto'>{{ b.note|safe }}</td>
-                    <td>{{ b.destinazione|default_if_none:'' }}</td>
-                    <td style='width: 15px;' align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
-                    <td style='width: 15px;' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')"><span aria-hidden="true">X</span></a></td>
+    <div class="tableFixHead" style="height:500px; overflow-y:scroll; border:1px solid black; border-collapse: collapse; width: 100%;">
+        <table width="100%" border="1" cellpadding="5" cellspacing="0">
+            <thead style="color:white;">
+                <tr>
+                    <th style="background:#383838;"></th>
+                    <th style="background:#383838;">Registrazione</th>
+                    <th style="background:#383838;">Movimento</th>
+                    <th style="background:#383838;">Importo</th>
+                    <th style="background:#383838;">Fattura</th>
+                    <th style="background:#383838;">Protocollo</th>
+                    <th style="background:#383838;">Note</th>
+                    <th style="background:#383838;">Destinazione</th>
+                    <th style="background:#383838;">MODIFICA</th>
+                    <th style="background:#383838;">ELIMINA</th>
                 </tr>
-            {% else %}
-                <tr style="background-color:#585858; color:white;">
-                    <td style='width: 10px;'>
-                        <input type="checkbox" class="checks" name="b1" value={{b.id}}>
-                    </td>
-                    <td>{{ b.data_registrazione }}</td>
-                    <td>{{ b.movimento|default_if_none:'' }}</td>
-                    <td style='width: 100px; overflow: auto'>{{ b.importo }} €</td>
-                    <td>{{ b.fattura }}</td>
-                    <td>{{ b.intestatario_fattura|default_if_none:'' }}</td>
-                    <td style='width: 350px; overflow: auto'>{{ b.protocollo|default_if_none:'' }}</td>
-                    <td style='width: 500px; overflow: auto'>{{ b.note|safe }}</td>
-                    <td>{{ b.destinazione|default_if_none:'' }}</td>
-                    <td style='width: 15px;' align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
-                    <td style='width: 15px;' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')"><span aria-hidden="true">X</span></a></td>
-                </tr>
-            {% endif %}
-        {% endfor %}
-    </table>
+            </thead>
+            {% for b,c in info %}
+                {% if c.1 < 0 %}
+                    <tr style="background-color:red;">
+                        <td style='width: 10px;'>
+                            <input type="checkbox" class="checks" name="b1" value={{b.id}}>
+                        </td>
+                        <td>{{ b.data_registrazione }}</td>
+                        <td>{{ b.movimento|default_if_none:'' }}</td>
+                        <td style='width: 100px; overflow: auto'>{{ b.importo }} €</td>
+                        <td>{{ b.fattura }}</td>
+                        <td style='width: 350px; overflow: auto'>{{ b.protocollo|default_if_none:'' }}</td>
+                        <td style='width: 500px; overflow: auto'>{{ b.note|safe }}</td>
+                        <td>{{ b.destinazione|default_if_none:'' }}</td>
+                        <td style='width: 15px;' align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
+                        <td style='width: 15px;' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')"><span aria-hidden="true">X</span></a></td>
+                    </tr>
+                {% else %}
+                    <tr style="background-color:#585858; color:white;">
+                        <td style='width: 10px;'>
+                            <input type="checkbox" class="checks" name="b1" value={{b.id}}>
+                        </td>
+                        <td>{{ b.data_registrazione }}</td>
+                        <td>{{ b.movimento|default_if_none:'' }}</td>
+                        <td style='width: 100px; overflow: auto'>{{ b.importo }} €</td>
+                        <td>{{ b.fattura }}</td>
+                        <td style='width: 350px; overflow: auto'>{{ b.protocollo|default_if_none:'' }}</td>
+                        <td style='width: 500px; overflow: auto'>{{ b.note|safe }}</td>
+                        <td>{{ b.destinazione|default_if_none:'' }}</td>
+                        <td style='width: 15px;' align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
+                        <td style='width: 15px;' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')"><span aria-hidden="true">X</span></a></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+    </div>
     <div class="alert alert-primary" role="alert">
         Totale degli importi: <a href="#" class="alert-link">{{sum_r}} €</a>
     </div>

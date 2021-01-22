@@ -6,6 +6,10 @@
     <title>MYACCOUNTING | {% block title %}{% endblock title %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="icon" type="image/png" href="../static/images/internet.png" sizes="32x32">
+    <style>
+        .tableFixHead          { overflow-y: auto; height: 100px; }
+        .tableFixHead thead th { position: sticky; top: 0; }
+    </style>
     {% block scripts %}{% endblock %}
 </head>
 <body style="background-color:#ffdab9;">
@@ -51,20 +55,11 @@
                         </div>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink5" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Guadagni Effettivi
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllGuadagniEffettivi' %}">Visualizza Guadagni Effettivi</a>
-                            <a class="dropdown-item" href="{% url 'CreateGuadagnoEffettivo' %}">Aggiungi Guadagno Effettivi</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink6" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Soci
+                        Saldi
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllSoci' %}">Visualizza Soci</a>
+                            <a class="dropdown-item" href="{% url 'Saldi' %}">Visualizza Saldi</a>
                         </div>
                     </li>
                 </ul>

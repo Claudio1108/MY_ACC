@@ -73,7 +73,7 @@
             <td>
                 <a onclick="selectAll()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Seleziona Tutti</a>
                 <a onclick="unSelectAll()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Deseleziona Tutti</a>
-                <a onclick="deleteGroup()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Elimina Selezionati</a>
+                <a onclick="deleteGroup()" class="btn btn-danger btn-sm" role="button" aria-pressed="true">Elimina Selezionati</a>
                 <a href="{% url 'CreateSpesaGestione' %}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style="font-size: 110%;">&#43;</span> Aggiungi</a>
             </td>
             <td >
@@ -89,36 +89,39 @@
             </td>
         </tr>
     </table>
-    <table width="100%" border="1" cellpadding="5" cellspacing="0">
-        <thead bgcolor="#383838" style="color:white;">
-            <tr>
-                <th></th>
-                <th>Registrazione</th>
-                <th>Importo</th>
-                <th>Causale</th>
-                <th>Fattura</th>
-                <th>Provenienza</th>
-                <th>MODIFICA</th>
-                <th>ELIMINA</th>
-            </tr>
-        </thead>
-        <tbody bgcolor="#585858" style="color:white;">
-            {% for b in filter_queryset %}
-            <tr>
-                <td style='width: 10px;'>
-                    <input type="checkbox" class="checks" name="b1" value={{b.id}}>
-                </td>
-                <td>{{ b.data_registrazione }}</td>
-                <td>{{ b.importo }} €</td>
-                <td>{{ b.causale|default_if_none:'' }}</td>
-                <td>{{ b.fattura|default_if_none:'' }}</td>
-                <td>{{ b.provenienza|default_if_none:'' }}</td>
-                <td style='width: 15px;' align="center"><a href="/UpdateSpesaGestione/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
-                <td style='width: 15px;' align="center"><a href="/DeleteSpesaGestione/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Spesa di Gestione ?')"><span aria-hidden="true">X</span></a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+    <div class="tableFixHead" style="height:500px; overflow-y:scroll; border:1px solid black; border-collapse: collapse; width: 100%;">
+        <table width="100%" border="1" cellpadding="5" cellspacing="0">
+            <thead style="color:white;">
+                <tr>
+                    <th style="background:#383838;"></th>
+                    <th style="background:#383838;">Registrazione</th>
+                    <th style="background:#383838;">Importo</th>
+                    <th style="background:#383838;">Causale</th>
+                    <th style="background:#383838;">Fattura</th>
+                    <th style="background:#383838;">Provenienza</th>
+                    <th style="background:#383838;">MODIFICA</th>
+                    <th style="background:#383838;">ELIMINA</th>
+                </tr>
+            </thead>
+            <tbody bgcolor="#585858" style="color:white;">
+                {% for b in filter_queryset %}
+                <tr>
+                    <td style='width: 10px;'>
+                        <input type="checkbox" class="checks" name="b1" value={{b.id}}>
+                    </td>
+                    <td>{{ b.data_registrazione }}</td>
+                    <td>{{ b.importo }} €</td>
+                    <td>{{ b.causale|default_if_none:'' }}</td>
+                    <td>{{ b.fattura|default_if_none:'' }}</td>
+                    <td>{{ b.provenienza|default_if_none:'' }}</td>
+                    <td style='width: 15px;' align="center"><a href="/UpdateSpesaGestione/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
+                    <td style='width: 15px;' align="center"><a href="/DeleteSpesaGestione/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Spesa di Gestione ?')"><span aria-hidden="true">X</span></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     <div class="alert alert-primary" role="alert">
         Totale degli importi: <a href="#" class="alert-link">{{sum_s}} €</a>
     </div>

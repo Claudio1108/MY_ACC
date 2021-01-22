@@ -19,14 +19,6 @@ class RubricaReferenti(models.Model):
     def __str__(self):
         return self.nominativo + "/" + self.tel
 
-class Socio(models.Model):
-    nome = models.CharField(max_length=25)
-    cognome = models.CharField(max_length=25)
-    percentuale = models.DecimalField(max_digits=4, decimal_places=2)
-
-    def __str__(self):
-        return self.nome + " " + self.cognome
-
 class Protocollo(models.Model):
     identificativo = models.CharField(max_length=10, blank=True)
     data_registrazione = models.DateField(auto_now=False, auto_now_add=False)  #obbligatorio
@@ -40,8 +32,6 @@ class Protocollo(models.Model):
     data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None) #obbligatorio
     data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     status = models.IntegerField(default=None, null=True, blank=True)
-    #foreign_key
-    responsabile = models.ForeignKey(Socio, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return str(self.identificativo)+" | "+str(self.indirizzo)
@@ -54,8 +44,6 @@ class Ricavo(models.Model):
     movimento = models.CharField(max_length=15, choices=(('ACCONTO', 'ACCONTO'),('SALDO', 'SALDO')), default="ACCONTO")
     importo = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
     fattura = models.CharField(max_length=2, choices=(('SI', 'SI'),('NO', 'NO')), default='NO')
-    # foreign_key
-    intestatario_fattura = models.ForeignKey(Socio, on_delete=models.CASCADE, related_name="sociofatturaricavo", null=True, blank=True)
     protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="ricavi", null=True, blank=True)
     note = RichTextField(null=True, blank=True)
     destinazione = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="DEPOSITO")
@@ -84,14 +72,6 @@ class SpesaGestione(models.Model):
     def __str__(self):
         return "id: "+str(self.id)
 
-class GuadagnoEffettivo(models.Model):
-    data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
-    importo = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
-    provenienza = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="DEPOSITO")
-
-    def __str__(self):
-        return "id: "+str(self.id)
-
 class Consulenza(models.Model):
     data_registrazione = models.DateField(auto_now=False, auto_now_add=False)  #obbligatorio
     richiedente = models.CharField(max_length=40, null=True, blank=True)
@@ -102,8 +82,6 @@ class Consulenza(models.Model):
     data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None)  #obbligatorio
     data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     status = models.IntegerField(default=None, null=True, blank=True)
-    # foreign_key
-    responsabile = models.ForeignKey(Socio, on_delete=models.CASCADE, null=True, blank=True)
 
 class CalendarioContatore(models.Model):
     count = models.IntegerField()
