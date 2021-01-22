@@ -11,6 +11,7 @@ django-js-asset==1.2.2
 django-widget-tweaks==1.4.5
 djangorestframework==3.11.0
 pathspec==0.7.0
+python-dotenv==0.15.0
 pytz==2019.1
 regex==2020.1.8
 sqlparse==0.3.0
