@@ -5,7 +5,6 @@ from .models import *
 from dal import autocomplete
 from Contabilita import sqlite_queries as sqlite
 
-
 class DateInput(forms.DateInput):
     input_type = 'date'
 
@@ -84,6 +83,9 @@ class formProtocolUpdate(forms.ModelForm):
             "data_consegna": "Data Consegna ",
         }
         widgets = {
+            'data_registrazione': forms.SelectDateWidget(),
+            'data_scadenza': forms.SelectDateWidget(),
+            'data_consegna': forms.SelectDateWidget(),
             'identificativo': forms.HiddenInput(),
             'status': forms.HiddenInput(),
             'cliente': autocomplete.ModelSelect2(url='cliente_autocomp'),
@@ -161,6 +163,9 @@ class formConsulenzaUpdate(forms.ModelForm):
             "data_consegna": "Data Consegna ",
             "responsabile": "Responsabile "}
         widgets = {
+            'data_registrazione': forms.SelectDateWidget(),
+            'data_scadenza': forms.SelectDateWidget(),
+            'data_consegna': forms.SelectDateWidget(),
             'status': forms.HiddenInput()}
 
     def check_date(self):
@@ -251,6 +256,7 @@ class formSpesaCommessaUpdate(forms.ModelForm):
             "note": "Note ",
             "provenienza": "Provenienza "}
         widgets = {
+            'data_registrazione': forms.SelectDateWidget(),
             'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
 
 class formSpesaGestione(forms.ModelForm):
@@ -275,6 +281,7 @@ class formSpesaGestioneUpdate(forms.ModelForm):
             "causale": "Causale ",
             "fattura": "Fattura ",
             "provenienza": "Provenienza "}
+        widgets = {'data_registrazione': forms.SelectDateWidget() }
 
 class form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(forms.Form):
     year = forms.IntegerField(required = True, initial=datetime.now().year, label='Anno')
