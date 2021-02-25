@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django_filters',
     'dal',
     'dal_select2',
-    'ckeditor'
+    'ckeditor',
+    'django_crontab'
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -118,3 +119,8 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # se impostato a False, il cookie viene memorizzato permanentemente sul browser e non bisognerà più reinserire le credenziali.
 SESSION_COOKIE_AGE = 36000
 # la sessione scade dopo n secondi. Dopo un tempo stabilito per poter utilizzare il sito andranno reinserite le credenziali.
+
+CRONJOBS = [
+    # ('*/1 * * * *', 'Contabilita.cron.my_cron_job')
+    ('1 0 * * 1-5', 'Contabilita.cron.my_cron_job')
+]
