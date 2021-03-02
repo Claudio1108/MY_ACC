@@ -42,6 +42,7 @@ def my_cron_job():
         mail_text = '\nPROTOCOLLI:\n'+''.join([item[1]+'\t|\t'+item[2]+'\t|\t'+item[3]+'\t|\t'+item[4]+' il '+item[5]+'\n' for item in lista_protocolli])
         # f.writelines(mail_text)
 
+    #  diff >= 1  -->  Red  |  -3 >= diff >= 0  --> Yellow  |  diff <= -4 --> Green
     lista_consulenze = list()
     for c in models.Consulenza.objects.all():
         diff = (date.today() - c.data_scadenza).days
