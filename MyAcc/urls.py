@@ -63,8 +63,6 @@ urlpatterns = [
     path('DeleteSpesaCommessa/<int:id>', contviews.viewDeleteSpesaCommessa, name='DeleteSpesaCommessa'),
     url(r'^DeleteSpeseCommessaGroup/$', contviews.viewDeleteSpeseCommessaGroup, name='DeleteSpeseCommessaGroup'),
     path('UpdateSpesaCommessa/<int:id>', contviews.viewUpdateSpesaCommessa, name='UpdateSpesaCommessa'),
-    #Saldi
-    path('Saldi/', contviews.viewSaldi, name='Saldi'),
     #SpesaGestione
     path('AllSpeseGestione/', contviews.viewAllSpeseGestione, name='AllSpeseGestione'),
     path('CreateSpesaGestione/', contviews.viewCreateSpesaGestione, name='CreateSpesaGestione'),

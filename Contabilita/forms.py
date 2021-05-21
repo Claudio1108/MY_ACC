@@ -243,6 +243,7 @@ class formSpesaCommessa(forms.ModelForm):
             "provenienza": "Provenienza "}
         widgets = {
             'data_registrazione': DateInput(),
+            'provenienza': forms.HiddenInput(),
             'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
 
 class formSpesaCommessaUpdate(forms.ModelForm):
@@ -257,6 +258,7 @@ class formSpesaCommessaUpdate(forms.ModelForm):
             "provenienza": "Provenienza "}
         widgets = {
             'data_registrazione': forms.SelectDateWidget(),
+            'provenienza': forms.HiddenInput(),
             'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
 
 class formSpesaGestione(forms.ModelForm):

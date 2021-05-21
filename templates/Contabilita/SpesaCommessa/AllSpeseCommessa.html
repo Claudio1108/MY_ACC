@@ -99,7 +99,7 @@
                     <th style="background:#383838;">Importo</th>
                     <th style='width: 350px; overflow: auto; background:#383838;'>Protocollo</th>
                     <th style='width: 500px; overflow: auto; background:#383838;'>Note</th>
-                    <th style="background:#383838;">Provenienza</th>
+<!--                    <th style="background:#383838;">Provenienza</th>-->
                     <th style="background:#383838;">MODIFICA</th>
                     <th style="background:#383838;">ELIMINA</th>
                 </tr>
@@ -114,7 +114,7 @@
                     <td style='width: 100px; overflow: auto'>{{ b.importo }} €</td>
                     <td style='width: 350px; overflow: auto'>{{ b.protocollo|default_if_none:'' }}</td>
                     <td style='width: 450px; overflow: auto'>{{ b.note|safe }}</td>
-                    <td>{{ b.provenienza|default_if_none:'' }}</td>
+<!--                    <td>{{ b.provenienza|default_if_none:'' }}</td>-->
                     <td style='width: 15px;' align="center"><a href="/UpdateSpesaCommessa/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
                     <td style='width: 15px;' align="center"><a href="/DeleteSpesaCommessa/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questa Spesa di Commessa ?')"><span aria-hidden="true">X</span></a></td>
                 </tr>

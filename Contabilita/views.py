@@ -422,15 +422,6 @@ def viewUpdateSpesaCommessa(request, id):
         else:
             return render(request, "Contabilita/SpesaCommessa/UpdateSpesaCommessa.html", {'form': formSpesaCommessaUpdate(instance=SpesaCommessa.objects.get(id=id))})
 
-def viewSaldi(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        saldi = list()
-        for tipo_saldo in ['CARTA', 'DEPOSITO']:
-            saldi.append(sqlite.calculate_saldo(tipo_saldo))
-        return render(request, "Contabilita/Saldi.html", {"lista_saldi": saldi})
-
 def viewAllSpeseGestione(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
@@ -513,14 +504,17 @@ def viewResocontoGuadagni(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
+        saldi = list()
+        for tipo_saldo in ['CARTA', 'DEPOSITO']:
+            saldi.append(sqlite.calculate_saldo(tipo_saldo))
         if (request.method == "POST"):
             form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
             if (form.is_valid()):
-                return render(request, "Contabilita/GestioneGuadagni.html", {'form': form, 'tabella_output3': sqlite.resoconto_guadagni_effettivi(form['year'].value()), 'year': form['year'].value()})
+                return render(request, "Contabilita/GestioneGuadagni.html", {'form': form, 'tabella_output3': sqlite.resoconto_guadagni_effettivi(form['year'].value()), 'year': form['year'].value(), "lista_saldi": saldi})
             else:
-                return render(request, "Contabilita/GestioneGuadagni.html", {'form': form, 'tabella_output3': []})
+                return render(request, "Contabilita/GestioneGuadagni.html", {'form': form, 'tabella_output3': [], "lista_saldi": saldi})
         else:
-            return render(request, "Contabilita/GestioneGuadagni.html", {'form': form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(), 'tabella_output3': []})
+            return render(request, "Contabilita/GestioneGuadagni.html", {'form': form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(), 'tabella_output3': [], "lista_saldi": saldi})
 
 def viewContabilitaProtocolli(request):
     filter = request.POST.get("filter")

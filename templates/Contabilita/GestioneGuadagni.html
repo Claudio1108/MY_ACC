@@ -21,6 +21,17 @@
                     </table>
                 </form>
             </td>
+            <td align="right">
+                <table width="80%">
+                        <td align="left"><img width="50" src="{% static 'images/cartedicredito.jpg'%}">
+                        <b>SALDO CARTA = </b>
+                        <b>{{ lista_saldi.0 }} €</b>
+                        </td>
+                        <td align="right"><img width="50" src="{% static 'images/cassaforte.png'%}">
+                        <b>SALDO DEPOSITO = </b>
+                        <b>{{ lista_saldi.1 }} €</b></td>
+                </table>
+            </td>
             <td >
                 <div align="right">
                 <form method="post" action="{% url 'export_output_table_xls' numquery=3 year=year %}">

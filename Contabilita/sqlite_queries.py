@@ -12,14 +12,7 @@ def calculate_saldo(type_saldo):
                         SELECT -importo as saldo
                         FROM Contabilita_spesagestione
                         WHERE provenienza = :provenienza
-                        UNION
-                        SELECT -importo as saldo
-                        FROM Contabilita_spesacommessa
-                        WHERE provenienza = :provenienza
-                        UNION
-                        SELECT -importo as saldo
-                        FROM Contabilita_guadagnoeffettivo
-                        WHERE provenienza = :provenienza) t1""", {'provenienza': type_saldo})
+                        ) t1""", {'provenienza': type_saldo})
     return cursor.fetchone()[0]
 
 def resoconto_spese_gestione(year):
