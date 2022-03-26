@@ -83,9 +83,9 @@ class formProtocolUpdate(forms.ModelForm):
             "data_consegna": "Data Consegna ",
         }
         widgets = {
-            'data_registrazione': forms.SelectDateWidget(),
-            'data_scadenza': forms.SelectDateWidget(),
-            'data_consegna': forms.SelectDateWidget(),
+            'data_registrazione': DateInput(format=('%Y-%m-%d')),
+            'data_scadenza': DateInput(format=('%Y-%m-%d')),
+            'data_consegna': DateInput(format=('%Y-%m-%d')),
             'identificativo': forms.HiddenInput(),
             'status': forms.HiddenInput(),
             'cliente': autocomplete.ModelSelect2(url='cliente_autocomp'),
@@ -163,9 +163,9 @@ class formConsulenzaUpdate(forms.ModelForm):
             "data_consegna": "Data Consegna ",
             "responsabile": "Responsabile "}
         widgets = {
-            'data_registrazione': forms.SelectDateWidget(),
-            'data_scadenza': forms.SelectDateWidget(),
-            'data_consegna': forms.SelectDateWidget(),
+            'data_registrazione': DateInput(format=('%Y-%m-%d')),
+            'data_scadenza': DateInput(format=('%Y-%m-%d')),
+            'data_consegna': DateInput(format=('%Y-%m-%d')),
             'status': forms.HiddenInput()}
 
     def check_date(self):
@@ -223,6 +223,7 @@ class formRicavoUpdate(forms.ModelForm):
             "note": "Note ",
             "destinazione": "Destinazione "}
         widgets = {
+            'data_registrazione': DateInput(format=('%Y-%m-%d')),
             'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
 
     def Check2(self, id_ricavo):
@@ -257,7 +258,7 @@ class formSpesaCommessaUpdate(forms.ModelForm):
             "note": "Note ",
             "provenienza": "Provenienza "}
         widgets = {
-            'data_registrazione': forms.SelectDateWidget(),
+            'data_registrazione': DateInput(format=('%Y-%m-%d')),
             'provenienza': forms.HiddenInput(),
             'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')}
 
@@ -283,7 +284,7 @@ class formSpesaGestioneUpdate(forms.ModelForm):
             "causale": "Causale ",
             "fattura": "Fattura ",
             "provenienza": "Provenienza "}
-        widgets = {'data_registrazione': forms.SelectDateWidget() }
+        widgets = {'data_registrazione': DateInput(format=('%Y-%m-%d')) }
 
 class form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(forms.Form):
     year = forms.IntegerField(required = True, initial=datetime.now().year, label='Anno')
