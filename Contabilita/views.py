@@ -1,5 +1,5 @@
 from datetime import date, datetime
-
+import re
 import xlwt
 from dal import autocomplete
 from django.contrib import messages
@@ -9,17 +9,22 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
 # from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.utils.decorators import method_decorator
+from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
+from django.views.generic.list import ListView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django_filters.views import FilterView
+from django.utils.decorators import method_decorator
 
 from Contabilita import sqlite_queries as sqlite
-from .filters import *
-from .forms import *
+from Contabilita import models as contabilita_models
+from Contabilita import filters as contabilita_filters
+from Contabilita import forms as contabilita_forms
 
 
 class ProtocolloAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = Protocollo.objects.all()
+        qs = contabilita_models.Protocollo.objects.all()
         return (
             qs.filter(identificativo__icontains=self.q) | qs.filter(indirizzo__icontains=self.q)
             if self.q
@@ -29,7 +34,7 @@ class ProtocolloAutocomplete(autocomplete.Select2QuerySetView):
 
 class ClienteAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = RubricaClienti.objects.all()
+        qs = contabilita_models.RubricaClienti.objects.all()
         return (
             qs.filter(nominativo__icontains=self.q) | qs.filter(tel__icontains=self.q)
             if self.q
@@ -39,7 +44,7 @@ class ClienteAutocomplete(autocomplete.Select2QuerySetView):
 
 class ReferenteAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = RubricaReferenti.objects.all()
+        qs = contabilita_models.RubricaReferenti.objects.all()
         return (
             qs.filter(nominativo__icontains=self.q) | qs.filter(tel__icontains=self.q)
             if self.q
@@ -51,104 +56,157 @@ class ReferenteAutocomplete(autocomplete.Select2QuerySetView):
 # Inoltre abbiamo anche ridotto ad una linea soltanto la view.
 viewHomePage = login_required(TemplateView.as_view(template_name="Homepage/HomePage.html"))
 
+viewHomePageContabilita = login_required(TemplateView.as_view(template_name="Homepage/HomePageContabilita.html"))
 
-def viewHomePageContabilita(request):
-    if not request.user.is_authenticated:
-        return redirect("accounts/login/")
-    else:
-        return render(request, "Homepage/HomePageContabilita.html")
+viewHomePageAmministrazione = login_required(TemplateView.as_view(template_name="Homepage/HomePageAmministrazione.html"))
 
 
-def viewHomePageAmministrazione(request):
-    if not request.user.is_authenticated:
-        return redirect("accounts/login/")
-    else:
-        return render(request, "Homepage/HomePageAmministrazione.html")
+"""
+Ho provato a migliorare le view dei Clienti relative alle operazioni di: visualizzazione, creazione e modifica
+"""
+
+# def viewAllClienti(request):
+#     if not request.user.is_authenticated:
+#         return redirect("/accounts/login/")
+#     else:
+#         cliente_filter = contabilita_filters.ClienteFilter(
+#             request.GET, queryset=contabilita_models.RubricaClienti.objects.all().order_by("nominativo")
+#         )
+#         return render(
+#             request,
+#             "Amministrazione/Cliente/AllClienti.html",
+#             {"filter": cliente_filter},
+#         )
+
+@method_decorator(login_required, name='dispatch')
+class viewAllClienti(ListView):
+    model = contabilita_models.RubricaClienti
+    template_name = 'Amministrazione/Cliente/AllClienti.html'
+
+    def get_queryset(self):
+        return contabilita_filters.ClienteFilter(self.request.GET, queryset=contabilita_models.RubricaClienti.objects.all().order_by("nominativo"))
+
+    def get_context_data(self):
+        context = super(viewAllClienti, self).get_context_data()
+        context['filter'] = self.get_queryset()
+        return context
+
+# class viewAllClienti(ListView):
+#     model = contabilita_models.RubricaClienti
+#     template_name = 'Amministrazione/Cliente/AllClienti.html'
+#     # filterset_class = contabilita_filters.ClienteFilter
+#     context_object_name = 'filter'
+#
+#     def get_queryset(self):
+#         return contabilita_filters.ClienteFilter(
+#                 self.request.GET, queryset=contabilita_models.RubricaClienti.objects.all().order_by("nominativo")).qs
 
 
-def viewAllClienti(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        cliente_filter = ClienteFilter(
-            request.GET, queryset=RubricaClienti.objects.all().order_by("nominativo")
-        )
-        # page = request.GET.get('page', 1)
-        # paginator = Paginator(cliente_filter.qs, 20)
-        # try:
-        #     cl = paginator.page(page)
-        # except PageNotAnInteger:
-        #     cl = paginator.page(1)
-        # except EmptyPage:
-        #     cl = paginator.page(paginator.num_pages)
-        # return render(request, "Amministrazione/Cliente/AllClienti.html", { "filter" : cliente_filter, 'cl': cl})
-        return render(
-            request,
-            "Amministrazione/Cliente/AllClienti.html",
-            {"filter": cliente_filter, "filter_queryset": cliente_filter.qs},
-        )
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#FIRST VERSION CREATE CLIENTE
+# def viewCreateCliente(request):
+#     if not request.user.is_authenticated:
+#         return redirect("/accounts/login/")
+#     else:
+#         if request.method == "POST":
+#             form = formCliente(request.POST)
+#             if form.is_valid():
+#                 form.save()
+#                 return redirect("AllClienti")
+#             else:
+#                 return render(request, "Amministrazione/Cliente/CreateCliente.html", {"form": form})
+#         else:
+#             return render(
+#                 request, "Amministrazione/Cliente/CreateCliente.html", {"form": formCliente()}
+#             )
 
-def viewCreateCliente(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            form = formCliente(request.POST)
-            if form.is_valid():
-                form.save()
-                return redirect("AllClienti")
-            else:
-                return render(request, "Amministrazione/Cliente/CreateCliente.html", {"form": form})
-        else:
-            return render(
-                request, "Amministrazione/Cliente/CreateCliente.html", {"form": formCliente()}
-            )
+#SECOND VERSION CREATE CLIENTE
+# @method_decorator(login_required, name='dispatch')
+# class viewCreateCliente(CreateView):
+#     def get(self, request):
+#         return render(request, "Amministrazione/Cliente/CreateCliente.html", {"form": contabilita_forms.formCliente()})
+#
+#     def post(self, request):
+#         form = contabilita_forms.formCliente(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect("AllClienti")
+#         else:
+#             return render(request, "Amministrazione/Cliente/CreateCliente.html", {"form": form})
 
+#LAST VERSION CREATE CLIENTE
+@method_decorator(login_required, name='dispatch')
+class viewCreateCliente(CreateView):
+    model = contabilita_models.RubricaClienti
+    form_class = contabilita_forms.formCliente
+    success_url = reverse_lazy('AllClienti')
+    template_name = 'Amministrazione/Cliente/CreateCliente.html'
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+"""
+Per quanto riguarda la conversione della view relativa alla cancellazione di un Cliente, la documentazione di Django
+propone l'utilizzo della classe generica DeleteView la quale per la conferma della cancellazione da parte dell'utente
+fa NECESSARIAMENTE affidamento ad una pagina html (rubricaclienti_confirm_delete.html) che dovremmo aggiungere al progetto. 
+La conferma della cancellazione è un tema che avevo già risolto da front-end mediante l'utilizzo di un piccolo
+banner javascript per la conferma di tale operazione. Come approccio preferisco mantenere il mio, lo trovo più pulito e
+meno macchinoso.
+"""
 
 def viewDeleteCliente(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        RubricaClienti.objects.get(id=id).delete()
-        return redirect("AllClienti")
+    contabilita_models.RubricaClienti.objects.get(id=id).delete()
+    return redirect("AllClienti")
 
+# @method_decorator(login_required, name='dispatch')
+# class viewDeleteCliente(DeleteView):
+#     model = contabilita_models.RubricaClienti
+#     template_name = 'Amministrazione/Cliente/rubricaclienti_confirm_delete.html'
+#     success_url = "/AllClienti"
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 def viewDeleteClientiGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                RubricaClienti.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageAmministrazione.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.RubricaClienti.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageAmministrazione.html")
 
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-def viewUpdateCliente(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            form = formCliente(request.POST, instance=RubricaClienti.objects.get(id=id))
-            if form.is_valid():
-                form.save()
-                return redirect("AllClienti")
-            else:
-                return render(request, "Amministrazione/Cliente/UpdateCliente.html", {"form": form})
-        else:
-            return render(
-                request,
-                "Amministrazione/Cliente/UpdateCliente.html",
-                {"form": formCliente(instance=RubricaClienti.objects.get(id=id))},
-            )
+# def viewUpdateCliente(request, id):
+#     if not request.user.is_authenticated:
+#         return redirect("/accounts/login/")
+#     else:
+#         if request.method == "POST":
+#             form = contabilita_forms.formCliente(request.POST, instance=contabilita_models.RubricaClienti.objects.get(id=id))
+#             if form.is_valid():
+#                 form.save()
+#                 return redirect("AllClienti")
+#             else:
+#                 return render(request, "Amministrazione/Cliente/UpdateCliente.html", {"form": form})
+#         else:
+#             return render(
+#                 request,
+#                 "Amministrazione/Cliente/UpdateCliente.html",
+#                 {"form": contabilita_forms.formCliente(instance=contabilita_models.RubricaClienti.objects.get(id=id))},
+#             )
 
+@method_decorator(login_required, name='dispatch')
+class viewUpdateCliente(UpdateView):
+    model = contabilita_models.RubricaClienti
+    form_class = contabilita_forms.formCliente
+    success_url = reverse_lazy('AllClienti')
+    template_name = "Amministrazione/Cliente/UpdateCliente.html"
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 def viewAllReferenti(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        referente_filter = ReferenteFilter(
-            request.GET, queryset=RubricaReferenti.objects.all().order_by("nominativo")
+        referente_filter = contabilita_filters.ReferenteFilter(
+            request.GET, queryset=contabilita_models.RubricaReferenti.objects.all().order_by("nominativo")
         )
         return render(
             request,
@@ -162,7 +220,7 @@ def viewCreateReferente(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = formReferente(request.POST)
+            form = contabilita_forms.formReferente(request.POST)
             if form.is_valid():
                 form.save()
                 return redirect("AllReferenti")
@@ -172,26 +230,20 @@ def viewCreateReferente(request):
                 )
         else:
             return render(
-                request, "Amministrazione/Referente/CreateReferente.html", {"form": formReferente()}
+                request, "Amministrazione/Referente/CreateReferente.html", {"form": contabilita_forms.formReferente()}
             )
 
 
 def viewDeleteReferente(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        RubricaReferenti.objects.get(id=id).delete()
-        return redirect("AllReferenti")
+    contabilita_models.RubricaReferenti.objects.get(id=id).delete()
+    return redirect("AllReferenti")
 
 
 def viewDeleteReferentiGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                RubricaReferenti.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageAmministrazione.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.RubricaReferenti.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageAmministrazione.html")
 
 
 def viewUpdateReferente(request, id):
@@ -199,7 +251,7 @@ def viewUpdateReferente(request, id):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = formReferente(request.POST, instance=RubricaReferenti.objects.get(id=id))
+            form = contabilita_forms.formReferente(request.POST, instance=contabilita_models.RubricaReferenti.objects.get(id=id))
             if form.is_valid():
                 form.save()
                 return redirect("AllReferenti")
@@ -211,7 +263,7 @@ def viewUpdateReferente(request, id):
             return render(
                 request,
                 "Amministrazione/Referente/UpdateReferente.html",
-                {"form": formReferente(instance=RubricaReferenti.objects.get(id=id))},
+                {"form": contabilita_forms.formReferente(instance=contabilita_models.RubricaReferenti.objects.get(id=id))},
             )
 
 
@@ -219,9 +271,9 @@ def viewAllProtocols(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        protocollo_filter = ProtocolloFilter(
+        protocollo_filter = contabilita_filters.ProtocolloFilter(
             request.GET,
-            queryset=Protocollo.objects.all().order_by(
+            queryset=contabilita_models.Protocollo.objects.all().order_by(
                 "-data_registrazione__year", "-identificativo"
             ),
         )
@@ -231,7 +283,7 @@ def viewAllProtocols(request):
                 proto.status = None
             else:
                 proto.status = (data_scadenza - date.today()).days
-                Protocollo.objects.filter(identificativo=proto.identificativo).update(
+                contabilita_models.Protocollo.objects.filter(identificativo=proto.identificativo).update(
                     status=proto.status
                 )
         sum_parcelle = round(
@@ -253,12 +305,12 @@ def viewCreateProtocol(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = formProtocol(request.POST)
+            form = contabilita_forms.formProtocol(request.POST)
             anno = form["data_registrazione"].value()[0:4]
-            progressive_number_calendar = CalendarioContatore.objects.filter(id=anno).values(
+            progressive_number_calendar = contabilita_models.CalendarioContatore.objects.filter(id=anno).values(
                 "count"
             )[0]["count"]
-            CalendarioContatore.objects.filter(id=anno).update(
+            contabilita_models.CalendarioContatore.objects.filter(id=anno).update(
                 count=str(progressive_number_calendar + 1)
             )
             form.set_identificativo(
@@ -286,26 +338,20 @@ def viewCreateProtocol(request):
                 )
         else:
             return render(
-                request, "Amministrazione/Protocollo/CreateProtocol.html", {"form": formProtocol()}
+                request, "Amministrazione/Protocollo/CreateProtocol.html", {"form": contabilita_forms.formProtocol()}
             )
 
 
 def viewDeleteProtocol(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        Protocollo.objects.get(id=id).delete()
-        return redirect("AllProtocols")
+    contabilita_models.Protocollo.objects.get(id=id).delete()
+    return redirect("AllProtocols")
 
 
 def viewDeleteProtocolsGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                Protocollo.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageAmministrazione.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.Protocollo.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageAmministrazione.html")
 
 
 def viewUpdateProtocol(request, id):
@@ -313,13 +359,13 @@ def viewUpdateProtocol(request, id):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = formProtocolUpdate(request.POST, instance=Protocollo.objects.get(id=id))
+            form = contabilita_forms.formProtocolUpdate(request.POST, instance=contabilita_models.Protocollo.objects.get(id=id))
             anno = form["data_registrazione"].value()[-4:]
-            progressive_number_calendar = CalendarioContatore.objects.filter(id=anno).values(
+            progressive_number_calendar = contabilita_models.CalendarioContatore.objects.filter(id=anno).values(
                 "count"
             )[0]["count"]
-            if anno != str(Protocollo.objects.get(id=id).data_registrazione.year):
-                CalendarioContatore.objects.filter(id=anno).update(
+            if anno != str(contabilita_models.Protocollo.objects.get(id=id).data_registrazione.year):
+                contabilita_models.CalendarioContatore.objects.filter(id=anno).update(
                     count=str(progressive_number_calendar + 1)
                 )
                 form.set_identificativo(
@@ -333,8 +379,8 @@ def viewUpdateProtocol(request, id):
                 if form.is_valid():
                     form.save()
                     anno != str(
-                        Protocollo.objects.get(id=id).data_registrazione.year
-                    ) and Protocollo.objects.filter(id=id).update(
+                        contabilita_models.Protocollo.objects.get(id=id).data_registrazione.year
+                    ) and contabilita_models.Protocollo.objects.filter(id=id).update(
                         identificativo=str("{0:03}".format(progressive_number_calendar + 1))
                         + "-"
                         + anno[2:4]
@@ -356,7 +402,7 @@ def viewUpdateProtocol(request, id):
             return render(
                 request,
                 "Amministrazione/Protocollo/UpdateProtocol.html",
-                {"form": formProtocolUpdate(instance=Protocollo.objects.get(id=id))},
+                {"form": contabilita_forms.formProtocolUpdate(instance=contabilita_models.Protocollo.objects.get(id=id))},
             )
 
 
@@ -364,8 +410,8 @@ def viewAllConsulenze(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        consulenza_filter = ConsulenzaFilter(
-            request.GET, queryset=Consulenza.objects.all().order_by("-id")
+        consulenza_filter = contabilita_filters.ConsulenzaFilter(
+            request.GET, queryset=contabilita_models.Consulenza.objects.all().order_by("-id")
         )
         for cons in consulenza_filter.qs:
             data_scadenza = datetime.strptime(str(cons.data_scadenza), "%Y-%m-%d").date()
@@ -373,7 +419,7 @@ def viewAllConsulenze(request):
                 cons.status = None
             else:
                 cons.status = (data_scadenza - date.today()).days
-                Consulenza.objects.filter(id=cons.id).update(status=cons.status)
+                contabilita_models.Consulenza.objects.filter(id=cons.id).update(status=cons.status)
         sum_compensi = round(
             consulenza_filter.qs.aggregate(Sum("compenso"))["compenso__sum"] or 0, 2
         )
@@ -393,7 +439,7 @@ def viewCreateConsulenza(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = formConsulenza(request.POST)
+            form = contabilita_forms.formConsulenza(request.POST)
             data_scadenza = datetime.strptime(form["data_scadenza"].value(), "%Y-%m-%d").date()
             form.set_status(None) if form["data_consegna"].value() != "" else form.set_status(
                 (data_scadenza - date.today()).days
@@ -418,26 +464,20 @@ def viewCreateConsulenza(request):
             return render(
                 request,
                 "Amministrazione/Consulenza/CreateConsulenza.html",
-                {"form": formConsulenza()},
+                {"form": contabilita_forms.formConsulenza()},
             )
 
 
 def viewDeleteConsulenza(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        Consulenza.objects.get(id=id).delete()
-        return redirect("AllConsulenze")
+    contabilita_models.Consulenza.objects.get(id=id).delete()
+    return redirect("AllConsulenze")
 
 
 def viewDeleteConsulenzeGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                Consulenza.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageAmministrazione.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.Consulenza.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageAmministrazione.html")
 
 
 def viewUpdateConsulenza(request, id):
@@ -445,7 +485,7 @@ def viewUpdateConsulenza(request, id):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = formConsulenzaUpdate(request.POST, instance=Consulenza.objects.get(id=id))
+            form = contabilita_forms.formConsulenzaUpdate(request.POST, instance=contabilita_models.Consulenza.objects.get(id=id))
             data_scadenza = datetime.strptime(form["data_scadenza"].value(), "%d/%m/%Y").date()
             form.set_status(None) if form["data_consegna"].value() != "" else form.set_status(
                 (data_scadenza - date.today()).days
@@ -470,7 +510,7 @@ def viewUpdateConsulenza(request, id):
             return render(
                 request,
                 "Amministrazione/Consulenza/UpdateConsulenza.html",
-                {"form": formConsulenzaUpdate(instance=Consulenza.objects.get(id=id))},
+                {"form": contabilita_forms.formConsulenzaUpdate(instance=contabilita_models.Consulenza.objects.get(id=id))},
             )
 
 
@@ -478,8 +518,8 @@ def viewAllRicavi(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        ricavo_filter = RicavoFilter(
-            request.GET, queryset=Ricavo.objects.all().order_by("-data_registrazione")
+        ricavo_filter = contabilita_filters.RicavoFilter(
+            request.GET, queryset=contabilita_models.Ricavo.objects.all().order_by("-data_registrazione")
         )
         sum_ricavi_for_proto = [
             (
@@ -508,7 +548,7 @@ def viewCreateRicavo(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = formRicavo(request.POST)
+            form = contabilita_forms.formRicavo(request.POST)
             if form.is_valid():
                 if form["protocollo"].value() != "" and not form.Check1():
                     messages.error(
@@ -522,25 +562,19 @@ def viewCreateRicavo(request):
             else:
                 return render(request, "Contabilita/Ricavo/CreateRicavo.html", {"form": form})
         else:
-            return render(request, "Contabilita/Ricavo/CreateRicavo.html", {"form": formRicavo()})
+            return render(request, "Contabilita/Ricavo/CreateRicavo.html", {"form": contabilita_forms.formRicavo()})
 
 
 def viewDeleteRicavo(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        Ricavo.objects.get(id=id).delete()
-        return redirect("AllRicavi")
+    contabilita_models.Ricavo.objects.get(id=id).delete()
+    return redirect("AllRicavi")
 
 
 def viewDeleteRicaviGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                Ricavo.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageContabilita.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.Ricavo.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageContabilita.html")
 
 
 def viewUpdateRicavo(request, id):
@@ -548,8 +582,8 @@ def viewUpdateRicavo(request, id):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            ricavo = Ricavo.objects.get(id=id)
-            form = formRicavoUpdate(request.POST, instance=ricavo)
+            ricavo = contabilita_models.Ricavo.objects.get(id=id)
+            form = contabilita_forms.formRicavoUpdate(request.POST, instance=ricavo)
             if form.is_valid():
                 if form["protocollo"].value() != "" and not form.Check2(ricavo):
                     messages.error(
@@ -566,7 +600,7 @@ def viewUpdateRicavo(request, id):
             return render(
                 request,
                 "Contabilita/Ricavo/UpdateRicavo.html",
-                {"form": formRicavoUpdate(instance=Ricavo.objects.get(id=id))},
+                {"form": contabilita_forms.formRicavoUpdate(instance=contabilita_models.Ricavo.objects.get(id=id))},
             )
 
 
@@ -574,8 +608,8 @@ def viewAllSpeseCommessa(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        spesacommessa_filter = SpesaCommessaFilter(
-            request.GET, queryset=SpesaCommessa.objects.all().order_by("-data_registrazione")
+        spesacommessa_filter = contabilita_filters.SpesaCommessaFilter(
+            request.GET, queryset=contabilita_models.SpesaCommessa.objects.all().order_by("-data_registrazione")
         )
         sum_spesecommessa = round(
             spesacommessa_filter.qs.aggregate(Sum("importo"))["importo__sum"] or 0, 2
@@ -596,7 +630,7 @@ def viewCreateSpesaCommessa(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = formSpesaCommessa(request.POST)
+            form = contabilita_forms.formSpesaCommessa(request.POST)
             if form.is_valid():
                 form.save()
                 return redirect("AllSpeseCommessa")
@@ -608,26 +642,20 @@ def viewCreateSpesaCommessa(request):
             return render(
                 request,
                 "Contabilita/SpesaCommessa/CreateSpesaCommessa.html",
-                {"form": formSpesaCommessa()},
+                {"form": contabilita_forms.formSpesaCommessa()},
             )
 
 
 def viewDeleteSpesaCommessa(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        SpesaCommessa.objects.get(id=id).delete()
-        return redirect("AllSpeseCommessa")
+    contabilita_models.SpesaCommessa.objects.get(id=id).delete()
+    return redirect("AllSpeseCommessa")
 
 
 def viewDeleteSpeseCommessaGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                SpesaCommessa.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageContabilita.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.SpesaCommessa.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageContabilita.html")
 
 
 def viewUpdateSpesaCommessa(request, id):
@@ -635,7 +663,7 @@ def viewUpdateSpesaCommessa(request, id):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = formSpesaCommessaUpdate(request.POST, instance=SpesaCommessa.objects.get(id=id))
+            form = contabilita_forms.formSpesaCommessaUpdate(request.POST, instance=contabilita_models.SpesaCommessa.objects.get(id=id))
             if form.is_valid():
                 form.save()
                 return redirect("AllSpeseCommessa")
@@ -647,7 +675,7 @@ def viewUpdateSpesaCommessa(request, id):
             return render(
                 request,
                 "Contabilita/SpesaCommessa/UpdateSpesaCommessa.html",
-                {"form": formSpesaCommessaUpdate(instance=SpesaCommessa.objects.get(id=id))},
+                {"form": contabilita_forms.formSpesaCommessaUpdate(instance=contabilita_models.SpesaCommessa.objects.get(id=id))},
             )
 
 
@@ -656,7 +684,7 @@ def viewAllSoci(request):
         return redirect("/accounts/login/")
     else:
         saldi = list()
-        soci = Socio.objects.all().order_by("-percentuale")
+        soci = contabilita_models.Socio.objects.all().order_by("-percentuale")
         for tipo_saldo in ["CARTA", "DEPOSITO"]:
             saldi.append(sqlite.calculate_saldo(tipo_saldo))
         return render(
@@ -669,9 +697,9 @@ def viewUpdateSocio(request, id):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            socio = Socio.objects.get(id=id)
-            form = formSocio(request.POST, instance=socio)
-            soci = Socio.objects.all()
+            socio = contabilita_models.Socio.objects.get(id=id)
+            form = contabilita_forms.formSocio(request.POST, instance=socio)
+            soci = contabilita_models.Socio.objects.all()
             sum_percentuali = sum(soc.percentuale for soc in soci if (soc.id != id))
             if form.is_valid():
                 if float(sum_percentuali) + float(form["percentuale"].value()) < 1.00:
@@ -687,8 +715,8 @@ def viewUpdateSocio(request, id):
                     request, "Contabilita/Socio/UpdateSocio.html", {"form": form, "socio": socio}
                 )
         else:
-            socio = Socio.objects.get(id=id)
-            form = formSocio(instance=socio)
+            socio = contabilita_models.Socio.objects.get(id=id)
+            form = contabilita_forms.formSocio(instance=socio)
             return render(
                 request, "Contabilita/Socio/UpdateSocio.html", {"form": form, "socio": socio}
             )
@@ -698,8 +726,8 @@ def viewAllSpeseGestione(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        spesagestione_filter = SpesaGestioneFilter(
-            request.GET, queryset=SpesaGestione.objects.all().order_by("-data_registrazione")
+        spesagestione_filter = contabilita_filters.SpesaGestioneFilter(
+            request.GET, queryset=contabilita_models.SpesaGestione.objects.all().order_by("-data_registrazione")
         )
         sum_spesegestione = round(
             spesagestione_filter.qs.aggregate(Sum("importo"))["importo__sum"] or 0, 2
@@ -720,7 +748,7 @@ def viewCreateSpesaGestione(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = formSpesaGestione(request.POST)
+            form = contabilita_forms.contabilita_forms.formSpesaGestione(request.POST)
             if form.is_valid():
                 form.save()
                 return redirect("AllSpeseGestione")
@@ -732,26 +760,20 @@ def viewCreateSpesaGestione(request):
             return render(
                 request,
                 "Contabilita/SpesaGestione/CreateSpesaGestione.html",
-                {"form": formSpesaGestione()},
+                {"form": contabilita_forms.formSpesaGestione()},
             )
 
 
 def viewDeleteSpesaGestione(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        SpesaGestione.objects.get(id=id).delete()
-        return redirect("AllSpeseGestione")
+    contabilita_models.SpesaGestione.objects.get(id=id).delete()
+    return redirect("AllSpeseGestione")
 
 
 def viewDeleteSpeseGestioneGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                SpesaGestione.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageContabilita.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.SpesaGestione.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageContabilita.html")
 
 
 def viewUpdateSpesaGestione(request, id):
@@ -759,7 +781,7 @@ def viewUpdateSpesaGestione(request, id):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = formSpesaGestioneUpdate(request.POST, instance=SpesaGestione.objects.get(id=id))
+            form = contabilita_forms.formSpesaGestioneUpdate(request.POST, instance=contabilita_models.SpesaGestione.objects.get(id=id))
             if form.is_valid():
                 form.save()
                 return redirect("AllSpeseGestione")
@@ -771,7 +793,7 @@ def viewUpdateSpesaGestione(request, id):
             return render(
                 request,
                 "Contabilita/SpesaGestione/UpdateSpesaGestione.html",
-                {"form": formSpesaGestioneUpdate(instance=SpesaGestione.objects.get(id=id))},
+                {"form": contabilita_forms.formSpesaGestioneUpdate(instance=contabilita_models.SpesaGestione.objects.get(id=id))},
             )
 
 
@@ -779,8 +801,8 @@ def viewAllGuadagniEffettivi(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
-        guadagnoeffettivo_filter = GuadagnoEffettivoFilter(
-            request.GET, queryset=GuadagnoEffettivo.objects.all().order_by("-data_registrazione")
+        guadagnoeffettivo_filter = contabilita_filters.GuadagnoEffettivoFilter(
+            request.GET, queryset=contabilita_models.GuadagnoEffettivo.objects.all().order_by("-data_registrazione")
         )
         sum_guadagnieffettivi = round(
             guadagnoeffettivo_filter.qs.aggregate(Sum("importo"))["importo__sum"] or 0, 2
@@ -801,7 +823,7 @@ def viewCreateGuadagnoEffettivo(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = formGuadagnoEffettivo(request.POST)
+            form = contabilita_forms.formGuadagnoEffettivo(request.POST)
             if form.is_valid():
                 form.save()
                 return redirect("AllGuadagniEffettivi")
@@ -815,26 +837,20 @@ def viewCreateGuadagnoEffettivo(request):
             return render(
                 request,
                 "Contabilita/GuadagnoEffettivo/CreateGuadagnoEffettivo.html",
-                {"form": formGuadagnoEffettivo()},
+                {"form": contabilita_forms.formGuadagnoEffettivo()},
             )
 
 
 def viewDeleteGuadagnoEffettivo(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        GuadagnoEffettivo.objects.get(id=id).delete()
-        return redirect("AllGuadagniEffettivi")
+    contabilita_models.GuadagnoEffettivo.objects.get(id=id).delete()
+    return redirect("AllGuadagniEffettivi")
 
 
 def viewDeleteGuadagniEffettiviGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist("list[]"):
-                GuadagnoEffettivo.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageContabilita.html")
+    if request.method == "POST":
+        for task in request.POST.getlist("list[]"):
+            contabilita_models.GuadagnoEffettivo.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageContabilita.html")
 
 
 def viewUpdateGuadagnoEffettivo(request, id):
@@ -842,8 +858,8 @@ def viewUpdateGuadagnoEffettivo(request, id):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = formGuadagnoEffettivoUpdate(
-                request.POST, instance=GuadagnoEffettivo.objects.get(id=id)
+            form = contabilita_forms.formGuadagnoEffettivoUpdate(
+                request.POST, instance=contabilita_models.GuadagnoEffettivo.objects.get(id=id)
             )
             if form.is_valid():
                 form.save()
@@ -859,8 +875,8 @@ def viewUpdateGuadagnoEffettivo(request, id):
                 request,
                 "Contabilita/GuadagnoEffettivo/UpdateGuadagnoEffettivo.html",
                 {
-                    "form": formGuadagnoEffettivoUpdate(
-                        instance=GuadagnoEffettivo.objects.get(id=id)
+                    "form": contabilita_forms.formGuadagnoEffettivoUpdate(
+                        instance=contabilita_models.GuadagnoEffettivo.objects.get(id=id)
                     )
                 },
             )
@@ -871,7 +887,7 @@ def viewResocontoSpeseGestione(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
+            form = contabilita_forms.form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
             if form.is_valid():
                 return render(
                     request,
@@ -893,7 +909,7 @@ def viewResocontoSpeseGestione(request):
                 request,
                 "Contabilita/ResocontoSpeseGestione.html",
                 {
-                    "form": form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(),
+                    "form": contabilita_forms.form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(),
                     "tabella_output1": [],
                 },
             )
@@ -904,7 +920,7 @@ def viewResocontoRicavi(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
+            form = contabilita_forms.form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
             if form.is_valid():
                 return render(
                     request,
@@ -926,7 +942,7 @@ def viewResocontoRicavi(request):
                 request,
                 "Contabilita/ResocontoRicavi.html",
                 {
-                    "form": form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(),
+                    "form": contabilita_forms.form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(),
                     "tabella_output2": [],
                 },
             )
@@ -937,7 +953,7 @@ def viewGestioneGuadagniEffettivi(request):
         return redirect("/accounts/login/")
     else:
         if request.method == "POST":
-            form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
+            form = contabilita_forms.form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
             if form.is_valid():
                 return render(
                     request,
@@ -961,7 +977,7 @@ def viewGestioneGuadagniEffettivi(request):
                 request,
                 "Contabilita/GestioneGuadagniEffettivi.html",
                 {
-                    "form": form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(),
+                    "form": contabilita_forms.form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(),
                     "tabella_output3": [],
                 },
             )
@@ -971,10 +987,12 @@ def viewContabilitaProtocolli(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
     else:
+        protocols = sqlite.resoconto_contabilita_protocolli()
         return render(
             request,
             "Contabilita/ContabilitaProtocolli.html",
-            {"tabella_output4": sqlite.resoconto_contabilita_protocolli()},
+            {"tabella_output4": protocols,
+             'tot_saldo': sum([protocol[8] for protocol in protocols])},
         )
 
 
@@ -1042,7 +1060,7 @@ def export_input_table_xls(request, list, model):
         ws.write(row_num, col_num, columns[col_num], font_style)
     font_style = xlwt.XFStyle()
     if model == "protocollo":
-        rows = Protocollo.objects.filter(
+        rows = contabilita_models.Protocollo.objects.filter(
             identificativo__in=re.findall("(\d+-\d+)", list)
         ).values_list(
             "identificativo",
@@ -1060,7 +1078,7 @@ def export_input_table_xls(request, list, model):
             "responsabile__cognome",
         )
     if model == "ricavo":
-        rows = Ricavo.objects.filter(id__in=re.findall("(\d+)", list)).values_list(
+        rows = contabilita_models.Ricavo.objects.filter(id__in=re.findall("(\d+)", list)).values_list(
             "data_registrazione",
             "movimento",
             "importo",
@@ -1071,7 +1089,7 @@ def export_input_table_xls(request, list, model):
             "note",
         )
     if model == "spesacommessa":
-        rows = SpesaCommessa.objects.filter(id__in=re.findall("(\d+)", list)).values_list(
+        rows = contabilita_models.SpesaCommessa.objects.filter(id__in=re.findall("(\d+)", list)).values_list(
             "data_registrazione",
             "importo",
             "protocollo__identificativo",
@@ -1079,15 +1097,15 @@ def export_input_table_xls(request, list, model):
             "note",
         )
     if model == "spesagestione":
-        rows = SpesaGestione.objects.filter(id__in=re.findall("(\d+)", list)).values_list(
+        rows = contabilita_models.SpesaGestione.objects.filter(id__in=re.findall("(\d+)", list)).values_list(
             "data_registrazione", "importo", "causale", "fattura"
         )
     if model == "guadagnoeffettivo":
-        rows = GuadagnoEffettivo.objects.filter(id__in=re.findall("(\d+)", list)).values_list(
+        rows = contabilita_models.GuadagnoEffettivo.objects.filter(id__in=re.findall("(\d+)", list)).values_list(
             "data_registrazione", "importo"
         )
     if model == "consulenza":
-        rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).values_list(
+        rows = contabilita_models.Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).values_list(
             "data_registrazione",
             "richiedente",
             "indirizzo",
@@ -1099,11 +1117,11 @@ def export_input_table_xls(request, list, model):
             "responsabile__cognome",
         )
     if model == "rubricaclienti":
-        rows = RubricaClienti.objects.filter(tel__in=re.findall("(\d+)", list)).values_list(
+        rows = contabilita_models.RubricaClienti.objects.filter(tel__in=re.findall("(\d+)", list)).values_list(
             "nominativo", "tel", "mail", "note"
         )
     if model == "rubricareferenti":
-        rows = RubricaReferenti.objects.filter(tel__in=re.findall("(\d+)", list)).values_list(
+        rows = contabilita_models.RubricaReferenti.objects.filter(tel__in=re.findall("(\d+)", list)).values_list(
             "nominativo", "tel", "mail", "note"
         )
     for row in rows:

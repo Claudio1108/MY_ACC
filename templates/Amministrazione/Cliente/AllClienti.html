@@ -101,7 +101,7 @@
             </tr>
         </thead>
         <tbody bgcolor="#585858" style="color:white;">
-        {% for b in filter_queryset %}
+        {% for b in filter.qs %}
             <tr>
                 <td style='width: 10px;'>
                     <input type="checkbox" class="checks" name="b1" value={{b.id}}>
