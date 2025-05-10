@@ -5,7 +5,7 @@ from .models import *
 from dal import autocomplete
 from Contabilita import sqlite_queries as sqlite
 
-YEARS = [x for x in range(1970, 2021)]
+YEARS = [x for x in range(1970, 2050)]
 
 class DateInput(forms.DateInput):
     input_type = 'date'
