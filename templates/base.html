@@ -3,85 +3,278 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>MYACCOUNTING | {% block title %}{% endblock title %}</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
-    <link rel="icon" type="image/png" href="../static/images/internet.png" sizes="32x32">
-	<link href="http://fonts.googleapis.com/css?family=Cookie" rel="stylesheet" type="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pratika | {% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="{% static 'images/p.png' %}" sizes="32x32">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #495057;
+            --admin-color: #b0e0e6;
+            --light-bg: #f8f9fa;
+            --border-color: #e0e0e0;
+            --text-color: #333;
+            --navbar-color: #343a40;
+        }
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #d6d6d6;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container-fluid {
+            padding: 0;
+            flex: 1;
+        }
+        .page-header {
+            background-color: #d6d6d6;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .page-header h1 {
+            font-weight: 500;
+            color: var(--primary-color);
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+        .navbar {
+            background-color: var(--navbar-color) !important;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s;
+        }
+        .navbar-brand:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+        .admin-link {
+            color: var(--admin-color) !important;
+        }
+        .content-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        footer {
+            background-color: var(--navbar-color);
+            color: white;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 992px) {
+            .navbar-collapse {
+                padding-top: 1rem;
+            }
+        }
+        .content-container {
+            padding: 2rem;
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .dropdown-menu {
+            background-color: #e0f0ff;
+        }
+        .dropdown-menu .dropdown-item {
+            color: #000;
+        }
+        .dropdown-menu .dropdown-item:hover {
+            background-color: #cce5ff;
+        }
+        .tabella-con-bordi,
+        .tabella-con-bordi th,
+        .tabella-con-bordi td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        .tabella-con-bordi th,
+        .tabella-con-bordi td {
+            padding: 8px;
+        }
+        table a {
+            color: #87ceeb;
+            text-decoration: none;
+        }
+        table a:hover {
+            color: #87ceeb;
+            text-decoration: underline;
+        }
+        .error-message {
+            color: red;
+            border: 2px solid red;
+            background-color: #ffe6e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: opacity 0.5s ease-out;
+        }
+        .fade-out {
+            opacity: 0;
+        }
+        .filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 20px; /* meno spazio verticale */
+            justify-content: flex-start;
+            padding: 10px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .filter-item {
+            flex: 1 1 250px; /* più stretto */
+            min-width: 200px;
+            max-width: 300px;
+        }
+        .filter-label {
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 3px;
+            display: block;
+            white-space: nowrap;
+        }
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: 4px 6px;
+            font-size: 0.9em;
+        }
+        .filter-actions {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .btn-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.2s ease-in-out;
+            text-decoration: none;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn-select {
+            background-color: #0d6efd;
+        }
+        .btn-unselect {
+            background-color: #6c757d;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+        }
+        .btn-add {
+            background-color: #198754;
+        }
+
+        .btn-custom:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+    </style>
     {% block scripts %}{% endblock %}
+    {% block extra_css %}{% endblock %}
 </head>
-<body style="background-color:#ffdab9;">
+<body>
     <div class="container-fluid">
-        <h1 align="center">{% block name %}{% endblock %}</h1>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <!-- Navbar content -->
-            <div class="navbar-header">
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <header class="page-header">
+            <div class="container">
+                <h1 class="text-center">{% block name %}{% endblock %}</h1>
+            </div>
+        </header>
+
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <a class="navbar-brand" href="{% url 'HomePage' %}">HomePage</a>
-                <a class="navbar-brand" href="{% url 'HomePageContabilita' %}">Tabelle Output</a>
-                <a class="navbar-brand" href="{% url 'HomePageAmministrazione' %}"><font color="#4169e1">Amministrazione</font></a>
-            </div>
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Ricavi
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllRicavi' %}">Visualizza Ricavi</a>
-                            <a class="dropdown-item" href="{% url 'CreateRicavo' %}">Aggiungi Ricavo</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink4" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Spese di Gestione
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllSpeseGestione' %}">Visualizza Spese di Gestione</a>
-                            <a class="dropdown-item" href="{% url 'CreateSpesaGestione' %}">Aggiungi Spesa di Gestione</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink3" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Spese di Commessa
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllSpeseCommessa' %}">Visualizza Spese di Commessa</a>
-                            <a class="dropdown-item" href="{% url 'CreateSpesaCommessa' %}">Aggiungi Spesa di Commessa</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink5" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Guadagni Effettivi
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllGuadagniEffettivi' %}">Visualizza Guadagni Effettivi</a>
-                            <a class="dropdown-item" href="{% url 'CreateGuadagnoEffettivo' %}">Aggiungi Guadagno Effettivi</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink6" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Soci
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'AllSoci' %}">Visualizza Soci</a>
-                        </div>
-                    </li>
-                </ul>
+
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="navbar-brand" href="{% url 'HomePage' %}">
+                                <i class="fas fa-home"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="navbar-brand admin-link" href="{% url 'HomePageAmministrazione' %}">
+                                <i class="fas fa-building"></i> Amministrazione
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="navbar-brand" href="{% url 'HomePageContabilita' %}">
+                                <i class="fas fa-table"></i> Tabelle Output
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="navbar-brand" href="{% url 'AllRicavi' %}">
+                                Ricavi
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="navbar-brand dropdown-toggle" href="#" id="navbarDropdownMenuLink5" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Spese
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink5">
+                                <li><a class="dropdown-item" href="{% url 'AllSpeseGestione' %}">Spese di Gestione</a></li>
+                                <li><a class="dropdown-item" href="{% url 'AllSpeseCommessa' %}">Spese di Commessa</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </nav>
-        </br>
-        <div align="center">
+
+        <main class="content-container">
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                            <li class="error-message">{{ message }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+
+                <script>
+                    // Attende 5 secondi, poi fa sparire il messaggio
+                    setTimeout(function () {
+                        const messages = document.querySelectorAll('.error-message');
+                        messages.forEach(function (msg) {
+                            msg.classList.add('fade-out');
+                            setTimeout(() => msg.remove(), 500); // Rimuove dopo la transizione
+                        });
+                    }, 5000);
+                </script>
+            {% endif %}
             {% block content %}
             {% endblock %}
-        </div>
+        </main>
     </div>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    {% block footer %}
-    {% endblock %}
+
+    <footer class="footer mt-auto">
+        <div class="container">
+            <span>Pratika Office Manager &copy; {% now "Y" %} - Sistema di gestione aziendale</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block footer_scripts %}{% endblock %}
+    {% block footer %}{% endblock %}
 </body>
 </html>

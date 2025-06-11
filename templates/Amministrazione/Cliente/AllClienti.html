@@ -1,4 +1,4 @@
-{% extends 'base4.html' %}
+{% extends 'base3.html' %}
 {% load static %}
 {% block title %}AllClienti{% endblock title %}
 {% block name %}<i>CLIENTI</i>{% endblock %}
@@ -7,19 +7,23 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <script type="text/javascript">
         	function selectAll(){
-				var items=document.getElementsByName('b1');
-				for(var i=0; i<items.length; i++){
-					if(items[i].type=='checkbox')
-						items[i].checked=true;
-				}
-			}
+                var items = document.getElementsByName('b1');
+                for(var i=0; i<items.length; i++){
+                    if(items[i].type === 'checkbox') {
+                        items[i].checked = true;
+                        items[i].closest('tr').classList.add('selected-row');
+                    }
+                }
+            }
 			function unSelectAll(){
-				var items=document.getElementsByName('b1');
-				for(var i=0; i<items.length; i++){
-					if(items[i].type=='checkbox')
-						items[i].checked=false;
-				}
-			}
+                var items = document.getElementsByName('b1');
+                for(var i=0; i<items.length; i++){
+                    if(items[i].type === 'checkbox') {
+                        items[i].checked = false;
+                        items[i].closest('tr').classList.remove('selected-row');
+                    }
+                }
+            }
 			function getSelected(){
 				var checks=document.getElementsByName('b1');
 				var list = new Array();
@@ -51,37 +55,70 @@
                     }
                   }
             }
+            $(document).ready(function() {
+                $('input[type="checkbox"][name="b1"]').on('change', function() {
+                    const row = $(this).closest('tr');
+                    if ($(this).is(':checked')) {
+                        row.addClass('selected-row');
+                    } else {
+                        row.removeClass('selected-row');
+                    }
+                });
+            });
     </script>
 {% endblock %}
 
 {% block content %}
     <form method="get">
-        <table border="0" rules="none">
-        {% for field in filter.form %}
-            <tr>
-                <td><b>{{ field.label }}</b></td>
-                <td>{{ field }}</td>
-            </tr>
-        {% endfor %}
-        </table></br>
-	    <button type="submit" class="btn btn-light"><i class="fa fa-filter" aria-hidden="true"></i> Filtra</button>
+        <table style="margin: 0 auto; border-spacing: 20px;">
+            {% for field in filter.form %}
+                <tr>
+                    <td style="text-align: left; vertical-align: top; white-space: nowrap;">
+                        <label for="{{ field.id_for_label }}"><b>{{ field.label }}</b></label>
+                    </td>
+                    <td style="min-width: 300px; text-align: left;">
+                        <div style="width: 100%;">
+                            {{ field }}
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <button type="submit" class="btn btn-light">
+            <i class="fa fa-filter" aria-hidden="true"></i> Filtra
+        </button>
     </form>
     </br>
+    <style>
+        tr.selected-row {
+            background-color: #fffaaf !important;
+            color: #333 !important;
+        }
+    </style>
     <table align="left" style="width:100%">
         <tr>
-            <td>
-                <a onclick="selectAll()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Seleziona Tutti</a>
-                <a onclick="unSelectAll()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Deseleziona Tutti</a>
-                <a onclick="deleteGroup()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Elimina Selezionati</a>
-                <a href="{% url 'CreateCliente' %}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style="font-size: 110%;">&#43;</span> Aggiungi</a>
+            <td align="left" class="d-flex gap-2 flex-wrap">
+                <button onclick="selectAll()" class="btn-custom btn-select">
+                    <i class="fas fa-check-square"></i> Seleziona Tutti
+                </button>
+                <button onclick="unSelectAll()" class="btn-custom btn-unselect">
+                    <i class="fas fa-square"></i> Deseleziona Tutti
+                </button>
+                <button onclick="deleteGroup()" class="btn-custom btn-delete">
+                    <i class="fas fa-trash-alt"></i> Elimina Selezionati
+                </button>
+                <a href="{% url 'CreateCliente' %}" class="btn-custom btn-add">
+                    <i class="fas fa-plus"></i> Aggiungi
+                </a>
             </td>
             <td>
                 <div align="right">
                 <form method="post" action="{% url 'export_input_table_xls' list=filter_queryset model='rubricaclienti' %}">
                     {% csrf_token %}
                     <div class="input-group">
-                        <input class="form-control form-control" type="text" name="fname" placeholder="<NomeFileDownload>" required>
-                        <button type="submit" class="btn btn-primary"><i class="fa fa-download"></i> DOWNLOAD Excel</button>
+                        <input class="form-control form-control" type="text" name="fname" placeholder="NomeDelFile" required>
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-download"></i> Scarica Excel</button>
                     </div>
                 </form>
                 </div>
@@ -89,48 +126,32 @@
         </tr>
     </table>
 
-    <table width="100%" border="1" cellpadding="5" cellspacing="0">
-        <thead bgcolor="#383838" style="color:white;">
-            <tr>
-                <th></th>
-                <th>Nominativo</th>
-                <th>Tel</th>
-                <th>Mail</th>
-                <th>Note</th>
-                <th>MODIFICA</th>
-                <th>ELIMINA</th>
-            </tr>
-        </thead>
-        <tbody bgcolor="#585858" style="color:white;">
-        {% for b in filter_queryset %}
-            <tr>
-                <td style='width: 10px;'>
-                    <input type="checkbox" class="checks" name="b1" value={{b.id}}>
-                </td>
-                <td style='width: 250px; overflow: auto'>{{ b.nominativo }}</td>
-                <td style='width: 150px; overflow: auto'>{{ b.tel }}</td>
-                <td style='width: 250px; overflow: auto'><a href="https://mail.google.com/mail/?view=cm&fs=1&tf=1&to={{ b.mail }}" target="_blank">{{ b.mail }}</a></td>
-                <td style='width: 300px; overflow: auto'>{{ b.note|safe }}</td>
-                <td style='width: 15px;' align="center"><a href="/UpdateCliente/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
-                <td style='width: 15px;' align="center"><a href="/DeleteCliente/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Cliente ?')"><span aria-hidden="true">X</span></a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-<!--<div class="pagination">-->
-        <!--<span class="step-links">-->
-            <!--{% if cl.has_previous %}-->
-                <!--<a href="?page=1">&laquo; Prima Pagina</a> /-->
-                <!--<a href="?page={{ cl.previous_page_number }}">Precedente</a>-->
-            <!--{% endif %}-->
-            <!--<span class="current">-->
-                <!--Page {{ cl.number }} of {{ cl.paginator.num_pages }}.-->
-            <!--</span>-->
-            <!--{% if cl.has_next %}-->
-                <!--<a href="?page={{ cl.next_page_number }}">Successiva</a> /-->
-                <!--<a href="?page={{ cl.paginator.num_pages }}">Ultima Pagina &raquo;</a>-->
-            <!--{% endif %}-->
-        <!--</span>-->
- <!--</div>-->
+    <div style="height:500px; overflow-x:scroll; overflow-y:scroll; border:1px solid black;">
+        <table class="tabella-con-bordi" width="110%" border="1" cellpadding="5" cellspacing="0">
+            <thead bgcolor="#383838" style="color:white; position: sticky; top: 0; z-index: 100;">
+                <tr>
+                    <th></th>
+                    <th>MODIFICA</th>
+                    <th>Nominativo</th>
+                    <th>Tel</th>
+                    <th>Mail</th>
+                    <th>Note</th>
+                </tr>
+            </thead>
+            <tbody bgcolor="#585858" style="color:white;">
+            {% for b in filter_queryset %}
+                <tr>
+                    <td style='width: 10px;'>
+                        <input type="checkbox" class="checks" name="b1" value={{b.id}}>
+                    </td>
+                    <td style='width: 15px;' align="center"><a href="/UpdateCliente/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
+                    <td style='width: 250px; overflow: auto'>{{ b.nominativo }}</td>
+                    <td style='width: 150px; overflow: auto'>{{ b.tel }}</td>
+                    <td style='width: 250px; overflow: auto'><a href="https://mail.google.com/mail/?view=cm&fs=1&tf=1&to={{ b.mail }}" target="_blank">{{ b.mail }}</a></td>
+                    <td style='width: 300px; overflow: auto'>{{ b.note|safe }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

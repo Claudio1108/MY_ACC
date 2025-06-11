@@ -1,5 +1,5 @@
-import re
 import xlwt
+import json
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -9,21 +9,20 @@ from datetime import date, datetime
 from django.http import HttpResponse
 from dal import autocomplete
 from Contabilita import sqlite_queries as sqlite
-# from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 class ProtocolloAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = Protocollo.objects.all()
+        qs = Protocollo.objects.all().order_by('identificativo')
         return qs.filter(identificativo__icontains=self.q) | qs.filter(indirizzo__icontains=self.q) if self.q else qs
 
 class ClienteAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = RubricaClienti.objects.all()
+        qs = RubricaClienti.objects.all().order_by('nominativo')
         return qs.filter(nominativo__icontains=self.q) | qs.filter(tel__icontains=self.q) if self.q else qs
 
 class ReferenteAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = RubricaReferenti.objects.all()
+        qs = RubricaReferenti.objects.all().order_by('nominativo')
         return qs.filter(nominativo__icontains=self.q) | qs.filter(tel__icontains=self.q) if self.q else qs
 
 def viewHomePage(request):
@@ -49,15 +48,6 @@ def viewAllClienti(request):
         return redirect("/accounts/login/")
     else:
         cliente_filter = ClienteFilter(request.GET, queryset=RubricaClienti.objects.all().order_by("nominativo"))
-        # page = request.GET.get('page', 1)
-        # paginator = Paginator(cliente_filter.qs, 20)
-        # try:
-        #     cl = paginator.page(page)
-        # except PageNotAnInteger:
-        #     cl = paginator.page(1)
-        # except EmptyPage:
-        #     cl = paginator.page(paginator.num_pages)
-        # return render(request, "Amministrazione/Cliente/AllClienti.html", { "filter" : cliente_filter, 'cl': cl})
         return render(request, "Amministrazione/Cliente/AllClienti.html", {"filter": cliente_filter, "filter_queryset": list(cliente_filter.qs)})
 
 def viewCreateCliente(request):
@@ -181,7 +171,7 @@ def viewCreateProtocol(request):
             CalendarioContatore.objects.filter(id=anno).update(count=str(progressive_number_calendar + 1))
             form.set_identificativo(str('{0:03}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
-            form.set_status(None) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
+            form.set_status(None if form['data_consegna'].value() != None else (data_scadenza - date.today()).days)
             if (form.check_date()):
                 if (form.is_valid()):
                     form.save()
@@ -189,7 +179,7 @@ def viewCreateProtocol(request):
                 else:
                     return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': form})
             else:
-                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o correnti alla Data di Registrazione.')
+                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o uguali alla Data di Registrazione.')
                 return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': form})
         else:
             return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': formProtocol()})
@@ -216,22 +206,27 @@ def viewUpdateProtocol(request, id):
     else:
         if (request.method == "POST"):
             form = formProtocolUpdate(request.POST, instance=Protocollo.objects.get(id=id))
-            anno = form['data_registrazione'].value()[-4:]
+            anno = form['data_registrazione'].value()[:4]
             progressive_number_calendar = CalendarioContatore.objects.filter(id=anno).values('count')[0]['count']
             if anno != str(Protocollo.objects.get(id=id).data_registrazione.year):
                 CalendarioContatore.objects.filter(id=anno).update(count=str(progressive_number_calendar + 1))
                 form.set_identificativo(str('{0:03}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
-            data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%d/%m/%Y").date()
-            form.set_status(None) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
+            data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
+            form.set_status(None if form['data_consegna'].value() != None else (data_scadenza - date.today()).days)
             if (form.check_date()):
-                if (form.is_valid()):
-                    form.save()
-                    anno != str(Protocollo.objects.get(id=id).data_registrazione.year) and Protocollo.objects.filter(id=id).update(identificativo=str('{0:03}'.format(progressive_number_calendar + 1))+ "-" + anno[2:4])
-                    return redirect('AllProtocols')
+                if form.check_ricavi_on_protocollo(id, form['parcella'].value()):
+                    if (form.is_valid()):
+                        form.save()
+                        anno != str(Protocollo.objects.get(id=id).data_registrazione.year) and Protocollo.objects.filter(id=id).update(identificativo=str('{0:03}'.format(progressive_number_calendar + 1))+ "-" + anno[2:4])
+                        return redirect('AllProtocols')
+                    else:
+                        return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
                 else:
-                    return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
+                    messages.error(request,
+                                   f"ATTENZIONE! La somma degli importi dei ricavi associati al protocollo {form['identificativo'].value()} supera il valore della parcella inserito di {form['parcella'].value()}")
+                    return render(request, "Amministrazione/Protocollo/UpdateProtocol.html",{'form': formProtocolUpdate(instance=Protocollo.objects.get(id=id))})
             else:
-                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o correnti alla Data di Registrazione.')
+                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o uguali alla Data di Registrazione.')
                 return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
         else:
             return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': formProtocolUpdate(instance=Protocollo.objects.get(id=id))})
@@ -258,7 +253,7 @@ def viewCreateConsulenza(request):
         if (request.method == "POST"):
             form = formConsulenza(request.POST)
             data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
-            form.set_status(None) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
+            form.set_status(None if form['data_consegna'].value() != None else (data_scadenza - date.today()).days)
             if (form.check_date()):
                 if (form.is_valid()):
                     form.save()
@@ -266,7 +261,7 @@ def viewCreateConsulenza(request):
                 else:
                     return render(request, "Amministrazione/Consulenza/CreateConsulenza.html", {'form': form})
             else:
-                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o correnti alla Data di Registrazione.')
+                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o uguali alla Data di Registrazione.')
                 return render(request, "Amministrazione/Consulenza/CreateConsulenza.html", {'form': form})
         else:
             return render(request, "Amministrazione/Consulenza/CreateConsulenza.html", {'form': formConsulenza()})
@@ -293,8 +288,8 @@ def viewUpdateConsulenza(request, id):
     else:
         if (request.method == "POST"):
             form = formConsulenzaUpdate(request.POST, instance=Consulenza.objects.get(id=id))
-            data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%d/%m/%Y").date()
-            form.set_status(None) if form['data_consegna'].value() != '' else form.set_status((data_scadenza - date.today()).days)
+            data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
+            form.set_status(None if form['data_consegna'].value() != None else (data_scadenza - date.today()).days)
             if (form.check_date()):
                 if (form.is_valid()):
                     form.save()
@@ -302,7 +297,7 @@ def viewUpdateConsulenza(request, id):
                 else:
                     return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': form})
             else:
-                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o correnti alla Data di Registrazione.')
+                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o uguali alla Data di Registrazione.')
                 return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': form})
         else:
             return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': formConsulenzaUpdate(instance=Consulenza.objects.get(id=id))})
@@ -422,39 +417,6 @@ def viewUpdateSpesaCommessa(request, id):
         else:
             return render(request, "Contabilita/SpesaCommessa/UpdateSpesaCommessa.html", {'form': formSpesaCommessaUpdate(instance=SpesaCommessa.objects.get(id=id))})
 
-def viewAllSoci(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        saldi = list()
-        soci = Socio.objects.all().order_by("-percentuale")
-        for tipo_saldo in ['CARTA', 'DEPOSITO']:
-            saldi.append(sqlite.calculate_saldo(tipo_saldo))
-        return render(request, "Contabilita/Socio/AllSoci.html", {"tabella_soci": soci, "lista_saldi": saldi})
-
-def viewUpdateSocio(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            socio = Socio.objects.get(id=id)
-            form = formSocio(request.POST, instance=socio)
-            soci = Socio.objects.all()
-            sum_percentuali = sum(soc.percentuale for soc in soci if (soc.id != id))
-            if (form.is_valid()):
-                if (float(sum_percentuali) + float(form['percentuale'].value()) < 1.00):
-                    form.save()
-                    messages.warning(request, 'Le percentuali non sono distrubuite completamente')
-                else:
-                    messages.error(request, 'ATTENZIONE! Percentuale inserita invalida.') if (float(sum_percentuali) + float(form['percentuale'].value()) > 1.00) else form.save()
-                return redirect('AllSoci')
-            else:
-                return render(request, "Contabilita/Socio/UpdateSocio.html", {'form': form, 'socio': socio})
-        else:
-            socio = Socio.objects.get(id=id)
-            form = formSocio(instance=socio)
-            return render(request, "Contabilita/Socio/UpdateSocio.html", {'form': form, 'socio': socio})
-
 def viewAllSpeseGestione(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
@@ -507,96 +469,74 @@ def viewUpdateSpesaGestione(request, id):
         else:
             return render(request, "Contabilita/SpesaGestione/UpdateSpesaGestione.html", {'form': formSpesaGestioneUpdate(instance=SpesaGestione.objects.get(id=id))})
 
-def viewAllGuadagniEffettivi(request):
+def viewResoconto(request):
     if not request.user.is_authenticated:
         return redirect("/accounts/login/")
-    else:
-        guadagnoeffettivo_filter = GuadagnoEffettivoFilter(request.GET, queryset=GuadagnoEffettivo.objects.all().order_by("-data_registrazione"))
-        sum_guadagnieffettivi = round(guadagnoeffettivo_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
-        return render(request, "Contabilita/GuadagnoEffettivo/AllGuadagniEffettivi.html", {"filter": guadagnoeffettivo_filter, "filter_queryset": list(guadagnoeffettivo_filter.qs), 'sum_g': sum_guadagnieffettivi})
+    if (request.method == "POST"):
+        form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
+        if (form.is_valid()):
+            risultato = sqlite.resoconto(
+                form.cleaned_data['data_inizio'],
+                form.cleaned_data['data_fine']
+            )
+            # Ordina per data (opzionale ma consigliato)
+            ordinato = sorted(risultato, key=lambda x: x[0])
+            labels = [row[0] for row in ordinato]
+            serie1 = [row[1] for row in ordinato]  # Spese
+            serie2 = [row[2] for row in ordinato]  # Ricavi
+            serie3 = [row[3] for row in ordinato]  # Utile
 
-def viewCreateGuadagnoEffettivo(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = formGuadagnoEffettivo(request.POST)
-            if (form.is_valid()):
-                form.save()
-                return redirect('AllGuadagniEffettivi')
-            else:
-                return render(request, "Contabilita/GuadagnoEffettivo/CreateGuadagnoEffettivo.html", {'form': form})
+            context = {
+                'form': form,
+                'tabella_output1': risultato,
+                'data_inizio': form.cleaned_data['data_inizio'],
+                'data_fine': form.cleaned_data['data_fine'],
+                'labels': json.dumps(labels),
+                'serie1': json.dumps(serie1),
+                'serie2': json.dumps(serie2),
+                'serie3': json.dumps(serie3),
+            }
+            return render(request, "Contabilita/Resoconto.html", context)
         else:
-            return render(request, "Contabilita/GuadagnoEffettivo/CreateGuadagnoEffettivo.html", {'form': formGuadagnoEffettivo()})
-
-def viewDeleteGuadagnoEffettivo(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
+            context = {
+                'form': form,
+                'tabella_output1': [],
+                'data_inizio': '',  # O None
+                'data_fine': '',
+                'labels': json.dumps([]),
+                'serie1': json.dumps([]),
+                'serie2': json.dumps([]),
+                'serie3': json.dumps([]),
+            }
+            return render(request, "Contabilita/Resoconto.html", context)
     else:
-        GuadagnoEffettivo.objects.get(id=id).delete()
-        return redirect('AllGuadagniEffettivi')
+        return render(request, "Contabilita/Resoconto.html", {'form': form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(), 'tabella_output1': []})
 
-def viewDeleteGuadagniEffettiviGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist('list[]'):
-                GuadagnoEffettivo.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageContabilita.html")
+# def viewResocontoRicavi(request):
+#     if not request.user.is_authenticated:
+#         return redirect("/accounts/login/")
+#     else:
+#         if (request.method == "POST"):
+#             form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
+#             if (form.is_valid()):
+#                 return render(request, "Contabilita/ResocontoRicavi.html", {'form': form, 'tabella_output2': sqlite.resoconto_ricavi(form['year'].value()), 'year': form['year'].value()})
+#             else:
+#                 return render(request, "Contabilita/ResocontoRicavi.html", {'form': form, 'tabella_output2': []})
+#         else:
+#             return render(request, "Contabilita/ResocontoRicavi.html", {'form': form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(), 'tabella_output2': []})
 
-def viewUpdateGuadagnoEffettivo(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = formGuadagnoEffettivoUpdate(request.POST, instance=GuadagnoEffettivo.objects.get(id=id))
-            if (form.is_valid()):
-                form.save()
-                return redirect('AllGuadagniEffettivi')
-            else:
-                return render(request, "Contabilita/GuadagnoEffettivo/UpdateGuadagnoEffettivo.html", {'form': form})
-        else:
-            return render(request, "Contabilita/GuadagnoEffettivo/UpdateGuadagnoEffettivo.html", {'form': formGuadagnoEffettivoUpdate(instance=GuadagnoEffettivo.objects.get(id=id))})
-
-def viewResocontoSpeseGestione(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
-            if (form.is_valid()):
-                return render(request, "Contabilita/ResocontoSpeseGestione.html", {'form': form, 'tabella_output1': sqlite.resoconto_spese_gestione(form['year'].value()), 'year': form['year'].value()})
-            else:
-                return render(request, "Contabilita/ResocontoSpeseGestione.html", {'form': form, 'tabella_output1': []})
-        else:
-            return render(request, "Contabilita/ResocontoSpeseGestione.html", {'form': form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(), 'tabella_output1': []})
-
-def viewResocontoRicavi(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
-            if (form.is_valid()):
-                return render(request, "Contabilita/ResocontoRicavi.html", {'form': form, 'tabella_output2': sqlite.resoconto_ricavi(form['year'].value()), 'year': form['year'].value()})
-            else:
-                return render(request, "Contabilita/ResocontoRicavi.html", {'form': form, 'tabella_output2': []})
-        else:
-            return render(request, "Contabilita/ResocontoRicavi.html", {'form': form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(), 'tabella_output2': []})
-
-def viewGestioneGuadagniEffettivi(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
-            if (form.is_valid()):
-                return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': sqlite.resoconto_guadagni_effettivi(form['year'].value()), 'year': form['year'].value()})
-            else:
-                return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': []})
-        else:
-            return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(), 'tabella_output3': []})
+# def viewGestioneGuadagniEffettivi(request):
+#     if not request.user.is_authenticated:
+#         return redirect("/accounts/login/")
+#     else:
+#         if (request.method == "POST"):
+#             form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
+#             if (form.is_valid()):
+#                 return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': sqlite.resoconto_guadagni_effettivi(form['year'].value()), 'year': form['year'].value()})
+#             else:
+#                 return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form, 'tabella_output3': []})
+#         else:
+#             return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(), 'tabella_output3': []})
 
 def viewContabilitaProtocolli(request):
     filter = request.POST.get("filter")
@@ -604,15 +544,14 @@ def viewContabilitaProtocolli(request):
         return redirect("/accounts/login/")
     else:
         protocols = sqlite.resoconto_contabilita_protocolli(filter)
-        return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': protocols, 'tot_saldo': sum([protocol[8] for protocol in protocols])})
+        return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': protocols, 'tot_saldo': sum([protocol[9] for protocol in protocols]), 'cliente_filter': filter if filter else ""})
 
 def export_input_table_xls(request, list, model):
-    fields_models = {'protocollo': ['Identificativo', 'Data Registrazione', 'Nominativo Cliente', 'Telefono Cliente', 'Nominativo Referente', 'Telefono Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Scadenza', 'Data Consegna', 'Responsabile'],
-                     'ricavo': ['Data Registrazione', 'Movimento', 'Importo', 'Fattura', 'Intestatario Fattura', 'Id Protocollo', 'Indirizzo Protocollo', 'Note'],
+    fields_models = {'protocollo': ['Identificativo', 'Nominativo Cliente', 'Telefono Cliente', 'Nominativo Referente', 'Telefono Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Registrazione', 'Data Consegna'],
+                     'ricavo': ['Data Registrazione', 'Movimento', 'Importo', 'Fattura', 'Id Protocollo', 'Indirizzo Protocollo', 'Note'],
                      'spesacommessa': ['Data Registrazione', 'Importo', 'Id Protocollo', 'Indirizzo Protocollo', 'Note'],
                      'spesagestione': ['Data Registrazione', 'Importo', 'Causale', 'Fattura'],
-                     'guadagnoeffettivo': ['Data Registrazione', 'Importo'],
-                     'consulenza': ['Data Registrazione', 'Richiedente', 'Indirizzo', 'Attivita', 'Compenso', 'Note', 'Data Scadenza', 'Data Consegna', 'Responsabile'],
+                     'consulenza': ['Data Registrazione', 'Richiedente', 'Indirizzo', 'Attivita', 'Compenso', 'Note', 'Data Scadenza', 'Data Consegna'],
                      'rubricaclienti': ['Nominativo', 'Telefono', 'Mail', 'Note'],
                      'rubricareferenti': ['Nominativo', 'Telefono', 'Mail', 'Note']}
     response = HttpResponse(content_type='application/ms-excel')
@@ -627,17 +566,15 @@ def export_input_table_xls(request, list, model):
         ws.write(row_num, col_num, columns[col_num], font_style)
     font_style = xlwt.XFStyle()
     if model == 'protocollo':
-        rows = Protocollo.objects.filter(identificativo__in=re.findall("(\d+-\d+)", list)).values_list('identificativo', 'data_registrazione', 'cliente__nominativo', 'cliente__tel', 'referente__nominativo', 'referente__tel', 'indirizzo', 'pratica', 'parcella', 'note', 'data_scadenza', 'data_consegna', 'responsabile__cognome')
+        rows = Protocollo.objects.filter(identificativo__in=re.findall("(\d+-\d+)", list)).values_list('identificativo', 'cliente__nominativo', 'cliente__tel', 'referente__nominativo', 'referente__tel', 'indirizzo', 'pratica', 'parcella', 'note', 'data_registrazione', 'data_consegna')
     if model == 'ricavo':
-        rows = Ricavo.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'movimento', 'importo', 'fattura', 'intestatario_fattura__cognome', 'protocollo__identificativo', 'protocollo__indirizzo', 'note')
+        rows = Ricavo.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'movimento', 'importo', 'fattura', 'protocollo__identificativo', 'protocollo__indirizzo', 'note')
     if model == 'spesacommessa':
         rows = SpesaCommessa.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'importo', 'protocollo__identificativo', 'protocollo__indirizzo', 'note')
     if model == 'spesagestione':
         rows = SpesaGestione.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'importo', 'causale', 'fattura')
-    if model == 'guadagnoeffettivo':
-        rows = GuadagnoEffettivo.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'importo')
     if model == 'consulenza':
-        rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'richiedente', 'indirizzo', 'attivita', 'compenso', 'note', 'data_scadenza', 'data_consegna', 'responsabile__cognome')
+        rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'richiedente', 'indirizzo', 'attivita', 'compenso', 'note', 'data_scadenza', 'data_consegna')
     if model == 'rubricaclienti':
         rows = RubricaClienti.objects.filter(tel__in=re.findall("(\d+)", list)).values_list('nominativo', 'tel', 'mail', 'note')
     if model == 'rubricareferenti':
@@ -649,34 +586,27 @@ def export_input_table_xls(request, list, model):
     wb.save(response)
     return response
 
-def export_output_table_xls(request, numquery, year):
+def export_output_table_xls(request, numquery, data_inizio, data_fine):
     output = ''
     if int(numquery) == 1:
-        output = 'spese_gestione'
-        columns = ['Mese', 'Spese di gestione (€)', 'Daniele (€)', 'Laura (€)', 'Federico (€)']
-        rows = sqlite.resoconto_spese_gestione(year)
-    if int(numquery) == 2:
-        output = 'ricavi'
-        columns = ['Mese', 'Ricavi (€)', 'Daniele (€)', 'Laura (€)', 'Federico (€)']
-        rows = sqlite.resoconto_ricavi(year)
-    if int(numquery) == 3:
-        output = 'guadagni_eff'
-        columns = ['Mese', 'Guadagni Teorici (€)', 'Guadagni Effettivi (€)', 'Daniele (€)', 'Laura (€)', 'Federico (€)', 'GT - GE (€)']
-        rows = sqlite.resoconto_guadagni_effettivi(year)
+        output = 'resoconto'
+        columns = ['Mese - Anno', 'Spese di gestione (€)', 'Ricavi (€)', 'Utile (€)']
+        rows = sqlite.resoconto(data_inizio, data_fine)
+    # if int(numquery) == 2:
+    #     output = 'ricavi'
+    #     columns = ['Mese', 'Ricavi (€)', 'Daniele (€)', 'Laura (€)', 'Federico (€)']
+    #     rows = sqlite.resoconto_ricavi(year)
+    # if int(numquery) == 3:
+    #     output = 'guadagni_eff'
+    #     columns = ['Mese', 'Guadagni Teorici (€)', 'Guadagni Effettivi (€)', 'Daniele (€)', 'Laura (€)', 'Federico (€)', 'GT - GE (€)']
+    #     rows = sqlite.resoconto_guadagni_effettivi(year)
     if int(numquery) == 4:
         output = 'contabilita_protocolli'
-        columns = ['Identificativo', 'Cliente', 'Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Entrate', 'Uscite', 'Saldo']
+        columns = ['Id', 'Identificativo', 'Cliente', 'Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Entrate', 'Uscite', 'Saldo']
         rows = sqlite.resoconto_contabilita_protocolli(request.POST.get("filter"))
     wb = xlwt.Workbook(encoding='utf-8')
-    if year == 'no':
-        name_file = request.POST.get("fname")
-        ws = wb.add_sheet(output)
-    elif year:
-        name_file = request.POST.get("fname") + '_' + year
-        ws = wb.add_sheet(output + '_' + year)
-    else:
-        name_file = request.POST.get("fname") + '_YearNotSpecified'
-        ws = wb.add_sheet(output + '_YearNotSpecified')
+    name_file = request.POST.get("fname")
+    ws = wb.add_sheet(output)
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename="{}.xls"'.format(name_file)
     row_num = 0
@@ -685,9 +615,10 @@ def export_output_table_xls(request, numquery, year):
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], font_style)
     font_style = xlwt.XFStyle()
-    for row in rows:
+    for row in [dict(zip(columns, record)) for record in rows]:
         row_num += 1
-        for col_num in range(len(row)):
-            ws.write(row_num, col_num, str(row[col_num]).replace("None", ''), font_style)
+        for col_num, key in enumerate(columns):
+            value = row.get(key, '')
+            ws.write(row_num, col_num, str(value).replace("None", ''), font_style)
     wb.save(response)
     return response

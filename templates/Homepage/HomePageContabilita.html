@@ -1,20 +1,130 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}CONTABILITA'{% endblock title %}
-{% block name %}<i>CONTABILITA' - STUDIO DOA</i>{% endblock %}
+{% block name %}
+<i><img src="{% static 'images/p.png' %}" width="50" style="vertical-align: bottom; margin: 0; padding: 0; display: inline;">
+    ratika Office Manager - CONTABILITA'</i>
+{% endblock %}
 {% block content %}
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #34495e;
+        --accent-color: #3498db;
+        --light-color: #ecf0f1;
+        --dark-color: #2c3e50;
+    }
+    body {
+        font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        background-color: #d6d6d6;
+        color: var(--dark-color);
+        min-height: 100vh;
+    }
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    .header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .header h1 {
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    .header .subtitle {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+    }
+    .module-card {
+        background: lightslategrey;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+        border: none;
+        overflow: hidden;
+    }
+    .module-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    .module-card .card-body {
+        padding: 2rem;
+        text-align: center;
+    }
+    .module-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        color: darkorange;
+    }
+    .module-title {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+    .module-description {
+        color: white;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+    .btn-module {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+    .btn-module:hover {
+        background-color: var(--secondary-color);
+        color: white;
+    }
+    .logout-link {
+        display: inline-block;
+        margin-top: 3rem;
+        color: #e74c3c;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s;
+    }
+    .logout-link:hover {
+        color: #c0392b;
+        text-decoration: underline;
+    }
+    .user-info {
+        text-align: right;
+        margin-bottom: 1rem;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+</style>
 
-    <div class="row">
-        <div class="col-md-6"><h3><i>RESOCONTO SPESE DI GESTIONE</i></h3><a href="{% url 'ResocontoSpeseGestione' %}"><img width="150" src="{% static 'images/spese.gif'%}"></a></div>
-        <div class="col-md-6"><h3><i>RESOCONTO DEI RICAVI</i></h3><a href="{% url 'ResocontoRicavi' %}"><img width="200" src="{% static 'images/guadagni.png'%}"></a></div>
-    </div>
-    <div class="row">
-        <div class="col-md-12"><hr align="left" size="4"  color="#ff0000" noshade></div>
-    </div>
-    <div class="row">
-        <div class="col-md-6"><h3><i>GESTIONE DEI GUADAGNI EFFETTIVI</i></h3><a href="{% url 'GestioneGuadagniEffettivi' %}"><img width="200" src="{% static 'images/ricavi.png'%}"></a></div>
-        <div class="col-md-6"><h3><i>CONTROLLO CONTABILITA' DEI PROTOCOLLI</i></h3><a href="{% url 'ContabilitaProtocolli' %}"><img width="220" src="{% static 'images/protocolli.png'%}"></a></div>
-    </div>
+<div class="dashboard-container">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="module-card">
+                    <div class="card-body">
+                        <img width="180" src="{% static 'images/guadagni.png'%}">
+                        <h3 class="module-title">RESOCONTO CONTABILE</h3>
+                        <a href="{% url 'Resoconto' %}" class="btn btn-module">ACCEDI</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="module-card">
+                    <div class="card-body">
+                        <img width="220" src="{% static 'images/protocolli.png'%}">
+                        <h3 class="module-title">CONTABILITA' DEI PROTOCOLLI</h3>
+                        <a href="{% url 'ContabilitaProtocolli' %}" class="btn btn-module">ACCEDI</a>
+                    </div>
+                </div>
+            </div>
 
     <script>
         localStorage.setItem('filter', '');
