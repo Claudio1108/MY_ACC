@@ -1,6 +1,5 @@
 import xlwt
 import json
-from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import *
@@ -566,19 +565,19 @@ def export_input_table_xls(request, list, model):
         ws.write(row_num, col_num, columns[col_num], font_style)
     font_style = xlwt.XFStyle()
     if model == 'protocollo':
-        rows = Protocollo.objects.filter(identificativo__in=re.findall("(\d+-\d+)", list)).values_list('identificativo', 'cliente__nominativo', 'cliente__tel', 'referente__nominativo', 'referente__tel', 'indirizzo', 'pratica', 'parcella', 'note', 'data_registrazione', 'data_consegna')
+        rows = Protocollo.objects.filter(identificativo__in=re.findall("(\d+-\d+)", list)).order_by('-identificativo').values_list('identificativo', 'cliente__nominativo', 'cliente__tel', 'referente__nominativo', 'referente__tel', 'indirizzo', 'pratica', 'parcella', 'note', 'data_registrazione', 'data_consegna')
     if model == 'ricavo':
-        rows = Ricavo.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'movimento', 'importo', 'fattura', 'protocollo__identificativo', 'protocollo__indirizzo', 'note')
+        rows = Ricavo.objects.filter(id__in=re.findall("(\d+)", list)).order_by('-data_registrazione').values_list('data_registrazione', 'movimento', 'importo', 'fattura', 'protocollo__identificativo', 'protocollo__indirizzo', 'note')
     if model == 'spesacommessa':
-        rows = SpesaCommessa.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'importo', 'protocollo__identificativo', 'protocollo__indirizzo', 'note')
+        rows = SpesaCommessa.objects.filter(id__in=re.findall("(\d+)", list)).order_by('-data_registrazione').values_list('data_registrazione', 'importo', 'protocollo__identificativo', 'protocollo__indirizzo', 'note')
     if model == 'spesagestione':
-        rows = SpesaGestione.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'importo', 'causale', 'fattura')
+        rows = SpesaGestione.objects.filter(id__in=re.findall("(\d+)", list)).order_by('-data_registrazione').values_list('data_registrazione', 'importo', 'causale', 'fattura')
     if model == 'consulenza':
-        rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).values_list('data_registrazione', 'richiedente', 'indirizzo', 'attivita', 'compenso', 'note', 'data_scadenza', 'data_consegna')
+        rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).order_by('-data_registrazione').values_list('data_registrazione', 'richiedente', 'indirizzo', 'attivita', 'compenso', 'note', 'data_scadenza', 'data_consegna')
     if model == 'rubricaclienti':
-        rows = RubricaClienti.objects.filter(tel__in=re.findall("(\d+)", list)).values_list('nominativo', 'tel', 'mail', 'note')
+        rows = RubricaClienti.objects.filter(tel__in=re.findall("(\d+)", list)).order_by('nominativo').values_list('nominativo', 'tel', 'mail', 'note')
     if model == 'rubricareferenti':
-        rows = RubricaReferenti.objects.filter(tel__in=re.findall("(\d+)", list)).values_list('nominativo', 'tel', 'mail', 'note')
+        rows = RubricaReferenti.objects.filter(tel__in=re.findall("(\d+)", list)).order_by('nominativo').values_list('nominativo', 'tel', 'mail', 'note')
     for row in rows:
         row_num += 1
         for col_num in range(len(row)):
