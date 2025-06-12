@@ -99,19 +99,15 @@
         <h3>Accedi al tuo Account</h3>
         <form method="post">
             {% csrf_token %}
-
             <div class="form-group">
                 <label for="username">Nome utente</label>
-                <input type="text" id="username" name="username" required placeholder="nome utente">
+                <input type="text" id="username" name="username" required placeholder="Nome Utente">
             </div>
-
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required placeholder="••••••••">
             </div>
-
             <button type="submit">ACCEDI</button>
-
             {% if form.errors %}
                 <div class="error-message">
                     Credenziali non valide. Si prega di riprovare.

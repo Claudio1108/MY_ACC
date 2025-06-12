@@ -148,7 +148,7 @@
                     <td style='width: 250px; overflow: auto'>{{ b.nominativo }}</td>
                     <td style='width: 150px; overflow: auto'>{{ b.tel }}</td>
                     <td style='width: 250px; overflow: auto'><a href="https://mail.google.com/mail/?view=cm&fs=1&tf=1&to={{ b.mail }}" target="_blank">{{ b.mail }}</a></td>
-                    <td style='width: 300px; overflow: auto'>{{ b.note|safe }}</td>
+                    <td style='width: 300px; text-align: left;'>{{ b.note|safe }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
