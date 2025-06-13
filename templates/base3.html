@@ -13,6 +13,7 @@
             --primary-color: #2c3e50;
             --secondary-color: #495057;
             --admin-color: #EEE8AA;
+            --admin-color2: #b0e0e6;
             --light-bg: #f8f9fa;
             --border-color: #b0e0e6;
             --text-color:  #333;
@@ -58,6 +59,9 @@
         }
         .admin-link {
             color: var(--admin-color) !important;
+        }
+        .admin-link2 {
+            color: var(--admin-color2) !important;
         }
         .content-container {
             padding: 2rem;
@@ -206,6 +210,11 @@
                         <li class="nav-item">
                             <a class="navbar-brand" href="{% url 'HomePage' %}">
                                 <i class="fas fa-home"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="navbar-brand admin-link2" href="{% url 'HomePageAmministrazione' %}">
+                                <i class="fas fa-building"></i> Amministrazione
                             </a>
                         </li>
                         <li class="nav-item">

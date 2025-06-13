@@ -13,6 +13,7 @@
             --primary-color: #2c3e50;
             --secondary-color: #495057;
             --admin-color: #b0e0e6;
+             --admin-color2: #EEE8AA;
             --light-bg: #f8f9fa;
             --border-color: #e0e0e0;
             --text-color: #333;
@@ -58,6 +59,9 @@
         }
         .admin-link {
             color: var(--admin-color) !important;
+        }
+        .admin-link2 {
+            color: var(--admin-color2) !important;
         }
         .content-container {
             padding: 2rem;
@@ -220,8 +224,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="navbar-brand" href="{% url 'HomePageContabilita' %}">
-                                <i class="fas fa-table"></i> Tabelle Output
+                            <a class="navbar-brand admin-link2" href="{% url 'HomePageContabilita' %}">
+                                <i class="fas fa-file-invoice-dollar"></i> Contabilità
                             </a>
                         </li>
                         <li class="nav-item">

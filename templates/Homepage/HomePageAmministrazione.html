@@ -6,4 +6,122 @@
     ratika Office Manager - AMMINISTRAZIONE</i>
 {% endblock %}
 {% block content %}
+<style>
+  .numeri-amministrazione {
+    max-width: 1200px;
+    margin: auto;
+    /*padding: 40px 20px;*/
+    text-align: center;
+  }
+  .numeri-amministrazione h2 {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 50px;
+  }
+  .numeri-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 50px;
+    justify-items: center;
+    align-items: center;
+  }
+  .numero-box {
+    padding: 10px;
+    transition: transform 0.3s ease;
+  }
+  .numero-box:hover {
+    transform: scale(1.05);
+  }
+  .numero-box img {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 10px;
+  }
+  .numero-valore {
+    font-size: 56px;
+    font-weight: 800;
+    color: #1a237e;
+    line-height: 1.2;
+  }
+  .numero-label {
+    font-size: 20px;
+    color: #555;
+    margin-top: 5px;
+  }
+</style>
+
+<div class="numeri-amministrazione">
+  <div class="numeri-grid">
+    <div class="numero-box">
+        <img src="https://img.icons8.com/?size=100&id=40939&format=png" alt="Protocolli Attivi" />
+        <div class="numero-valore" id="n1" data-count="{{ count_active_protocols }}">0</div>
+        <a href="{% url 'AllProtocols' %}?data_consegna=false">
+          <div class="numero-label">Protocolli Attivi</div>
+        </a>
+    </div>
+    <div class="numero-box">
+      <img src="https://img.icons8.com/?size=100&id=67343&format=png" alt="Protocolli Consegnati" />
+      <div class="numero-valore" id="n2" data-count="{{ count_deactive_protocols }}">0</div>
+      <a href="{% url 'AllProtocols' %}?data_consegna=true">
+        <div class="numero-label">Protocolli Consegnati</div>
+      </a>
+    </div>
+    <div class="numero-box">
+      <img src="https://img.icons8.com/?size=100&id=37930&format=png" alt="Consulenze Attive" />
+      <div class="numero-valore" id="n3" data-count="{{ count_active_consultancies }}">0</div>
+      <a href="{% url 'AllConsulenze' %}?data_consegna=false">
+        <div class="numero-label">Consulenze Attive</div>
+      </a>
+    </div>
+    <div class="numero-box">
+      <img src="https://img.icons8.com/?size=100&id=UeT94dCyirJ7&format=png" alt="Consulenze Consegnate" />
+      <div class="numero-valore" id="n4" data-count="{{ count_deactive_consultancies }}">0</div>
+      <a href="{% url 'AllConsulenze' %}?data_consegna=true">
+        <div class="numero-label">Consulenze Consegnate</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="numeri-amministrazione">
+  <div class="numeri-grid">
+    <div class="numero-box">
+      <img src="https://img.icons8.com/ios-filled/100/user-group-man-man.png" alt="Clienti" />
+      <div class="numero-valore" id="n5" data-count="{{ count_clients }}">0</div>
+      <a href="{% url 'AllClienti' %}">
+        <div class="numero-label">Clienti</div>
+      </a>
+    </div>
+    <div class="numero-box">
+      <img src="https://img.icons8.com/ios-filled/100/businessman.png" alt="Referenti" />
+      <div class="numero-valore" id="n6" data-count="{{ count_referents }}">0</div>
+      <a href="{% url 'AllReferenti' %}">
+        <div class="numero-label">Referenti</div>
+      </a>
+    </div>
+  </div>
+</div>
+<script>
+  function animateCounter(id, start, end, duration) {
+    const element = document.getElementById(id);
+    let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      element.textContent = Math.floor(progress * (end - start) + start).toLocaleString();
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    window.requestAnimationFrame(step);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const stats = document.querySelectorAll("[data-count]");
+    stats.forEach((el) => {
+      const endValue = parseInt(el.getAttribute("data-count")) || 0;
+      animateCounter(el.id, 0, endValue, 1000);
+    });
+  });
+</script>
 {% endblock %}

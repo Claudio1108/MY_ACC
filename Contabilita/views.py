@@ -39,8 +39,15 @@ def viewHomePageContabilita(request):
 def viewHomePageAmministrazione(request):
     if not request.user.is_authenticated:
         return redirect("accounts/login/")
-    else:
-        return render(request, "Homepage/HomePageAmministrazione.html")
+    context = {
+        'count_active_protocols': Protocollo.objects.filter(data_consegna__isnull=True).count(),
+        'count_deactive_protocols': Protocollo.objects.filter(data_consegna__isnull=False).count(),
+        'count_clients': RubricaClienti.objects.count(),
+        'count_referents': RubricaReferenti.objects.count(),
+        'count_active_consultancies': Consulenza.objects.filter(data_consegna__isnull=True).count(),
+        'count_deactive_consultancies': Consulenza.objects.filter(data_consegna__isnull=False).count(),
+    }
+    return render(request, "Homepage/HomePageAmministrazione.html", context)
 
 def viewAllClienti(request):
     if not request.user.is_authenticated:
