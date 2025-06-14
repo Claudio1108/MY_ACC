@@ -55,28 +55,28 @@
     <div class="numero-box">
         <img src="https://img.icons8.com/?size=100&id=40939&format=png" alt="Protocolli Attivi" />
         <div class="numero-valore" id="n1" data-count="{{ count_active_protocols }}">0</div>
-        <a href="{% url 'AllProtocols' %}?data_consegna=false">
+        <a href="{% url 'AllProtocols' %}?stato_protocollo=attivo">
           <div class="numero-label">Protocolli Attivi</div>
         </a>
     </div>
     <div class="numero-box">
       <img src="https://img.icons8.com/?size=100&id=67343&format=png" alt="Protocolli Consegnati" />
       <div class="numero-valore" id="n2" data-count="{{ count_deactive_protocols }}">0</div>
-      <a href="{% url 'AllProtocols' %}?data_consegna=true">
+      <a href="{% url 'AllProtocols' %}?stato_protocollo=consegnato">
         <div class="numero-label">Protocolli Consegnati</div>
       </a>
     </div>
     <div class="numero-box">
       <img src="https://img.icons8.com/?size=100&id=37930&format=png" alt="Consulenze Attive" />
       <div class="numero-valore" id="n3" data-count="{{ count_active_consultancies }}">0</div>
-      <a href="{% url 'AllConsulenze' %}?data_consegna=false">
+      <a href="{% url 'AllConsulenze' %}?stato_consulenza=attivo">
         <div class="numero-label">Consulenze Attive</div>
       </a>
     </div>
     <div class="numero-box">
       <img src="https://img.icons8.com/?size=100&id=UeT94dCyirJ7&format=png" alt="Consulenze Consegnate" />
       <div class="numero-valore" id="n4" data-count="{{ count_deactive_consultancies }}">0</div>
-      <a href="{% url 'AllConsulenze' %}?data_consegna=true">
+      <a href="{% url 'AllConsulenze' %}?stato_consulenza=consegnato">
         <div class="numero-label">Consulenze Consegnate</div>
       </a>
     </div>
@@ -120,7 +120,7 @@
     const stats = document.querySelectorAll("[data-count]");
     stats.forEach((el) => {
       const endValue = parseInt(el.getAttribute("data-count")) || 0;
-      animateCounter(el.id, 0, endValue, 1000);
+      animateCounter(el.id, 0, endValue, 500);
     });
   });
 </script>

@@ -119,16 +119,9 @@
         <div class="filter-form">
             {% for field in filter.form %}
                 <div class="filter-item">
-                    {% if field.name == "status" %}
-                        <label class="filter-label" data-toggle="tooltip" data-html="true" data-placement="top"
-                               title="SCADUTI: min = vuoto - max = -1 | IN SCADENZA: min = 0 - max = 3 | PUNTUALI: min = 4 - max = vuoto">
-                            {{ field.label }}
-                        </label>
-                    {% else %}
-                        <label class="filter-label" for="{{ field.id_for_label }}">
-                            {{ field.label }}
-                        </label>
-                    {% endif %}
+                    <label class="filter-label" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
                     {{ field }}
                 </div>
             {% endfor %}

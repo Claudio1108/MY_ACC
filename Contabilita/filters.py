@@ -22,30 +22,58 @@ class ProtocolloFilter(django_filters.FilterSet):
         from_attrs={'placeholder':'inizio (dd/mm/yyyy)'},
         to_attrs={'placeholder':'fine (dd/mm/yyyy)'},
     ))
-    status = django_filters.RangeFilter(label='Stato Protocollo', field_name='status', widget=MyRangeWidget(
-        from_attrs={'placeholder': 'min'},
-        to_attrs={'placeholder': 'max'},
-    ))
+    stato_protocollo = django_filters.ChoiceFilter(
+        label='Stato Protocollo',
+        choices=(('scaduti', 'Scaduti 🔴'), ('in_scadenza', 'In Scadenza 🟠'), ('puntuale', 'Puntuale 🟢'), ('consegnato', 'Consegnato ⚫'), ('attivo', 'Attivo ⚙️')),
+        method='filter_by_stato_protocollo',
+        empty_label='Non Specificato'
+    )
     identificativo = django_filters.CharFilter(label='Identificativo', field_name='identificativo', lookup_expr='istartswith')
     cliente = django_filters.CharFilter(label='Cliente', field_name='cliente__nominativo', lookup_expr='istartswith')
     referente = django_filters.CharFilter(label='Referente', field_name='referente__nominativo', lookup_expr='istartswith')
     indirizzo = django_filters.CharFilter(label='Indirizzo', field_name='indirizzo', lookup_expr='istartswith')
     pratica = django_filters.CharFilter(label='Pratica', field_name='pratica', lookup_expr='istartswith')
-    data_consegna = django_filters.BooleanFilter(label='Data Consegna',field_name = 'data_consegna', lookup_expr='isnull', exclude=True)
+
+    def filter_by_stato_protocollo(self, queryset, name, value):
+        if value == 'scaduti':
+            return queryset.filter(status__lte=-1)
+        elif value == 'in_scadenza':
+            return queryset.filter(status__gte=0, status__lte=3)
+        elif value == 'puntuale':
+            return queryset.filter(status__gte=4)
+        elif value == 'consegnato':
+            return queryset.filter(data_consegna__isnull=False)
+        elif value == 'attivo':
+            return queryset.filter(data_consegna__isnull=True)
+        return queryset
 
 class ConsulenzaFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione', widget=MyRangeWidget(
         from_attrs={'placeholder': 'inizio (dd/mm/yyyy)'},
         to_attrs={'placeholder': 'fine (dd/mm/yyyy)'},
     ))
-    status = django_filters.RangeFilter(label='Stato Protocollo', field_name='status', widget=MyRangeWidget(
-        from_attrs={'placeholder': 'min'},
-        to_attrs={'placeholder': 'max'},
-    ))
+    stato_consulenza = django_filters.ChoiceFilter(
+        label='Stato Consulenza',
+        choices=(('scaduti', 'Scaduti 🔴'), ('in_scadenza', 'In Scadenza 🟠'), ('puntuale', 'Puntuale 🟢'), ('consegnato', 'Consegnato ⚫'), ('attivo', 'Attivo ⚙️')),
+        method='filter_by_stato_consulenza',
+        empty_label='Non Specificato'
+    )
     richiedente = django_filters.CharFilter(label='Richiedente', field_name='richiedente', lookup_expr='istartswith')
     indirizzo = django_filters.CharFilter(label='Indirizzo', field_name='indirizzo', lookup_expr='istartswith')
     attivita = django_filters.CharFilter(label='Attività', field_name='attivita', lookup_expr='istartswith')
-    data_consegna = django_filters.BooleanFilter(label='Data Consegna',field_name = 'data_consegna', lookup_expr='isnull', exclude=True)
+
+    def filter_by_stato_consulenza(self, queryset, name, value):
+        if value == 'scaduti':
+            return queryset.filter(status__lte=-1)
+        elif value == 'in_scadenza':
+            return queryset.filter(status__gte=0, status__lte=3)
+        elif value == 'puntuale':
+            return queryset.filter(status__gte=4)
+        elif value == 'consegnato':
+            return queryset.filter(data_consegna__isnull=False)
+        elif value == 'attivo':
+            return queryset.filter(data_consegna__isnull=True)
+        return queryset
 
 class SpesaGestioneFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione', widget=MyRangeWidget(
