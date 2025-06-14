@@ -254,7 +254,7 @@ class formSpesaCommessa(forms.ModelForm):
         labels = {
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
-            "protocollo": "Protocollo ",
+            "protocollo": "Protocollo* ",
             "note": "Note ",
             "provenienza": "Provenienza "
         }
@@ -270,7 +270,7 @@ class formSpesaCommessaUpdate(forms.ModelForm):
         labels = {
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
-            "protocollo": "Protocollo ",
+            "protocollo": "Protocollo* ",
             "note": "Note ",
             "provenienza": "Provenienza "
         }

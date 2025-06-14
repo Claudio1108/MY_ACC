@@ -106,7 +106,6 @@ class SpesaCommessaFilter(django_filters.FilterSet):
         from_attrs={'placeholder': 'min'},
         to_attrs={'placeholder': 'max'},
     ))
-    protocollo_exist = django_filters.BooleanFilter(label='Esistenza Protocollo', field_name='protocollo', lookup_expr='isnull', exclude=True)
     protocollo_id = django_filters.CharFilter(label='Protocollo [Identificativo]', field_name='protocollo__identificativo', lookup_expr='istartswith')
     protocollo_address = django_filters.CharFilter(label='Protocollo [Indirizzo]', field_name='protocollo__indirizzo', lookup_expr='istartswith')
     provenienza = django_filters.ChoiceFilter(

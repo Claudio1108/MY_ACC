@@ -56,7 +56,7 @@ class SpesaCommessa(models.Model):
     data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
     importo = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
     # foreign_key
-    protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="spesecommessa", null=True,blank=True)
+    protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="spesecommessa")
     note = RichTextField(null=True, blank=True)
     provenienza = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="DEPOSITO")
 
