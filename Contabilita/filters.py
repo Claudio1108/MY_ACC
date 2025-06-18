@@ -1,5 +1,6 @@
 import django_filters
 from .models import *
+from django import forms
 
 
 class MyRangeWidget(django_filters.widgets.RangeWidget):
@@ -10,6 +11,15 @@ class MyRangeWidget(django_filters.widgets.RangeWidget):
             self.widgets[0].attrs.update(from_attrs)
         if to_attrs:
             self.widgets[1].attrs.update(to_attrs)
+
+class CustomBooleanFilter(django_filters.BooleanFilter):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('widget', forms.Select(choices=(
+            ('', 'Indifferente'),
+            ('true', 'Presente'),
+            ('false', 'Assente'),
+        )))
+        super().__init__(*args, **kwargs)
 
 class ClienteFilter(django_filters.FilterSet):
     nominativo = django_filters.CharFilter(label='Nominativo', field_name='nominativo', lookup_expr='istartswith')
@@ -24,9 +34,9 @@ class ProtocolloFilter(django_filters.FilterSet):
     ))
     stato_protocollo = django_filters.ChoiceFilter(
         label='Stato Protocollo',
-        choices=(('scaduti', 'Scaduti 🔴'), ('in_scadenza', 'In Scadenza 🟠'), ('puntuale', 'Puntuale 🟢'), ('consegnato', 'Consegnato ⚫'), ('attivo', 'Attivo ⚙️')),
+        choices=(('attivo', 'Attivi ⚙️'), ('consegnato', 'Consegnati ⚫'), ('scaduti', 'Scaduti 🔴'), ('in_scadenza', 'In Scadenza 🟠'), ('puntuale', 'Puntuali 🟢')),
         method='filter_by_stato_protocollo',
-        empty_label='Non Specificato'
+        empty_label='Indifferente'
     )
     identificativo = django_filters.CharFilter(label='Identificativo', field_name='identificativo', lookup_expr='istartswith')
     cliente = django_filters.CharFilter(label='Cliente', field_name='cliente__nominativo', lookup_expr='istartswith')
@@ -54,9 +64,9 @@ class ConsulenzaFilter(django_filters.FilterSet):
     ))
     stato_consulenza = django_filters.ChoiceFilter(
         label='Stato Consulenza',
-        choices=(('scaduti', 'Scaduti 🔴'), ('in_scadenza', 'In Scadenza 🟠'), ('puntuale', 'Puntuale 🟢'), ('consegnato', 'Consegnato ⚫'), ('attivo', 'Attivo ⚙️')),
+        choices=(('attivo', 'Attivi ⚙️'), ('consegnato', 'Consegnati ⚫'), ('scaduti', 'Scaduti 🔴'), ('in_scadenza', 'In Scadenza 🟠'), ('puntuale', 'Puntuali 🟢')),
         method='filter_by_stato_consulenza',
-        empty_label='Non Specificato'
+        empty_label='Indifferente'
     )
     richiedente = django_filters.CharFilter(label='Richiedente', field_name='richiedente', lookup_expr='istartswith')
     indirizzo = django_filters.CharFilter(label='Indirizzo', field_name='indirizzo', lookup_expr='istartswith')
@@ -81,15 +91,16 @@ class SpesaGestioneFilter(django_filters.FilterSet):
         to_attrs={'placeholder': 'fine (dd/mm/yyyy)'},
     ))
     importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
-        from_attrs={'placeholder': 'min'},
-        to_attrs={'placeholder': 'max'},
+        from_attrs={'placeholder': 'Da'},
+        to_attrs={'placeholder': 'A'},
     ))
     fattura = django_filters.CharFilter(label='Fattura', field_name='fattura', lookup_expr='istartswith')
     causale = django_filters.CharFilter(label='Causale', field_name='causale', lookup_expr='istartswith')
     provenienza = django_filters.ChoiceFilter(
         label='Provenienza',
         field_name='provenienza',
-        choices=SpesaGestione._meta.get_field('provenienza').choices  # oppure specifica tu le choices
+        choices=SpesaGestione._meta.get_field('provenienza').choices,
+        empty_label="Indifferente"
     )
 
     class Meta:
@@ -103,15 +114,16 @@ class SpesaCommessaFilter(django_filters.FilterSet):
         to_attrs={'placeholder': 'fine (dd/mm/yyyy)'},
     ))
     importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
-        from_attrs={'placeholder': 'min'},
-        to_attrs={'placeholder': 'max'},
+        from_attrs={'placeholder': 'Da'},
+        to_attrs={'placeholder': 'A'},
     ))
     protocollo_id = django_filters.CharFilter(label='Protocollo [Identificativo]', field_name='protocollo__identificativo', lookup_expr='istartswith')
     protocollo_address = django_filters.CharFilter(label='Protocollo [Indirizzo]', field_name='protocollo__indirizzo', lookup_expr='istartswith')
     provenienza = django_filters.ChoiceFilter(
         label='Provenienza',
         field_name='provenienza',
-        choices=SpesaCommessa._meta.get_field('provenienza').choices  # oppure specifica tu le choices
+        choices=SpesaCommessa._meta.get_field('provenienza').choices,
+        empty_label="Indifferente"
     )
 
     class Meta:
@@ -124,22 +136,24 @@ class RicavoFilter(django_filters.FilterSet):
         to_attrs={'placeholder': 'fine (dd/mm/yyyy)'},
     ))
     importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
-        from_attrs={'placeholder': 'min'},
-        to_attrs={'placeholder': 'max'},
+        from_attrs={'placeholder': 'Da'},
+        to_attrs={'placeholder': 'A'},
     ))
-    protocollo_exist = django_filters.BooleanFilter(label='Esistenza Protocollo', field_name='protocollo', lookup_expr='isnull', exclude=True)
-    protocollo_id = django_filters.CharFilter(label='Protocollo [Identificativo]', field_name='protocollo__identificativo', lookup_expr='istartswith')
-    protocollo_address = django_filters.CharFilter(label='Protocollo [Indirizzo]', field_name='protocollo__indirizzo', lookup_expr='istartswith')
+    protocollo_exist = CustomBooleanFilter(label='Protocollo', field_name='protocollo', lookup_expr='isnull', exclude=True)
     fattura = django_filters.ChoiceFilter(
         label='Fattura',
         field_name='fattura',
-        choices=Ricavo._meta.get_field('fattura').choices  # oppure specifica tu le choices
+        choices=Ricavo._meta.get_field('fattura').choices,
+        empty_label="Indifferente"
     )
     destinazione = django_filters.ChoiceFilter(
         label='Destinazione',
         field_name='destinazione',
-        choices=Ricavo._meta.get_field('destinazione').choices  # oppure specifica tu le choices
+        choices=Ricavo._meta.get_field('destinazione').choices,
+        empty_label="Indifferente"
     )
+    protocollo_id = django_filters.CharFilter(label='Protocollo [Identificativo]', field_name='protocollo__identificativo', lookup_expr='istartswith')
+    protocollo_address = django_filters.CharFilter(label='Protocollo [Indirizzo]', field_name='protocollo__indirizzo', lookup_expr='istartswith')
 
     class Meta:
         model = Ricavo
