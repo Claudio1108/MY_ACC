@@ -1,16 +1,21 @@
 import django_filters
 from .models import *
 from django import forms
+from .forms import DateInput
 
 
 class MyRangeWidget(django_filters.widgets.RangeWidget):
-
     def __init__(self, from_attrs=None, to_attrs=None, attrs=None):
         super(MyRangeWidget, self).__init__(attrs)
         if from_attrs:
             self.widgets[0].attrs.update(from_attrs)
         if to_attrs:
             self.widgets[1].attrs.update(to_attrs)
+
+class MyRangeWidgetDate(django_filters.widgets.RangeWidget):
+    def __init__(self, attrs=None):
+        super().__init__(attrs)
+        self.widgets = (DateInput(), DateInput())
 
 class CustomBooleanFilter(django_filters.BooleanFilter):
     def __init__(self, *args, **kwargs):
@@ -28,10 +33,10 @@ class ReferenteFilter(django_filters.FilterSet):
     nominativo = django_filters.CharFilter(label='Nominativo', field_name='nominativo', lookup_expr='istartswith')
 
 class ProtocolloFilter(django_filters.FilterSet):
-    data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione', widget=MyRangeWidget(
-        from_attrs={'placeholder':'inizio (dd/mm/yyyy)'},
-        to_attrs={'placeholder':'fine (dd/mm/yyyy)'},
-    ))
+    data_registrazione = django_filters.DateFromToRangeFilter(
+        label='Data Registrazione',
+        widget=MyRangeWidgetDate()
+    )
     stato_protocollo = django_filters.ChoiceFilter(
         label='Stato Protocollo',
         choices=(('attivo', 'Attivi ⚙️'), ('consegnato', 'Consegnati ⚫'), ('scaduti', 'Scaduti 🔴'), ('in_scadenza', 'In Scadenza 🟠'), ('puntuale', 'Puntuali 🟢')),
@@ -58,10 +63,10 @@ class ProtocolloFilter(django_filters.FilterSet):
         return queryset
 
 class ConsulenzaFilter(django_filters.FilterSet):
-    data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione', widget=MyRangeWidget(
-        from_attrs={'placeholder': 'inizio (dd/mm/yyyy)'},
-        to_attrs={'placeholder': 'fine (dd/mm/yyyy)'},
-    ))
+    data_registrazione = django_filters.DateFromToRangeFilter(
+        label='Data Registrazione',
+        widget=MyRangeWidgetDate()
+    )
     stato_consulenza = django_filters.ChoiceFilter(
         label='Stato Consulenza',
         choices=(('attivo', 'Attivi ⚙️'), ('consegnato', 'Consegnati ⚫'), ('scaduti', 'Scaduti 🔴'), ('in_scadenza', 'In Scadenza 🟠'), ('puntuale', 'Puntuali 🟢')),
@@ -86,10 +91,10 @@ class ConsulenzaFilter(django_filters.FilterSet):
         return queryset
 
 class SpesaGestioneFilter(django_filters.FilterSet):
-    data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione', widget=MyRangeWidget(
-        from_attrs={'placeholder': 'inizio (dd/mm/yyyy)'},
-        to_attrs={'placeholder': 'fine (dd/mm/yyyy)'},
-    ))
+    data_registrazione = django_filters.DateFromToRangeFilter(
+        label='Data Registrazione',
+        widget=MyRangeWidgetDate()
+    )
     importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
         from_attrs={'placeholder': 'Da'},
         to_attrs={'placeholder': 'A'},
@@ -109,10 +114,10 @@ class SpesaGestioneFilter(django_filters.FilterSet):
 
 
 class SpesaCommessaFilter(django_filters.FilterSet):
-    data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione', widget=MyRangeWidget(
-        from_attrs={'placeholder': 'inizio (dd/mm/yyyy)'},
-        to_attrs={'placeholder': 'fine (dd/mm/yyyy)'},
-    ))
+    data_registrazione = django_filters.DateFromToRangeFilter(
+        label='Data Registrazione',
+        widget=MyRangeWidgetDate()
+    )
     importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
         from_attrs={'placeholder': 'Da'},
         to_attrs={'placeholder': 'A'},
@@ -131,10 +136,10 @@ class SpesaCommessaFilter(django_filters.FilterSet):
         fields = []
 
 class RicavoFilter(django_filters.FilterSet):
-    data_registrazione = django_filters.DateFromToRangeFilter(label='Data Registrazione', widget=MyRangeWidget(
-        from_attrs={'placeholder': 'inizio (dd/mm/yyyy)'},
-        to_attrs={'placeholder': 'fine (dd/mm/yyyy)'},
-    ))
+    data_registrazione = django_filters.DateFromToRangeFilter(
+        label='Data Registrazione',
+        widget=MyRangeWidgetDate()
+    )
     importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
         from_attrs={'placeholder': 'Da'},
         to_attrs={'placeholder': 'A'},
