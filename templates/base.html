@@ -230,12 +230,22 @@
                         </li>
                         <li class="nav-item">
                             <a class="navbar-brand" href="{% url 'AllRicavi' %}">
-                                Ricavi
+                                <i class="fa-solid fa-euro-sign"></i> Ricavi
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="navbar-brand" href="">
+                                <i class="fa-solid fa-receipt"></i> Fatture
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="navbar-brand" href="">
+                                <i class="fa-solid fa-scale-balanced"></i> Tasse
                             </a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="navbar-brand dropdown-toggle" href="#" id="navbarDropdownMenuLink5" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Spese
+                                <i class="fa-solid fa-cart-shopping"></i> Spese
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink5">
                                 <li><a class="dropdown-item" href="{% url 'AllSpeseGestione' %}">Spese di Gestione</a></li>
