@@ -2,6 +2,7 @@ import xlwt
 import json
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from .forms import *
 from .filters import *
 from datetime import date, datetime
@@ -24,21 +25,16 @@ class ReferenteAutocomplete(autocomplete.Select2QuerySetView):
         qs = RubricaReferenti.objects.all().order_by('nominativo')
         return qs.filter(nominativo__icontains=self.q) | qs.filter(tel__icontains=self.q) if self.q else qs
 
+@login_required
 def viewHomePage(request):
-    if not request.user.is_authenticated:
-        return redirect("accounts/login/")
-    else:
-        return render(request, "Homepage/HomePage.html", {"user": request.user})
+    return render(request, "Homepage/HomePage.html", {"user": request.user})
 
+@login_required
 def viewHomePageContabilita(request):
-    if not request.user.is_authenticated:
-        return redirect("accounts/login/")
-    else:
-        return render(request, "Homepage/HomePageContabilita.html")
+    return render(request, "Homepage/HomePageContabilita.html")
 
+@login_required
 def viewHomePageAmministrazione(request):
-    if not request.user.is_authenticated:
-        return redirect("accounts/login/")
     context = {
         'count_active_protocols': Protocollo.objects.filter(data_consegna__isnull=True).count(),
         'count_deactive_protocols': Protocollo.objects.filter(data_consegna__isnull=False).count(),
@@ -49,431 +45,361 @@ def viewHomePageAmministrazione(request):
     }
     return render(request, "Homepage/HomePageAmministrazione.html", context)
 
+@login_required
 def viewAllClienti(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        cliente_filter = ClienteFilter(request.GET, queryset=RubricaClienti.objects.all().order_by("nominativo"))
-        return render(request, "Amministrazione/Cliente/AllClienti.html", {"filter": cliente_filter, "filter_queryset": list(cliente_filter.qs)})
+    cliente_filter = ClienteFilter(request.GET, queryset=RubricaClienti.objects.all().order_by("nominativo"))
+    return render(request, "Amministrazione/Cliente/AllClienti.html", {"filter": cliente_filter, "filter_queryset": list(cliente_filter.qs)})
 
+@login_required
 def viewCreateCliente(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = formCliente(request.POST)
-            if (form.is_valid()):
-                form.save()
-                return redirect('AllClienti')
-            else:
-                return render(request, "Amministrazione/Cliente/CreateCliente.html", {'form': form})
+    if (request.method == "POST"):
+        form = formCliente(request.POST)
+        if (form.is_valid()):
+            form.save()
+            return redirect('AllClienti')
         else:
-            return render(request, "Amministrazione/Cliente/CreateCliente.html", {'form': formCliente()})
-
-def viewDeleteCliente(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
+            return render(request, "Amministrazione/Cliente/CreateCliente.html", {'form': form})
     else:
-        RubricaClienti.objects.get(id=id).delete()
-        return redirect('AllClienti')
+        return render(request, "Amministrazione/Cliente/CreateCliente.html", {'form': formCliente()})
 
+@login_required
+def viewDeleteCliente(id):
+    RubricaClienti.objects.get(id=id).delete()
+    return redirect('AllClienti')
+
+@login_required
 def viewDeleteClientiGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist('list[]'):
-                RubricaClienti.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageAmministrazione.html")
+    if request.method == "POST":
+        for task in request.POST.getlist('list[]'):
+            RubricaClienti.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageAmministrazione.html")
 
+@login_required
 def viewUpdateCliente(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = formCliente(request.POST, instance=RubricaClienti.objects.get(id=id))
-            if (form.is_valid()):
-                form.save()
-                return redirect('AllClienti')
-            else:
-                return render(request, "Amministrazione/Cliente/UpdateCliente.html", {'form': form})
+    if (request.method == "POST"):
+        form = formCliente(request.POST, instance=RubricaClienti.objects.get(id=id))
+        if (form.is_valid()):
+            form.save()
+            return redirect('AllClienti')
         else:
-            return render(request, "Amministrazione/Cliente/UpdateCliente.html", {'form': formCliente(instance=RubricaClienti.objects.get(id=id))})
+            return render(request, "Amministrazione/Cliente/UpdateCliente.html", {'form': form})
+    else:
+        return render(request, "Amministrazione/Cliente/UpdateCliente.html", {'form': formCliente(instance=RubricaClienti.objects.get(id=id))})
 
+@login_required
 def viewAllReferenti(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        referente_filter = ReferenteFilter(request.GET, queryset=RubricaReferenti.objects.all().order_by("nominativo"))
-        return render(request, "Amministrazione/Referente/AllReferenti.html",{"filter": referente_filter, "filter_queryset": list(referente_filter.qs)})
+    referente_filter = ReferenteFilter(request.GET, queryset=RubricaReferenti.objects.all().order_by("nominativo"))
+    return render(request, "Amministrazione/Referente/AllReferenti.html",{"filter": referente_filter, "filter_queryset": list(referente_filter.qs)})
 
+@login_required
 def viewCreateReferente(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = formReferente(request.POST)
-            if (form.is_valid()):
-                form.save()
-                return redirect('AllReferenti')
-            else:
-                return render(request, "Amministrazione/Referente/CreateReferente.html", {'form': form})
+    if (request.method == "POST"):
+        form = formReferente(request.POST)
+        if (form.is_valid()):
+            form.save()
+            return redirect('AllReferenti')
         else:
-            return render(request, "Amministrazione/Referente/CreateReferente.html", {'form': formReferente()})
+            return render(request, "Amministrazione/Referente/CreateReferente.html", {'form': form})
+    else:
+        return render(request, "Amministrazione/Referente/CreateReferente.html", {'form': formReferente()})
 
+@login_required
 def viewDeleteReferente(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        RubricaReferenti.objects.get(id=id).delete()
-        return redirect('AllReferenti')
+    RubricaReferenti.objects.get(id=id).delete()
+    return redirect('AllReferenti')
 
+@login_required
 def viewDeleteReferentiGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist('list[]'):
-                RubricaReferenti.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageAmministrazione.html")
+    if request.method == "POST":
+        for task in request.POST.getlist('list[]'):
+            RubricaReferenti.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageAmministrazione.html")
 
+@login_required
 def viewUpdateReferente(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
+    if (request.method == "POST"):
+        form = formReferente(request.POST, instance=RubricaReferenti.objects.get(id=id))
+        if (form.is_valid()):
+            form.save()
+            return redirect('AllReferenti')
+        else:
+            return render(request, "Amministrazione/Referente/UpdateReferente.html", {'form': form})
     else:
-        if (request.method == "POST"):
-            form = formReferente(request.POST, instance=RubricaReferenti.objects.get(id=id))
+        return render(request, "Amministrazione/Referente/UpdateReferente.html", {'form': formReferente(instance=RubricaReferenti.objects.get(id=id))})
+
+@login_required
+def viewAllProtocols(request):
+    protocollo_filter = ProtocolloFilter(request.GET, queryset=Protocollo.objects.all().order_by("-data_registrazione__year", "-identificativo"))
+    for proto in protocollo_filter.qs:
+        data_scadenza = datetime.strptime(str(proto.data_scadenza), "%Y-%m-%d").date()
+        if proto.data_consegna != None:
+            proto.status = None
+        else:
+            proto.status = (data_scadenza - date.today()).days
+            Protocollo.objects.filter(identificativo=proto.identificativo).update(status=proto.status)
+    sum_parcelle = round(protocollo_filter.qs.aggregate(Sum('parcella'))['parcella__sum'] or 0, 2)
+    return render(request, "Amministrazione/Protocollo/AllProtocols.html", {"filter": protocollo_filter, 'filter_queryset': list(protocollo_filter.qs), 'sum_p': sum_parcelle})
+
+@login_required
+def viewCreateProtocol(request):
+    if (request.method == "POST"):
+        form = formProtocol(request.POST)
+        anno = form['data_registrazione'].value()[0:4]
+        progressive_number_calendar = CalendarioContatore.objects.filter(id=anno).values('count')[0]['count']
+        CalendarioContatore.objects.filter(id=anno).update(count=str(progressive_number_calendar + 1))
+        form.set_identificativo(str('{0:03}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
+        data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
+        form.set_status(None if form['data_consegna'].value() != None else (data_scadenza - date.today()).days)
+        if (form.check_date()):
             if (form.is_valid()):
                 form.save()
-                return redirect('AllReferenti')
+                return redirect('AllProtocols')
             else:
-                return render(request, "Amministrazione/Referente/UpdateReferente.html", {'form': form})
-        else:
-            return render(request, "Amministrazione/Referente/UpdateReferente.html", {'form': formReferente(instance=RubricaReferenti.objects.get(id=id))})
-
-def viewAllProtocols(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        protocollo_filter = ProtocolloFilter(request.GET, queryset=Protocollo.objects.all().order_by("-data_registrazione__year", "-identificativo"))
-        for proto in protocollo_filter.qs:
-            data_scadenza = datetime.strptime(str(proto.data_scadenza), "%Y-%m-%d").date()
-            if proto.data_consegna != None:
-                proto.status = None
-            else:
-                proto.status = (data_scadenza - date.today()).days
-                Protocollo.objects.filter(identificativo=proto.identificativo).update(status=proto.status)
-        sum_parcelle = round(protocollo_filter.qs.aggregate(Sum('parcella'))['parcella__sum'] or 0, 2)
-        return render(request, "Amministrazione/Protocollo/AllProtocols.html", {"filter": protocollo_filter, 'filter_queryset': list(protocollo_filter.qs), 'sum_p': sum_parcelle})
-
-def viewCreateProtocol(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = formProtocol(request.POST)
-            anno = form['data_registrazione'].value()[0:4]
-            progressive_number_calendar = CalendarioContatore.objects.filter(id=anno).values('count')[0]['count']
-            CalendarioContatore.objects.filter(id=anno).update(count=str(progressive_number_calendar + 1))
-            form.set_identificativo(str('{0:03}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
-            data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
-            form.set_status(None if form['data_consegna'].value() != None else (data_scadenza - date.today()).days)
-            if (form.check_date()):
-                if (form.is_valid()):
-                    form.save()
-                    return redirect('AllProtocols')
-                else:
-                    return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': form})
-            else:
-                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o uguali alla Data di Registrazione.')
                 return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': form})
         else:
-            return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': formProtocol()})
-
-def viewDeleteProtocol(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
+            messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o uguali alla Data di Registrazione.')
+            return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': form})
     else:
-        Protocollo.objects.get(id=id).delete()
-        return redirect('AllProtocols')
+        return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': formProtocol()})
 
+@login_required
+def viewDeleteProtocol(id):
+    Protocollo.objects.get(id=id).delete()
+    return redirect('AllProtocols')
+
+@login_required
 def viewDeleteProtocolsGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist('list[]'):
-                Protocollo.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageAmministrazione.html")
+    if request.method == "POST":
+        for task in request.POST.getlist('list[]'):
+            Protocollo.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageAmministrazione.html")
 
+@login_required
 def viewUpdateProtocol(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = formProtocolUpdate(request.POST, instance=Protocollo.objects.get(id=id))
-            anno = form['data_registrazione'].value()[:4]
-            progressive_number_calendar = CalendarioContatore.objects.filter(id=anno).values('count')[0]['count']
-            if anno != str(Protocollo.objects.get(id=id).data_registrazione.year):
-                CalendarioContatore.objects.filter(id=anno).update(count=str(progressive_number_calendar + 1))
-                form.set_identificativo(str('{0:03}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
-            data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
-            form.set_status(None if form['data_consegna'].value() != None else (data_scadenza - date.today()).days)
-            if (form.check_date()):
-                if form.check_ricavi_on_protocollo(id, form['parcella'].value()):
-                    if (form.is_valid()):
-                        form.save()
-                        anno != str(Protocollo.objects.get(id=id).data_registrazione.year) and Protocollo.objects.filter(id=id).update(identificativo=str('{0:03}'.format(progressive_number_calendar + 1))+ "-" + anno[2:4])
-                        return redirect('AllProtocols')
-                    else:
-                        return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
-                else:
-                    messages.error(request,
-                                   f"ATTENZIONE! La somma degli importi dei ricavi associati al protocollo {form['identificativo'].value()} supera il valore della parcella inserito di {form['parcella'].value()}")
-                    return render(request, "Amministrazione/Protocollo/UpdateProtocol.html",{'form': formProtocolUpdate(instance=Protocollo.objects.get(id=id))})
-            else:
-                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o uguali alla Data di Registrazione.')
-                return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
-        else:
-            return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': formProtocolUpdate(instance=Protocollo.objects.get(id=id))})
-
-def viewAllConsulenze(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        consulenza_filter = ConsulenzaFilter(request.GET, queryset=Consulenza.objects.all().order_by("-id"))
-        for cons in consulenza_filter.qs:
-            data_scadenza = datetime.strptime(str(cons.data_scadenza), "%Y-%m-%d").date()
-            if cons.data_consegna != None:
-                cons.status = None
-            else:
-                cons.status = (data_scadenza - date.today()).days
-                Consulenza.objects.filter(id=cons.id).update(status=cons.status)
-        sum_compensi = round(consulenza_filter.qs.aggregate(Sum('compenso'))['compenso__sum'] or 0, 2)
-        return render(request, "Amministrazione/Consulenza/AllConsulenze.html", {"filter": consulenza_filter, 'filter_queryset': list(consulenza_filter.qs), 'sum_c': sum_compensi})
-
-def viewCreateConsulenza(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = formConsulenza(request.POST)
-            data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
-            form.set_status(None if form['data_consegna'].value() != None else (data_scadenza - date.today()).days)
-            if (form.check_date()):
+    if (request.method == "POST"):
+        form = formProtocolUpdate(request.POST, instance=Protocollo.objects.get(id=id))
+        anno = form['data_registrazione'].value()[:4]
+        progressive_number_calendar = CalendarioContatore.objects.filter(id=anno).values('count')[0]['count']
+        if anno != str(Protocollo.objects.get(id=id).data_registrazione.year):
+            CalendarioContatore.objects.filter(id=anno).update(count=str(progressive_number_calendar + 1))
+            form.set_identificativo(str('{0:03}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
+        data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
+        form.set_status(None if form['data_consegna'].value() != None else (data_scadenza - date.today()).days)
+        if (form.check_date()):
+            if form.check_ricavi_on_protocollo(id, form['parcella'].value()):
                 if (form.is_valid()):
                     form.save()
-                    return redirect('AllConsulenze')
+                    anno != str(Protocollo.objects.get(id=id).data_registrazione.year) and Protocollo.objects.filter(id=id).update(identificativo=str('{0:03}'.format(progressive_number_calendar + 1))+ "-" + anno[2:4])
+                    return redirect('AllProtocols')
                 else:
-                    return render(request, "Amministrazione/Consulenza/CreateConsulenza.html", {'form': form})
+                    return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
             else:
-                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o uguali alla Data di Registrazione.')
+                messages.error(request,
+                               f"ATTENZIONE! La somma degli importi dei ricavi associati al protocollo {form['identificativo'].value()} supera il valore della parcella inserito di {form['parcella'].value()}")
+                return render(request, "Amministrazione/Protocollo/UpdateProtocol.html",{'form': formProtocolUpdate(instance=Protocollo.objects.get(id=id))})
+        else:
+            messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o uguali alla Data di Registrazione.')
+            return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
+    else:
+        return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': formProtocolUpdate(instance=Protocollo.objects.get(id=id))})
+
+@login_required
+def viewAllConsulenze(request):
+    consulenza_filter = ConsulenzaFilter(request.GET, queryset=Consulenza.objects.all().order_by("-id"))
+    for cons in consulenza_filter.qs:
+        data_scadenza = datetime.strptime(str(cons.data_scadenza), "%Y-%m-%d").date()
+        if cons.data_consegna != None:
+            cons.status = None
+        else:
+            cons.status = (data_scadenza - date.today()).days
+            Consulenza.objects.filter(id=cons.id).update(status=cons.status)
+    sum_compensi = round(consulenza_filter.qs.aggregate(Sum('compenso'))['compenso__sum'] or 0, 2)
+    return render(request, "Amministrazione/Consulenza/AllConsulenze.html", {"filter": consulenza_filter, 'filter_queryset': list(consulenza_filter.qs), 'sum_c': sum_compensi})
+
+@login_required
+def viewCreateConsulenza(request):
+    if (request.method == "POST"):
+        form = formConsulenza(request.POST)
+        data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
+        form.set_status(None if form['data_consegna'].value() != None else (data_scadenza - date.today()).days)
+        if (form.check_date()):
+            if (form.is_valid()):
+                form.save()
+                return redirect('AllConsulenze')
+            else:
                 return render(request, "Amministrazione/Consulenza/CreateConsulenza.html", {'form': form})
         else:
-            return render(request, "Amministrazione/Consulenza/CreateConsulenza.html", {'form': formConsulenza()})
+            messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o uguali alla Data di Registrazione.')
+            return render(request, "Amministrazione/Consulenza/CreateConsulenza.html", {'form': form})
+    else:
+        return render(request, "Amministrazione/Consulenza/CreateConsulenza.html", {'form': formConsulenza()})
 
+@login_required
 def viewDeleteConsulenza(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        Consulenza.objects.get(id=id).delete()
-        return redirect('AllConsulenze')
+    Consulenza.objects.get(id=id).delete()
+    return redirect('AllConsulenze')
 
+@login_required
 def viewDeleteConsulenzeGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist('list[]'):
-                Consulenza.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageAmministrazione.html")
+    if request.method == "POST":
+        for task in request.POST.getlist('list[]'):
+            Consulenza.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageAmministrazione.html")
 
+@login_required
 def viewUpdateConsulenza(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = formConsulenzaUpdate(request.POST, instance=Consulenza.objects.get(id=id))
-            data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
-            form.set_status(None if form['data_consegna'].value() != None else (data_scadenza - date.today()).days)
-            if (form.check_date()):
-                if (form.is_valid()):
-                    form.save()
-                    return redirect('AllConsulenze')
-                else:
-                    return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': form})
+    if (request.method == "POST"):
+        form = formConsulenzaUpdate(request.POST, instance=Consulenza.objects.get(id=id))
+        data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
+        form.set_status(None if form['data_consegna'].value() != None else (data_scadenza - date.today()).days)
+        if (form.check_date()):
+            if (form.is_valid()):
+                form.save()
+                return redirect('AllConsulenze')
             else:
-                messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o uguali alla Data di Registrazione.')
                 return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': form})
         else:
-            return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': formConsulenzaUpdate(instance=Consulenza.objects.get(id=id))})
+            messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o uguali alla Data di Registrazione.')
+            return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': form})
+    else:
+        return render(request, "Amministrazione/Consulenza/UpdateConsulenza.html", {'form': formConsulenzaUpdate(instance=Consulenza.objects.get(id=id))})
 
+@login_required
 def viewAllRicavi(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        ricavo_filter = RicavoFilter(request.GET, queryset=Ricavo.objects.all().order_by("-data_registrazione"))
-        sum_ricavi_for_proto = [(r1.id, r1.protocollo.parcella - sum(r2.importo for r2 in ricavo_filter.qs if r1.protocollo == r2.protocollo)) if r1.protocollo is not None
-                                else (r1.id,0) for r1 in ricavo_filter.qs ]
-        sum_ricavi = round(ricavo_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
-        return render(request, "Contabilita/Ricavo/AllRicavi.html", {"filter": ricavo_filter, "filter_queryset": list(ricavo_filter.qs), 'sum_r': sum_ricavi, 'info': zip(ricavo_filter.qs, sum_ricavi_for_proto)})
+    ricavo_filter = RicavoFilter(request.GET, queryset=Ricavo.objects.all().order_by("-data_registrazione"))
+    sum_ricavi_for_proto = [(r1.id, r1.protocollo.parcella - sum(r2.importo for r2 in ricavo_filter.qs if r1.protocollo == r2.protocollo)) if r1.protocollo is not None
+                            else (r1.id,0) for r1 in ricavo_filter.qs ]
+    sum_ricavi = round(ricavo_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
+    return render(request, "Contabilita/Ricavo/AllRicavi.html", {"filter": ricavo_filter, "filter_queryset": list(ricavo_filter.qs), 'sum_r': sum_ricavi, 'info': zip(ricavo_filter.qs, sum_ricavi_for_proto)})
 
+@login_required
 def viewCreateRicavo(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = formRicavo(request.POST)
-            if (form.is_valid()):
-                if (form['protocollo'].value() != "" and not form.Check1()):
-                    messages.error(request, 'ATTENZIONE! Il Ricavo inserito non rispetta i limiti di parcella del protocollo assegnato.')
-                    return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
-                else:
-                    form.save()
-                    return redirect('AllRicavi')
-            else:
+    if (request.method == "POST"):
+        form = formRicavo(request.POST)
+        if (form.is_valid()):
+            if (form['protocollo'].value() != "" and not form.Check1()):
+                messages.error(request, 'ATTENZIONE! Il Ricavo inserito non rispetta i limiti di parcella del protocollo assegnato.')
                 return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
+            else:
+                form.save()
+                return redirect('AllRicavi')
         else:
-            return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': formRicavo()})
-
-def viewDeleteRicavo(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
+            return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
     else:
-        Ricavo.objects.get(id=id).delete()
-        return redirect('AllRicavi')
+        return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': formRicavo()})
 
+@login_required
+def viewDeleteRicavo(id):
+    Ricavo.objects.get(id=id).delete()
+    return redirect('AllRicavi')
+
+@login_required
 def viewDeleteRicaviGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist('list[]'):
-                Ricavo.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageContabilita.html")
+    if request.method == "POST":
+        for task in request.POST.getlist('list[]'):
+            Ricavo.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageContabilita.html")
 
+@login_required
 def viewUpdateRicavo(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            ricavo = Ricavo.objects.get(id=id)
-            form = formRicavoUpdate(request.POST, instance=ricavo)
-            if (form.is_valid()):
-                if (form['protocollo'].value() != "" and not form.Check2(ricavo)):
-                    messages.error(request, 'ATTENZIONE! Il Ricavo modificato non rispetta i limiti di parcella del protocollo assegnato.')
-                    return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
-                else:
-                    form.save()
-                    return redirect('AllRicavi')
-            else:
+    if (request.method == "POST"):
+        ricavo = Ricavo.objects.get(id=id)
+        form = formRicavoUpdate(request.POST, instance=ricavo)
+        if (form.is_valid()):
+            if (form['protocollo'].value() != "" and not form.Check2(ricavo)):
+                messages.error(request, 'ATTENZIONE! Il Ricavo modificato non rispetta i limiti di parcella del protocollo assegnato.')
                 return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
+            else:
+                form.save()
+                return redirect('AllRicavi')
         else:
-            return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': formRicavoUpdate(instance=Ricavo.objects.get(id=id))})
+            return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
+    else:
+        return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': formRicavoUpdate(instance=Ricavo.objects.get(id=id))})
 
+@login_required
 def viewAllSpeseCommessa(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        spesacommessa_filter = SpesaCommessaFilter(request.GET, queryset=SpesaCommessa.objects.all().order_by("-data_registrazione"))
-        sum_spesecommessa = round(spesacommessa_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
-        return render(request, "Contabilita/SpesaCommessa/AllSpeseCommessa.html", {"filter": spesacommessa_filter, 'filter_queryset': list(spesacommessa_filter.qs), 'sum_s': sum_spesecommessa})
+    spesacommessa_filter = SpesaCommessaFilter(request.GET, queryset=SpesaCommessa.objects.all().order_by("-data_registrazione"))
+    sum_spesecommessa = round(spesacommessa_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
+    return render(request, "Contabilita/SpesaCommessa/AllSpeseCommessa.html", {"filter": spesacommessa_filter, 'filter_queryset': list(spesacommessa_filter.qs), 'sum_s': sum_spesecommessa})
 
+@login_required
 def viewCreateSpesaCommessa(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = formSpesaCommessa(request.POST)
-            if (form.is_valid()):
-                form.save()
-                return redirect('AllSpeseCommessa')
-            else:
-                return render(request, "Contabilita/SpesaCommessa/CreateSpesaCommessa.html", {'form': form})
+    if (request.method == "POST"):
+        form = formSpesaCommessa(request.POST)
+        if (form.is_valid()):
+            form.save()
+            return redirect('AllSpeseCommessa')
         else:
-            return render(request, "Contabilita/SpesaCommessa/CreateSpesaCommessa.html", {'form': formSpesaCommessa()})
-
-def viewDeleteSpesaCommessa(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
+            return render(request, "Contabilita/SpesaCommessa/CreateSpesaCommessa.html", {'form': form})
     else:
-        SpesaCommessa.objects.get(id=id).delete()
-        return redirect('AllSpeseCommessa')
+        return render(request, "Contabilita/SpesaCommessa/CreateSpesaCommessa.html", {'form': formSpesaCommessa()})
 
+@login_required
+def viewDeleteSpesaCommessa(id):
+    SpesaCommessa.objects.get(id=id).delete()
+    return redirect('AllSpeseCommessa')
+
+@login_required
 def viewDeleteSpeseCommessaGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist('list[]'):
-                SpesaCommessa.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageContabilita.html")
+    if request.method == "POST":
+        for task in request.POST.getlist('list[]'):
+            SpesaCommessa.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageContabilita.html")
 
+@login_required
 def viewUpdateSpesaCommessa(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = formSpesaCommessaUpdate(request.POST, instance=SpesaCommessa.objects.get(id=id))
-            if (form.is_valid()):
-                form.save()
-                return redirect('AllSpeseCommessa')
-            else:
-                return render(request, "Contabilita/SpesaCommessa/UpdateSpesaCommessa.html", {'form': form})
+    if (request.method == "POST"):
+        form = formSpesaCommessaUpdate(request.POST, instance=SpesaCommessa.objects.get(id=id))
+        if (form.is_valid()):
+            form.save()
+            return redirect('AllSpeseCommessa')
         else:
-            return render(request, "Contabilita/SpesaCommessa/UpdateSpesaCommessa.html", {'form': formSpesaCommessaUpdate(instance=SpesaCommessa.objects.get(id=id))})
+            return render(request, "Contabilita/SpesaCommessa/UpdateSpesaCommessa.html", {'form': form})
+    else:
+        return render(request, "Contabilita/SpesaCommessa/UpdateSpesaCommessa.html", {'form': formSpesaCommessaUpdate(instance=SpesaCommessa.objects.get(id=id))})
 
+@login_required
 def viewAllSpeseGestione(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        spesagestione_filter = SpesaGestioneFilter(request.GET, queryset=SpesaGestione.objects.all().order_by("-data_registrazione"))
-        sum_spesegestione = round(spesagestione_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
-        return render(request, "Contabilita/SpesaGestione/AllSpeseGestione.html", {"filter": spesagestione_filter, 'filter_queryset': list(spesagestione_filter.qs), 'sum_s': sum_spesegestione})
+    spesagestione_filter = SpesaGestioneFilter(request.GET, queryset=SpesaGestione.objects.all().order_by("-data_registrazione"))
+    sum_spesegestione = round(spesagestione_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
+    return render(request, "Contabilita/SpesaGestione/AllSpeseGestione.html", {"filter": spesagestione_filter, 'filter_queryset': list(spesagestione_filter.qs), 'sum_s': sum_spesegestione})
 
+@login_required
 def viewCreateSpesaGestione(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = formSpesaGestione(request.POST)
-            if (form.is_valid()):
-                form.save()
-                return redirect('AllSpeseGestione')
-            else:
-                return render(request, "Contabilita/SpesaGestione/CreateSpesaGestione.html", {'form': form})
+    if (request.method == "POST"):
+        form = formSpesaGestione(request.POST)
+        if (form.is_valid()):
+            form.save()
+            return redirect('AllSpeseGestione')
         else:
-            return render(request, "Contabilita/SpesaGestione/CreateSpesaGestione.html", {'form': formSpesaGestione()})
-
-def viewDeleteSpesaGestione(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
+            return render(request, "Contabilita/SpesaGestione/CreateSpesaGestione.html", {'form': form})
     else:
-        SpesaGestione.objects.get(id=id).delete()
-        return redirect('AllSpeseGestione')
+        return render(request, "Contabilita/SpesaGestione/CreateSpesaGestione.html", {'form': formSpesaGestione()})
 
+@login_required
+def viewDeleteSpesaGestione(id):
+    SpesaGestione.objects.get(id=id).delete()
+    return redirect('AllSpeseGestione')
+
+@login_required
 def viewDeleteSpeseGestioneGroup(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if request.method == "POST":
-            for task in request.POST.getlist('list[]'):
-                SpesaGestione.objects.get(id=int(task)).delete()
-        return render(request, "Homepage/HomePageContabilita.html")
+    if request.method == "POST":
+        for task in request.POST.getlist('list[]'):
+            SpesaGestione.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageContabilita.html")
 
+@login_required
 def viewUpdateSpesaGestione(request, id):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        if (request.method == "POST"):
-            form = formSpesaGestioneUpdate(request.POST, instance=SpesaGestione.objects.get(id=id))
-            if (form.is_valid()):
-                form.save()
-                return redirect('AllSpeseGestione')
-            else:
-                return render(request, "Contabilita/SpesaGestione/UpdateSpesaGestione.html", {'form': form})
+    if (request.method == "POST"):
+        form = formSpesaGestioneUpdate(request.POST, instance=SpesaGestione.objects.get(id=id))
+        if (form.is_valid()):
+            form.save()
+            return redirect('AllSpeseGestione')
         else:
-            return render(request, "Contabilita/SpesaGestione/UpdateSpesaGestione.html", {'form': formSpesaGestioneUpdate(instance=SpesaGestione.objects.get(id=id))})
+            return render(request, "Contabilita/SpesaGestione/UpdateSpesaGestione.html", {'form': form})
+    else:
+        return render(request, "Contabilita/SpesaGestione/UpdateSpesaGestione.html", {'form': formSpesaGestioneUpdate(instance=SpesaGestione.objects.get(id=id))})
 
 def viewResoconto(request):
     if not request.user.is_authenticated:
@@ -544,13 +470,11 @@ def viewResoconto(request):
 #         else:
 #             return render(request, "Contabilita/GestioneGuadagniEffettivi.html", {'form': form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(), 'tabella_output3': []})
 
+@login_required
 def viewContabilitaProtocolli(request):
     filter = request.POST.get("filter")
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
-    else:
-        protocols = sqlite.resoconto_contabilita_protocolli(filter)
-        return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': protocols, 'tot_saldo': sum([protocol[9] for protocol in protocols]), 'cliente_filter': filter if filter else ""})
+    protocols = sqlite.resoconto_contabilita_protocolli(filter)
+    return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': protocols, 'tot_saldo': sum([protocol[9] for protocol in protocols]), 'cliente_filter': filter if filter else ""})
 
 def export_input_table_xls(request, list, model):
     fields_models = {'protocollo': ['Identificativo', 'Nominativo Cliente', 'Telefono Cliente', 'Nominativo Referente', 'Telefono Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Registrazione', 'Data Consegna'],

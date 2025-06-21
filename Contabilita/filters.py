@@ -34,7 +34,7 @@ class ReferenteFilter(django_filters.FilterSet):
 
 class ProtocolloFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(
-        label='Data Registrazione',
+        label='Data Registrazione (Da - A)',
         widget=MyRangeWidgetDate()
     )
     stato_protocollo = django_filters.ChoiceFilter(
@@ -64,7 +64,7 @@ class ProtocolloFilter(django_filters.FilterSet):
 
 class ConsulenzaFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(
-        label='Data Registrazione',
+        label='Data Registrazione (Da - A)',
         widget=MyRangeWidgetDate()
     )
     stato_consulenza = django_filters.ChoiceFilter(
@@ -92,7 +92,7 @@ class ConsulenzaFilter(django_filters.FilterSet):
 
 class SpesaGestioneFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(
-        label='Data Registrazione',
+        label='Data Registrazione (Da - A)',
         widget=MyRangeWidgetDate()
     )
     importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
@@ -115,7 +115,7 @@ class SpesaGestioneFilter(django_filters.FilterSet):
 
 class SpesaCommessaFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(
-        label='Data Registrazione',
+        label='Data Registrazione (Da - A)',
         widget=MyRangeWidgetDate()
     )
     importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
@@ -137,8 +137,8 @@ class SpesaCommessaFilter(django_filters.FilterSet):
 
 class RicavoFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(
-        label='Data Registrazione',
-        widget=MyRangeWidgetDate()
+        label='Data Registrazione (Da - A)',
+        widget=MyRangeWidgetDate(),
     )
     importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
         from_attrs={'placeholder': 'Da'},

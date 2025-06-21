@@ -308,24 +308,24 @@ class formSpesaGestioneUpdate(forms.ModelForm):
 class form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(forms.Form):
     anno_inizio = forms.ChoiceField(
         choices=[(str(y), str(y)) for y in list(range(2050, 1970, -1))],
-        label='Anno Inizio',
+        label="Dall' Anno:",
         initial=str(datetime.now().year),
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     mese_inizio = forms.ChoiceField(
         choices=[(str(m), nome) for m, nome in MESI_ITALIANI],
-        label='Mese Inizio',
+        label='Dal Mese:',
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     anno_fine = forms.ChoiceField(
         choices=[(str(y), str(y)) for y in YEARS],
-        label='Anno Fine',
+        label="All' Anno:",
         initial=str(datetime.now().year),
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     mese_fine = forms.ChoiceField(
         choices=[(str(m), nome) for m, nome in MESI_ITALIANI],
-        label='Mese Fine',
+        label=' Al Mese:',
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     def clean(self):

@@ -117,6 +117,7 @@ STATICFILES_DIRS = (
 
 LOGIN_REDIRECT_URL = 'HomePage'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+LOGIN_URL = '/accounts/login/'
 
 # i due parametri seguenti possono essere usati in combinazione
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
