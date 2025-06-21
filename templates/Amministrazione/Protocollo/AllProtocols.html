@@ -111,15 +111,23 @@
                     }
                 });
             });
+            document.addEventListener("DOMContentLoaded", function () {
+                const form = document.getElementById("filter-form");
+                if (!form) return;
+
+                // Submit automatico per select, checkbox, radio, date
+                form.querySelectorAll("select, input[type='checkbox'], input[type='radio'], input[type='date']").forEach(function(field) {
+                    field.addEventListener("change", function() {
+                        form.submit();
+                    });
+                });
+                // Per input testo nessun submit automatico (usa solo bottone)
+            });
 	</script>
 {% endblock %}
 
-
-
-
 {% block content %}
-
-    <form method="get">
+    <form id="filter-form" method="get">
         <div class="filter-form">
             {% for field in filter.form %}
                 <div class="filter-item">
@@ -136,7 +144,7 @@
             </button>
         </div>
     </form>
-    </br>
+    </br></br>
     <style>
         tr.selected-row {
             background-color: #fffaaf !important;
