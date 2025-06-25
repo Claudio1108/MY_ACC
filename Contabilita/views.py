@@ -149,7 +149,7 @@ def viewCreateProtocol(request):
         CalendarioContatore.objects.filter(id=anno).update(count=str(progressive_number_calendar + 1))
         form.set_identificativo(str('{0:03}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
         data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
-        form.set_status(None if form['data_consegna'].value() != None else (data_scadenza - date.today()).days)
+        form.set_status(None if form['data_consegna'].value() != '' else (data_scadenza - date.today()).days)
         if (form.check_date()):
             if (form.is_valid()):
                 form.save()
@@ -180,16 +180,17 @@ def viewUpdateProtocol(request, id):
         form = formProtocolUpdate(request.POST, instance=Protocollo.objects.get(id=id))
         anno = form['data_registrazione'].value()[:4]
         progressive_number_calendar = CalendarioContatore.objects.filter(id=anno).values('count')[0]['count']
-        if anno != str(Protocollo.objects.get(id=id).data_registrazione.year):
+        anno_pre = str(Protocollo.objects.get(id=id).data_registrazione.year)
+        if anno != anno_pre:
             CalendarioContatore.objects.filter(id=anno).update(count=str(progressive_number_calendar + 1))
             form.set_identificativo(str('{0:03}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
         data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
-        form.set_status(None if form['data_consegna'].value() != None else (data_scadenza - date.today()).days)
+        form.set_status(None if form['data_consegna'].value() != '' else (data_scadenza - date.today()).days)
         if (form.check_date()):
             if form.check_ricavi_on_protocollo(id, form['parcella'].value()):
                 if (form.is_valid()):
                     form.save()
-                    anno != str(Protocollo.objects.get(id=id).data_registrazione.year) and Protocollo.objects.filter(id=id).update(identificativo=str('{0:03}'.format(progressive_number_calendar + 1))+ "-" + anno[2:4])
+                    anno != anno_pre and Protocollo.objects.filter(id=id).update(identificativo=str('{0:03}'.format(progressive_number_calendar + 1))+ "-" + anno[2:4])
                     return redirect('AllProtocols')
                 else:
                     return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
