@@ -35,7 +35,7 @@ def resoconto(data_inizio, data_fine):
                 anno_mese,
                 SUM(somma_ricavi) AS somma_ricavi,
                 SUM(somma_spese) AS somma_spese,
-                SUM(somma_spese) - SUM(somma_ricavi) AS utile_netto
+                SUM(somma_ricavi) - SUM(somma_spese) AS utile_netto
               FROM dati
               GROUP BY anno_mese
             )

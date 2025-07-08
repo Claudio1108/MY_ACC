@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}UpdateSpesaCommessa{% endblock title %}
-{% block name %}<i>MODIFICA SPESA DI COMMESSA</i>{% endblock %}
+{% block title %}UpdateFattura{% endblock title %}
+{% block name %}<i>MODIFICA Fattura</i>{% endblock %}
 {% block content %}
 
 <style>
@@ -23,30 +23,26 @@
     {% csrf_token %}
     <table align="center">
         <tr>
+            <td style="text-align: right;"><label for="{{ form.identificativo.id_for_label }}"><b>Identificativo</b></label></td>
+            <td style="text-align: left;">{{ form.identificativo }}</td>
+        </tr>
+        <tr>
             <td style="text-align: right;"><label for="{{ form.data_registrazione.id_for_label }}"><b>Data Registrazione*</b></label></td>
             <td style="text-align: left;">{{ form.data_registrazione }}</td>
         </tr>
         <tr>
-            <td style="text-align: right;"><label for="{{ form.importo.id_for_label }}"><b>Importo*</b></label></td>
-            <td style="text-align: left;">{{ form.importo }}</td>
+            <td style="text-align: right;"><label for="{{ form.imponibile.id_for_label }}"><b>Imponibile*</b></label></td>
+            <td style="text-align: left;">{{ form.imponibile }}</td>
         </tr>
         <tr>
             <td style="text-align: right;"><label for="{{ form.protocollo.id_for_label }}">Protocollo</label></td>
             <td style="text-align: left;">{{ form.protocollo }}</td>
         </tr>
-        <tr>
-            <td style="text-align: right; vertical-align: top;"><label for="{{ form.note.id_for_label }}">Note</label></td>
-            <td style="text-align: left;">{{ form.note }}</td>
-        </tr>
-        <tr>
-            <td style="text-align: right;"><label for="{{ form.provenienza.id_for_label }}">Provenienza</label></td>
-            <td style="text-align: left;">{{ form.provenienza }}</td>
-        </tr>
     </table>
     <br>
     <h6>* Campo Obbligatorio </h6>
     <br>
-    <input type="submit" class="btn btn-primary" value="Modifica Spesa di Commessa">
+    <input type="submit" class="btn btn-primary" value="Modifica Fattura">
 </form>
 
 {% endblock %}

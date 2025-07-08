@@ -18,7 +18,7 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 from Contabilita import views as contviews
 from django.conf.urls import  url
-from Contabilita.views import ProtocolloAutocomplete, ClienteAutocomplete, ReferenteAutocomplete
+from Contabilita.views import ProtocolloAutocomplete, ClienteAutocomplete, ReferenteAutocomplete, FatturaAutocomplete
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -69,6 +69,12 @@ urlpatterns = [
     path('DeleteSpesaGestione/<int:id>', contviews.viewDeleteSpesaGestione, name='DeleteSpesaGestione'),
     url(r'^DeleteSpeseGestioneGroup/$', contviews.viewDeleteSpeseGestioneGroup, name='DeleteSpeseGestioneGroup'),
     path('UpdateSpesaGestione/<int:id>', contviews.viewUpdateSpesaGestione, name='UpdateSpesaGestione'),
+    #Fattura
+    path('AllFatture/', contviews.viewAllFatture, name='AllFatture'),
+    path('CreateFattura/', contviews.viewCreateFattura, name='CreateFattura'),
+    path('DeleteFattura/<int:id>', contviews.viewDeleteFattura, name='DeleteFattura'),
+    url(r'^DeleteFattureGroup/$', contviews.viewDeleteFattureGroup, name='DeleteFattureGroup'),
+    path('UpdateFattura/<int:id>', contviews.viewUpdateFattura, name='UpdateFattura'),
     #Output
     path('Resoconto/', contviews.viewResoconto, name='Resoconto'),
     # path('ResocontoRicavi/', contviews.viewResocontoRicavi, name='ResocontoRicavi'),
@@ -80,5 +86,6 @@ urlpatterns = [
     #Autocompletamento
     url(r'^proto-autocomp/$', ProtocolloAutocomplete.as_view(), name='proto_autocomp'),
     url(r'^cliente-autocomp/$', ClienteAutocomplete.as_view(), name='cliente_autocomp'),
-    url(r'^referente-autocomp/$', ReferenteAutocomplete.as_view(), name='referente_autocomp')
+    url(r'^referente-autocomp/$', ReferenteAutocomplete.as_view(), name='referente_autocomp'),
+    url(r'^fattura-autocomp/$', FatturaAutocomplete.as_view(), name='fattura_autocomp')
 ]

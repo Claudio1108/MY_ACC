@@ -15,6 +15,11 @@ class ProtocolloAutocomplete(autocomplete.Select2QuerySetView):
         qs = Protocollo.objects.all().order_by('identificativo')
         return qs.filter(identificativo__icontains=self.q) | qs.filter(indirizzo__icontains=self.q) if self.q else qs
 
+class FatturaAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        qs = Fattura.objects.all().order_by('identificativo')
+        return qs.filter(identificativo__icontains=self.q) if self.q else qs
+
 class ClienteAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = RubricaClienti.objects.all().order_by('nominativo')
@@ -146,7 +151,7 @@ def viewCreateProtocol(request):
         form = formProtocol(request.POST)
         anno = form['data_registrazione'].value()[0:4]
         progressive_number_calendar = CalendarioContatore.objects.filter(id=anno).values('count')[0]['count']
-        CalendarioContatore.objects.filter(id=anno).update(count=str(progressive_number_calendar + 1))
+        CalendarioContatore.objects.filter(id=anno).update(count=progressive_number_calendar + 1)
         form.set_identificativo(str('{0:03}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
         data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
         form.set_status(None if form['data_consegna'].value() != '' else (data_scadenza - date.today()).days)
@@ -155,8 +160,10 @@ def viewCreateProtocol(request):
                 form.save()
                 return redirect('AllProtocols')
             else:
+                CalendarioContatore.objects.filter(id=anno).update(count=progressive_number_calendar)
                 return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': form})
         else:
+            CalendarioContatore.objects.filter(id=anno).update(count=progressive_number_calendar)
             messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o uguali alla Data di Registrazione.')
             return render(request, "Amministrazione/Protocollo/CreateProtocol.html", {'form': form})
     else:
@@ -176,29 +183,49 @@ def viewDeleteProtocolsGroup(request):
 
 @login_required
 def viewUpdateProtocol(request, id):
+    protocollo = Protocollo.objects.get(id=id)
     if (request.method == "POST"):
-        form = formProtocolUpdate(request.POST, instance=Protocollo.objects.get(id=id))
+        form = formProtocolUpdate(request.POST, instance=protocollo)
         anno = form['data_registrazione'].value()[:4]
         progressive_number_calendar = CalendarioContatore.objects.filter(id=anno).values('count')[0]['count']
-        anno_pre = str(Protocollo.objects.get(id=id).data_registrazione.year)
+        anno_pre = str(protocollo.data_registrazione.year)
         if anno != anno_pre:
-            CalendarioContatore.objects.filter(id=anno).update(count=str(progressive_number_calendar + 1))
+            CalendarioContatore.objects.filter(id=anno).update(count=progressive_number_calendar + 1)
             form.set_identificativo(str('{0:03}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
         data_scadenza = datetime.strptime(form['data_scadenza'].value(), "%Y-%m-%d").date()
         form.set_status(None if form['data_consegna'].value() != '' else (data_scadenza - date.today()).days)
         if (form.check_date()):
-            if form.check_ricavi_on_protocollo(id, form['parcella'].value()):
+            nuova_parcella = float(form['parcella'].value() or 0)
+
+            # CONTROLLO: Somma importi FATTURE associate al protocollo
+            fatture = Fattura.objects.filter(protocollo=protocollo)
+            totale_fatture = sum(float(f.importo or 0) for f in fatture)
+            if totale_fatture > nuova_parcella:
+                messages.error(
+                    request,
+                    f"ATTENZIONE! La parcella inserita ({nuova_parcella:.2f} €) è inferiore alla somma delle fatture associate ({totale_fatture:.2f} €)."
+                )
+                anno != anno_pre and CalendarioContatore.objects.filter(id=anno).update(
+                    count=progressive_number_calendar + 1)
+                return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
+
+            if form.check_ricavi_on_protocollo(id, nuova_parcella):
                 if (form.is_valid()):
                     form.save()
-                    anno != anno_pre and Protocollo.objects.filter(id=id).update(identificativo=str('{0:03}'.format(progressive_number_calendar + 1))+ "-" + anno[2:4])
+                    anno != anno_pre and protocollo.update(identificativo=str('{0:03}'.format(progressive_number_calendar + 1))+ "-" + anno[2:4])
                     return redirect('AllProtocols')
                 else:
+                    anno != anno_pre and CalendarioContatore.objects.filter(id=anno).update(count=progressive_number_calendar + 1)
                     return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
             else:
+                anno != anno_pre and CalendarioContatore.objects.filter(id=anno).update(
+                    count=progressive_number_calendar + 1)
                 messages.error(request,
                                f"ATTENZIONE! La somma degli importi dei ricavi associati al protocollo {form['identificativo'].value()} supera il valore della parcella inserito di {form['parcella'].value()}")
                 return render(request, "Amministrazione/Protocollo/UpdateProtocol.html",{'form': formProtocolUpdate(instance=Protocollo.objects.get(id=id))})
         else:
+            anno != anno_pre and CalendarioContatore.objects.filter(id=anno).update(
+                count=progressive_number_calendar + 1)
             messages.error(request, 'ATTENZIONE! La Data di Scadenza e la Data di Consegna devono essere necessariamente successive o uguali alla Data di Registrazione.')
             return render(request, "Amministrazione/Protocollo/UpdateProtocol.html", {'form': form})
     else:
@@ -273,21 +300,60 @@ def viewAllRicavi(request):
     sum_ricavi = round(ricavo_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
     return render(request, "Contabilita/Ricavo/AllRicavi.html", {"filter": ricavo_filter, "filter_queryset": list(ricavo_filter.qs), 'sum_r': sum_ricavi, 'info': zip(ricavo_filter.qs, sum_ricavi_for_proto)})
 
+def validate_ricavo_coerenza(fattura, protocollo, ricavo_attuale=None):
+    if fattura:
+        fattura_protocollo = fattura.protocollo
+
+        # Controllo 1
+        if fattura_protocollo and protocollo and fattura_protocollo != protocollo:
+            return f"ATTENZIONE! La Fattura {fattura} è assegnata al Protocollo {fattura_protocollo} mentre tu hai selezionato il Protocollo {protocollo} per il Ricavo in oggetto"
+
+        # Controllo 2
+        if not fattura_protocollo and protocollo:
+            return f"ATTENZIONE! La fattura {fattura} non ha un protocollo assegnato, mentre tu stai associando il Protocollo {protocollo} al Ricavo in oggetto"
+
+        # Controllo 3
+        if fattura_protocollo and not protocollo:
+            return f"ATTENZIONE! La fattura {fattura} è assegnata al Protocollo {fattura_protocollo}, ma tu non stai associando nessun Protocollo al Ricavo in oggetto"
+
+    return None
+
 @login_required
 def viewCreateRicavo(request):
-    if (request.method == "POST"):
+    if request.method == "POST":
         form = formRicavo(request.POST)
-        if (form.is_valid()):
-            if (form['protocollo'].value() != "" and not form.Check1()):
-                messages.error(request, 'ATTENZIONE! Il Ricavo inserito non rispetta i limiti di parcella del protocollo assegnato.')
+        if form.is_valid():
+            fattura = form.cleaned_data.get("fattura")
+            protocollo = form.cleaned_data.get("protocollo")
+
+            # Controllo coerenza Ricavo-Fattura-Protocollo
+            error_msg = validate_ricavo_coerenza(fattura, protocollo)
+            if error_msg:
+                messages.error(request, error_msg)
                 return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
-            else:
-                form.save()
-                return redirect('AllRicavi')
+
+            # Controllo importo <= parcella
+            if protocollo and not form.Check1():
+                messages.error(request,
+                               f"ATTENZIONE! L'importo inserito rende la somma dei ricavi del protocollo {protocollo} maggiore della sua parcella: {protocollo.parcella} €")
+                return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
+
+            # Controllo somma importi ricavi <= importo fattura
+            if fattura:
+                totale_ricavi_fattura = Ricavo.objects.filter(fattura=fattura).aggregate(Sum('importo'))['importo__sum'] or 0
+                nuovo_importo = form.cleaned_data.get("importo")
+                if totale_ricavi_fattura + nuovo_importo > fattura.importo:
+                    messages.error(request,
+                                   f"ATTENZIONE! L'importo inserito rende la somma dei ricavi {totale_ricavi_fattura + nuovo_importo} della fattura {fattura.identificativo} maggiore del suo importo: {fattura.importo} €")
+                    return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
+
+            form.save()
+            return redirect('AllRicavi')
         else:
             return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
     else:
         return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': formRicavo()})
+
 
 @login_required
 def viewDeleteRicavo(id):
@@ -303,20 +369,44 @@ def viewDeleteRicaviGroup(request):
 
 @login_required
 def viewUpdateRicavo(request, id):
-    if (request.method == "POST"):
-        ricavo = Ricavo.objects.get(id=id)
+    ricavo = Ricavo.objects.get(id=id)
+    if request.method == "POST":
         form = formRicavoUpdate(request.POST, instance=ricavo)
-        if (form.is_valid()):
-            if (form['protocollo'].value() != "" and not form.Check2(ricavo)):
-                messages.error(request, 'ATTENZIONE! Il Ricavo modificato non rispetta i limiti di parcella del protocollo assegnato.')
+        if form.is_valid():
+            fattura = form.cleaned_data.get("fattura")
+            protocollo = form.cleaned_data.get("protocollo")
+
+            # Controllo coerenza
+            error_msg = validate_ricavo_coerenza(fattura, protocollo, ricavo_attuale=ricavo)
+            if error_msg:
+                messages.error(request, error_msg)
                 return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
-            else:
-                form.save()
-                return redirect('AllRicavi')
+
+            # Controllo parcella
+            if protocollo and not form.Check2(ricavo):
+                messages.error(request,
+                               f"ATTENZIONE! L'importo inserito rende la somma dei ricavi del protocollo {protocollo} maggiore della sua parcella: {protocollo.parcella} €" )
+                return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
+
+            # Controllo importo > fattura (sommando i ricavi esistenti, ma sostituendo l'importo del ricavo attuale con quello nuovo)
+            if fattura:
+                nuovo_importo = form.cleaned_data.get("importo")
+                # Somma di tutti i ricavi tranne quello attuale
+                somma_altri_ricavi = Ricavo.objects.filter(fattura=fattura).exclude(id=ricavo.id).aggregate(Sum('importo'))['importo__sum'] or 0
+                # Somma complessiva con il nuovo importo aggiornato
+                somma_totale = somma_altri_ricavi + nuovo_importo
+                if somma_totale > fattura.importo:
+                    messages.error(request,
+                                   f"ATTENZIONE! L'importo aggiornato rende la somma dei ricavi {somma_totale} della fattura {fattura.identificativo} maggiore del suo importo: {fattura.importo} €")
+                    return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
+
+            form.save()
+            return redirect('AllRicavi')
         else:
             return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
     else:
-        return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': formRicavoUpdate(instance=Ricavo.objects.get(id=id))})
+        return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': formRicavoUpdate(instance=ricavo)})
+
 
 @login_required
 def viewAllSpeseCommessa(request):
@@ -402,9 +492,128 @@ def viewUpdateSpesaGestione(request, id):
     else:
         return render(request, "Contabilita/SpesaGestione/UpdateSpesaGestione.html", {'form': formSpesaGestioneUpdate(instance=SpesaGestione.objects.get(id=id))})
 
+@login_required
+def viewAllFatture(request):
+    fattura_filter = FatturaFilter(request.GET, queryset=Fattura.objects.all().order_by("-data_registrazione"))
+    sum_fatture = round(fattura_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
+    return render(request, "Contabilita/Fattura/AllFatture.html",
+                  {"filter": fattura_filter, 'filter_queryset': list(fattura_filter.qs), 'sum_f': sum_fatture})
+
+@login_required
+def viewCreateFattura(request):
+    if (request.method == "POST"):
+        form = formFattura(request.POST)
+        anno = form['data_registrazione'].value()[0:4]
+        progressive_number_calendar = CalendarioContatore.objects.filter(id=anno).values('fatture')[0]['fatture']
+        CalendarioContatore.objects.filter(id=anno).update(fatture=progressive_number_calendar + 1)
+        form.set_identificativo(str('FT_{0:02}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
+        form.calcola_importo(float(form['imponibile'].value()))
+        if (form.is_valid()):
+            protocollo = form.cleaned_data.get('protocollo')
+            nuovo_importo = float(form.cleaned_data.get('importo') or 0)
+            if protocollo:
+                fatture_esistenti = Fattura.objects.filter(protocollo=protocollo)
+                totale_fatture = sum(float(f.importo) or 0 for f in fatture_esistenti) + nuovo_importo
+                if totale_fatture > float(protocollo.parcella):
+                    messages.error(
+                        request,
+                        f"ATTENZIONE! La somma degli importi delle fatture ({totale_fatture:.2f} €) associate al Protocollo {protocollo.identificativo} supera il valore della sua parcella ({protocollo.parcella:.2f} €)"
+                    )
+                    CalendarioContatore.objects.filter(id=anno).update(fatture=progressive_number_calendar)
+                    return render(request, "Contabilita/Fattura/CreateFattura.html", {'form': form})
+            form.save()
+            return redirect('AllFatture')
+        else:
+            CalendarioContatore.objects.filter(id=anno).update(fatture=progressive_number_calendar)
+            return render(request, "Contabilita/Fattura/CreateFattura.html", {'form': form})
+    else:
+        return render(request, "Contabilita/Fattura/CreateFattura.html", {'form': formFattura()})
+
+@login_required
+def viewDeleteFattura(id):
+    Fattura.objects.get(id=id).delete()
+    return redirect('AllFatture')
+
+@login_required
+def viewDeleteFattureGroup(request):
+    if request.method == "POST":
+        for task in request.POST.getlist('list[]'):
+            Fattura.objects.get(id=int(task)).delete()
+    return render(request, "Homepage/HomePageContabilita.html")
+
+@login_required
+def viewUpdateFattura(request, id):
+    fattura = Fattura.objects.get(id=id)
+    old_protocollo = fattura.protocollo
+    if (request.method == "POST"):
+        form = formFatturaUpdate(request.POST, instance=fattura)
+        anno = form['data_registrazione'].value()[:4]
+        progressive_number_calendar = CalendarioContatore.objects.filter(id=anno).values('fatture')[0]['fatture']
+        anno_pre = str(fattura.data_registrazione.year)
+        if anno != anno_pre:
+            CalendarioContatore.objects.filter(id=anno).update(fatture=progressive_number_calendar + 1)
+            form.set_identificativo(str('FT_{0:02}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
+        form.calcola_importo(float(form['imponibile'].value()))
+        if (form.is_valid()):
+            nuovo_protocollo = form.cleaned_data['protocollo']
+            nuovo_importo = float(form.cleaned_data.get('importo') or 0)
+            ricavi = fattura.ricavi_fattura.all()  # Ricavi associati alla fattura
+            if ricavi.exists():
+                # Prendiamo il primo protocollo tra i ricavi
+                protocollo_ricavi = ricavi.first().protocollo
+                tutti_ricavi_stesso_protocollo = all(r.protocollo == protocollo_ricavi for r in ricavi)
+                if not tutti_ricavi_stesso_protocollo:
+                    messages.error(request, f"ATTENZIONE! I ricavi Associati alla fattura {fattura.identificativo} sono assegnati a protocolli differenti")
+                    anno != anno_pre and CalendarioContatore.objects.filter(id=anno).update(
+                        fatture=progressive_number_calendar + 1)
+                    return render(request, "Contabilita/Fattura/UpdateFattura.html", {'form': form})
+                if (old_protocollo == protocollo_ricavi) and protocollo_ricavi != nuovo_protocollo:
+                    messages.error(
+                        request,
+                        f"ATTENZIONE! Alla fattura con identificativo: {fattura.identificativo} "
+                        f"non può essere modificato il protocollo con il valore {nuovo_protocollo}, "
+                        f"poiché i ricavi associati a questa fattura sono legati al protocollo {protocollo_ricavi}"
+                    )
+                    anno != anno_pre and CalendarioContatore.objects.filter(id=anno).update(
+                        fatture=progressive_number_calendar + 1)
+                    return render(request, "Contabilita/Fattura/UpdateFattura.html", {'form': form})
+
+            if nuovo_protocollo:
+                fatture_collegate = Fattura.objects.filter(protocollo=nuovo_protocollo).exclude(id=fattura.id)
+                totale_fatture = sum(float(f.importo) or 0 for f in fatture_collegate) + nuovo_importo
+                if totale_fatture > float(nuovo_protocollo.parcella):
+                    messages.error(
+                        request,
+                        f"ATTENZIONE! La somma degli importi delle Fatture diventerebbe ({totale_fatture:.2f} €) superando la parcella ({nuovo_protocollo.parcella:.2f} €) del protocollo {nuovo_protocollo.identificativo}"
+                    )
+                    anno != anno_pre and CalendarioContatore.objects.filter(id=anno).update(
+                        fatture=progressive_number_calendar + 1)
+                    return render(request, "Contabilita/Fattura/UpdateFattura.html", {'form': form})
+
+            somma_ricavi = ricavi.aggregate(Sum('importo'))['importo__sum'] or 0
+            if somma_ricavi > nuovo_importo:
+                messages.error(
+                    request,
+                    f"ATTENZIONE! La somma dei ricavi associati diventerebbe ({somma_ricavi:.2f} €) superando l'importo della fattura ({nuovo_importo:.2f} €)"
+                )
+                anno != anno_pre and CalendarioContatore.objects.filter(id=anno).update(
+                    fatture=progressive_number_calendar + 1)
+                return render(request, "Contabilita/Fattura/UpdateFattura.html", {'form': form})
+
+            # Nessun ricavo associato o controlli superati
+            form.save()
+            anno != anno_pre and Fattura.objects.filter(id=id).update(
+                identificativo=str('FT_{0:02}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
+            return redirect('AllFatture')
+        else:
+            anno != anno_pre and CalendarioContatore.objects.filter(id=anno).update(fatture=progressive_number_calendar + 1)
+            return render(request, "Contabilita/Fattura/UpdateFattura.html", {'form': form})
+    else:
+        return render(request, "Contabilita/Fattura/UpdateFattura.html",
+                  {'form': formFatturaUpdate(instance=fattura)})
+
+@login_required
 def viewResoconto(request):
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/")
     if (request.method == "POST"):
         form = form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(request.POST)
         if (form.is_valid()):
@@ -418,7 +627,6 @@ def viewResoconto(request):
             serie1 = [row[1] for row in ordinato]  # Spese
             serie2 = [row[2] for row in ordinato]  # Ricavi
             serie3 = [row[3] for row in ordinato]  # Utile
-
             context = {
                 'form': form,
                 'tabella_output1': risultato,
@@ -479,12 +687,13 @@ def viewContabilitaProtocolli(request):
 
 def export_input_table_xls(request, list, model):
     fields_models = {'protocollo': ['Identificativo', 'Nominativo Cliente', 'Telefono Cliente', 'Nominativo Referente', 'Telefono Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Registrazione', 'Data Consegna'],
-                     'ricavo': ['Data Registrazione', 'Movimento', 'Importo', 'Fattura', 'Id Protocollo', 'Indirizzo Protocollo', 'Note'],
+                     'ricavo': ['Data Registrazione', 'Movimento', 'Importo', 'Id Fattura', 'Id Protocollo', 'Indirizzo Protocollo', 'Note'],
                      'spesacommessa': ['Data Registrazione', 'Importo', 'Id Protocollo', 'Indirizzo Protocollo', 'Note'],
                      'spesagestione': ['Data Registrazione', 'Importo', 'Causale', 'Fattura'],
                      'consulenza': ['Data Registrazione', 'Richiedente', 'Indirizzo', 'Attivita', 'Compenso', 'Note', 'Data Scadenza', 'Data Consegna'],
                      'rubricaclienti': ['Nominativo', 'Telefono', 'Mail', 'Note'],
-                     'rubricareferenti': ['Nominativo', 'Telefono', 'Mail', 'Note']}
+                     'rubricareferenti': ['Nominativo', 'Telefono', 'Mail', 'Note'],
+                     'fattura': ['Identificativo', 'Data Registrazione', 'Id Protocollo', 'Intestatario Protocollo', 'Indirizzo Protocollo', 'Importo']}
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename="{}.xls"'.format(request.POST.get("fname"))
     wb = xlwt.Workbook(encoding='utf-8')
@@ -499,7 +708,7 @@ def export_input_table_xls(request, list, model):
     if model == 'protocollo':
         rows = Protocollo.objects.filter(identificativo__in=re.findall("(\d+-\d+)", list)).order_by('-identificativo').values_list('identificativo', 'cliente__nominativo', 'cliente__tel', 'referente__nominativo', 'referente__tel', 'indirizzo', 'pratica', 'parcella', 'note', 'data_registrazione', 'data_consegna')
     if model == 'ricavo':
-        rows = Ricavo.objects.filter(id__in=re.findall("(\d+)", list)).order_by('-data_registrazione').values_list('data_registrazione', 'movimento', 'importo', 'fattura', 'protocollo__identificativo', 'protocollo__indirizzo', 'note')
+        rows = Ricavo.objects.filter(id__in=re.findall("(\d+)", list)).order_by('-data_registrazione').values_list('data_registrazione', 'movimento', 'importo', 'fattura__identificativo', 'protocollo__identificativo', 'protocollo__indirizzo', 'note')
     if model == 'spesacommessa':
         rows = SpesaCommessa.objects.filter(id__in=re.findall("(\d+)", list)).order_by('-data_registrazione').values_list('data_registrazione', 'importo', 'protocollo__identificativo', 'protocollo__indirizzo', 'note')
     if model == 'spesagestione':
@@ -510,6 +719,8 @@ def export_input_table_xls(request, list, model):
         rows = RubricaClienti.objects.filter(tel__in=re.findall("(\d+)", list)).order_by('nominativo').values_list('nominativo', 'tel', 'mail', 'note')
     if model == 'rubricareferenti':
         rows = RubricaReferenti.objects.filter(tel__in=re.findall("(\d+)", list)).order_by('nominativo').values_list('nominativo', 'tel', 'mail', 'note')
+    if model == 'fattura':
+        rows = Fattura.objects.filter(identificativo__in=re.findall("(FT_\d+-\d+)", list)).order_by('-identificativo').values_list('identificativo', 'data_registrazione', 'protocollo__identificativo', 'protocollo__cliente__nominativo', 'protocollo__indirizzo', 'importo')
     for row in rows:
         row_num += 1
         for col_num in range(len(row)):

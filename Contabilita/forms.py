@@ -8,7 +8,7 @@ from dal import autocomplete
 from Contabilita import sqlite_queries as sqlite
 from django.forms import TextInput
 from django.db.models import Sum
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 YEARS = [x for x in range(1970, 2050)]
 MESI_ITALIANI = [
@@ -199,6 +199,58 @@ class formConsulenzaUpdate(forms.ModelForm):
         data['status'] = value
         self.data = data
 
+class formFattura(forms.ModelForm):
+    class Meta:
+        model = Fattura
+        fields = ('data_registrazione', 'imponibile', 'protocollo', 'identificativo', 'importo')
+        labels = {
+            "data_registrazione": "Data Registrazione* ",
+            "imponibile": "Imponibile* ",
+            "protocollo": "Protocollo "
+        }
+        widgets = {
+            'data_registrazione': DateInput(),
+            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')
+        }
+
+    def set_identificativo(self, value):
+        data = self.data.copy()
+        data['identificativo'] = value
+        self.data = data
+
+    def calcola_importo(self, imponibile):
+        data = self.data.copy()
+        data['importo'] = (Decimal(str(imponibile)) * Decimal('1.04')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        self.data = data
+
+class formFatturaUpdate(forms.ModelForm):
+    class Meta:
+        model = Fattura
+        fields = "__all__"
+        labels = {
+            "data_registrazione": "Data Registrazione* ",
+            "imponibile": "Imponibile* ",
+            "protocollo": "Protocollo ",
+        }
+        widgets = {
+            'data_registrazione': DateInput2(format='%Y-%m-%d'),
+            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['identificativo'].disabled = True
+
+    def set_identificativo(self, value):
+        data = self.data.copy()
+        data['identificativo'] = value
+        self.data = data
+
+    def calcola_importo(self, imponibile):
+        data = self.data.copy()
+        data['importo'] = (Decimal(str(imponibile)) * Decimal('1.04')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        self.data = data
+
 class formRicavo(forms.ModelForm):
     class Meta:
         model = Ricavo
@@ -214,7 +266,8 @@ class formRicavo(forms.ModelForm):
         }
         widgets = {
             'data_registrazione': DateInput(),
-            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')
+            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp'),
+            'fattura': autocomplete.ModelSelect2(url='fattura_autocomp')
         }
 
     def Check1(self):
@@ -238,7 +291,8 @@ class formRicavoUpdate(forms.ModelForm):
         }
         widgets = {
             'data_registrazione': DateInput2(format='%Y-%m-%d'),
-            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')
+            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp'),
+            'fattura': autocomplete.ModelSelect2(url='fattura_autocomp')
         }
 
     def Check2(self, id_ricavo):
@@ -254,7 +308,7 @@ class formSpesaCommessa(forms.ModelForm):
         labels = {
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
-            "protocollo": "Protocollo* ",
+            "protocollo": "Protocollo ",
             "note": "Note ",
             "provenienza": "Provenienza "
         }
@@ -270,7 +324,7 @@ class formSpesaCommessaUpdate(forms.ModelForm):
         labels = {
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
-            "protocollo": "Protocollo* ",
+            "protocollo": "Protocollo ",
             "note": "Note ",
             "provenienza": "Provenienza "
         }

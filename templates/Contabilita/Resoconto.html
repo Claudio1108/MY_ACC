@@ -79,7 +79,7 @@
                 datasets: [
                   {
                     label: 'Spese di gestione (€)',
-                    data: {{ serie1|safe }},
+                    data: {{ serie2|safe }},
                     borderColor: 'rgba(255, 99, 132, 1)',
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     pointBackgroundColor: 'rgba(255, 99, 132, 1)',
@@ -89,7 +89,7 @@
                   },
                   {
                     label: 'Ricavi (€)',
-                    data: {{ serie2|safe }},
+                    data: {{ serie1|safe }},
                     borderColor: 'rgba(54, 162, 235, 1)',
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
                     pointBackgroundColor: 'rgba(54, 162, 235, 1)',
@@ -164,8 +164,8 @@
                 {% if forloop.last %}
                     <tr>
                         <td>{{ item.0 }}</td>
-                        <td>{{ item.2 }} €</td>
                         <td>{{ item.1 }} €</td>
+                        <td>{{ item.2 }} €</td>
                         <td>{{ item.3 }} €</td>
                     </tr>
                 {% else %}

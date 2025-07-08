@@ -5,6 +5,7 @@
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript">
         	function selectAll(){
                 var items = document.getElementsByName('b1');
@@ -34,26 +35,37 @@
 				}
 				return list;
 			}
-            function deleteGroup(){
-                  var list=getSelected();
-                  if(list.length > 0){
-                    if(confirm('Sei sicuro di voler eliminare i Clienti selezionati ?')== true){
-                        $.ajax({
-                            type: "POST",
-                            url: "/DeleteClientiGroup/",
-                            data: {
-                                'list': list,
-                                csrfmiddlewaretoken: '{{ csrf_token }}'
-                            },
-                            success: function(response) {
-                                location.reload(true);
-                            },
-                            error: function(response){
-                                alert("failure");
-                            }
-                        });
-                    }
-                  }
+            function deleteGroup() {
+                var list = getSelected();
+                if (list.length > 0) {
+                    Swal.fire({
+                        title: 'Sei sicuro di voler eliminare i Clienti selezionati?',
+                        text: "Eliminerai anche tutti i Protocolli assegnati ai Clienti selezionati.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Sì, elimina!',
+                        cancelButtonText: 'Annulla'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                type: "POST",
+                                url: "/DeleteClientiGroup/",
+                                data: {
+                                    'list': list,
+                                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                                },
+                                success: function(response) {
+                                    location.reload(true);
+                                },
+                                error: function(response) {
+                                    Swal.fire('Errore', 'Si è verificato un errore durante l\'eliminazione.', 'error');
+                                }
+                            });
+                        }
+                    });
+                }
             }
             $(document).ready(function() {
                 $('input[type="checkbox"][name="b1"]').on('change', function() {

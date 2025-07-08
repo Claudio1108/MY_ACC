@@ -122,6 +122,8 @@ class SpesaCommessaFilter(django_filters.FilterSet):
         from_attrs={'placeholder': 'Da'},
         to_attrs={'placeholder': 'A'},
     ))
+    protocollo_exist = CustomBooleanFilter(label='Protocollo', field_name='protocollo', lookup_expr='isnull',
+                                           exclude=True)
     protocollo_id = django_filters.CharFilter(label='Protocollo [Identificativo]', field_name='protocollo__identificativo', lookup_expr='istartswith')
     protocollo_address = django_filters.CharFilter(label='Protocollo [Indirizzo]', field_name='protocollo__indirizzo', lookup_expr='istartswith')
     provenienza = django_filters.ChoiceFilter(
@@ -145,12 +147,14 @@ class RicavoFilter(django_filters.FilterSet):
         to_attrs={'placeholder': 'A'},
     ))
     protocollo_exist = CustomBooleanFilter(label='Protocollo', field_name='protocollo', lookup_expr='isnull', exclude=True)
-    fattura = django_filters.ChoiceFilter(
-        label='Fattura',
-        field_name='fattura',
-        choices=Ricavo._meta.get_field('fattura').choices,
-        empty_label="Indifferente"
-    )
+    fattura_exist = CustomBooleanFilter(label='Fattura', field_name='fattura', lookup_expr='isnull',
+                                        exclude=True)
+    # fattura = django_filters.ChoiceFilter(
+    #     label='Fattura',
+    #     field_name='fattura',
+    #     choices=Ricavo._meta.get_field('fattura').choices,
+    #     empty_label="Indifferente"
+    # )
     destinazione = django_filters.ChoiceFilter(
         label='Destinazione',
         field_name='destinazione',
@@ -158,8 +162,30 @@ class RicavoFilter(django_filters.FilterSet):
         empty_label="Indifferente"
     )
     protocollo_id = django_filters.CharFilter(label='Protocollo [Identificativo]', field_name='protocollo__identificativo', lookup_expr='istartswith')
+    fattura_id = django_filters.CharFilter(label='Fattura [Identificativo]',
+                                              field_name='fattura__identificativo', lookup_expr='istartswith')
     protocollo_address = django_filters.CharFilter(label='Protocollo [Indirizzo]', field_name='protocollo__indirizzo', lookup_expr='istartswith')
+
 
     class Meta:
         model = Ricavo
         fields = []
+
+class FatturaFilter(django_filters.FilterSet):
+    data_registrazione = django_filters.DateFromToRangeFilter(
+        label='Data Registrazione (Da - A)',
+        widget=MyRangeWidgetDate(),
+    )
+    identificativo = django_filters.CharFilter(label='Identificativo', field_name='identificativo',
+                                               lookup_expr='istartswith')
+    protocollo_exist = CustomBooleanFilter(label='Protocollo', field_name='protocollo', lookup_expr='isnull',
+                                           exclude=True)
+    protocollo_id = django_filters.CharFilter(label='Protocollo [Identificativo]',
+                                              field_name='protocollo__identificativo', lookup_expr='istartswith')
+    protocollo_intestatario = django_filters.CharFilter(label='Intestatario [Cliente-Protocollo]',
+                                              field_name='protocollo__cliente__nominativo', lookup_expr='istartswith')
+
+    class Meta:
+        model = Fattura
+        fields = []
+
