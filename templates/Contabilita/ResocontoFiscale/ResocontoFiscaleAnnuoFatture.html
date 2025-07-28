@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}ResocontoFiscaleAnnuoFatture{% endblock title %}
+{% block name %}<i>DETTAGLIO FATTURE {{ anno }}</i>{% endblock %}
+{% block scripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% endblock %}
+
+{% block content %}
+    <style>
+        tr.selected-row {
+            background-color: #fffaaf !important;
+            color: #333 !important;
+        }
+        table a {
+            color: #87ceeb;
+            text-decoration: none;
+        }
+        table a:hover {
+            color: #87ceeb;
+            text-decoration: underline;
+        }
+    </style>
+
+{% endblock %}

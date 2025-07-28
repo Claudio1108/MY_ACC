@@ -102,31 +102,87 @@
         color: #7f8c8d;
         font-size: 0.9rem;
     }
+    .module-card {
+        height: 100%;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        padding: 30px;
+        border-radius: 15px;
+        background-color: #6c7a89; /* il tuo grigio/azzurro */
+    }
+
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between; /* distribuisce in verticale */
+        text-align: center;
+        height: 100%;
+    }
+    .card-body img {
+        max-height: 200px;
+        object-fit: contain;
+        margin-bottom: 20px;
+    }
+    .module-title {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        min-height: 48px; /* forza l'altezza del titolo */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    .btn-module {
+        margin-top: auto;
+    }
 </style>
 
 <div class="dashboard-container">
-        <div class="row g-4">
-            <div class="col-md-6">
-                <div class="module-card">
-                    <div class="card-body">
-                        <img width="180" src="{% static 'images/guadagni.png'%}">
-                        <h3 class="module-title">RESOCONTO CONTABILE</h3>
-                        <a href="{% url 'Resoconto' %}" class="btn btn-module">ACCEDI</a>
-                    </div>
-                </div>
-            </div>
+    <div class="row g-4">
 
-            <div class="col-md-6">
-                <div class="module-card">
-                    <div class="card-body">
-                        <img width="220" src="{% static 'images/protocolli.png'%}">
-                        <h3 class="module-title">CONTABILITA' DEI PROTOCOLLI</h3>
-                        <a href="{% url 'ContabilitaProtocolli' %}" class="btn btn-module">ACCEDI</a>
-                    </div>
+        <div class="col-md-4">
+            <div class="module-card">
+                <div class="card-body">
+                    <img src="{% static 'images/guadagni.png' %}" alt="resoconto contabile">
+                    <h3 class="module-title">RESOCONTO CONTABILE</h3>
+                    <a href="{% url 'Resoconto' %}" class="btn btn-module">ACCEDI</a>
                 </div>
             </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="module-card">
+                <div class="card-body">
+                    <img src="{% static 'images/ricavi.png' %}" alt="resoconto fiscale">
+                    <h3 class="module-title">RESOCONTO FISCALE</h3>
+                    <a href="{% url 'ResocontoFiscale' %}" class="btn btn-module">ACCEDI</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="module-card">
+                <div class="card-body">
+                    <img src="{% static 'images/protocolli.png' %}" alt="contabilità dei protocolli">
+                    <h3 class="module-title">CONTABILITÀ DEI PROTOCOLLI</h3>
+                    <a href="{% url 'ContabilitaProtocolli' %}" class="btn btn-module">ACCEDI</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
 
     <script>
         localStorage.setItem('filter', '');
     </script>
+</div>
+
+    <script>
+        localStorage.setItem('filter', '');
+    </script>
+</div>
+
 {% endblock %}

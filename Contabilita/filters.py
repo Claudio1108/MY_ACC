@@ -27,10 +27,52 @@ class CustomBooleanFilter(django_filters.BooleanFilter):
         super().__init__(*args, **kwargs)
 
 class ClienteFilter(django_filters.FilterSet):
-    nominativo = django_filters.CharFilter(label='Nominativo', field_name='nominativo', lookup_expr='istartswith')
+    nominativo = django_filters.CharFilter(
+        label='Nominativo', field_name='nominativo', lookup_expr='istartswith'
+    )
+    stato_cliente = django_filters.ChoiceFilter(
+        label='Stato Cliente',
+        choices=(('attivo', 'Attivo'), ('non_attivo', 'Non Attivo')),
+        method='filter_attivo',
+        empty_label='Indifferente'
+    )
+
+    class Meta:
+        model = RubricaClienti
+        fields = ['nominativo', 'stato_cliente']
+
+    def filter_attivo(self, queryset, name, value):
+        if value == 'attivo':
+            # Clienti con almeno un protocollo attivo (data_consegna null)
+            return queryset.filter(protocollo__data_consegna__isnull=True).distinct()
+        elif value == 'non_attivo':
+            # Clienti che NON hanno protocolli attivi
+            return queryset.exclude(protocollo__data_consegna__isnull=True).distinct()
+        return queryset
 
 class ReferenteFilter(django_filters.FilterSet):
-    nominativo = django_filters.CharFilter(label='Nominativo', field_name='nominativo', lookup_expr='istartswith')
+    nominativo = django_filters.CharFilter(
+        label='Nominativo', field_name='nominativo', lookup_expr='istartswith'
+    )
+    stato_referente = django_filters.ChoiceFilter(
+        label='Stato Referente',
+        choices=(('attivo', 'Attivo'), ('non_attivo', 'Non Attivo')),
+        method='filter_attivo',
+        empty_label='Indifferente'
+    )
+
+    class Meta:
+        model = RubricaReferenti
+        fields = ['nominativo', 'stato_referente']
+
+    def filter_attivo(self, queryset, name, value):
+        if value == 'attivo':
+            # Referenti con almeno un protocollo attivo (data_consegna null)
+            return queryset.filter(protocollo__data_consegna__isnull=True).distinct()
+        elif value == 'non_attivo':
+            # Referenti che NON hanno protocolli attivi
+            return queryset.exclude(protocollo__data_consegna__isnull=True).distinct()
+        return queryset
 
 class ProtocolloFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(
@@ -99,8 +141,12 @@ class SpesaGestioneFilter(django_filters.FilterSet):
         from_attrs={'placeholder': 'Da'},
         to_attrs={'placeholder': 'A'},
     ))
+    identificativo = django_filters.CharFilter(label='Identificativo', field_name='identificativo',
+                                               lookup_expr='istartswith')
     fattura = django_filters.CharFilter(label='Fattura', field_name='fattura', lookup_expr='istartswith')
     causale = django_filters.CharFilter(label='Causale', field_name='causale', lookup_expr='istartswith')
+    f24_id = django_filters.CharFilter(label='F24 [Identificativo]',
+                                              field_name='f24__identificativo', lookup_expr='istartswith')
     provenienza = django_filters.ChoiceFilter(
         label='Provenienza',
         field_name='provenienza',
@@ -149,12 +195,6 @@ class RicavoFilter(django_filters.FilterSet):
     protocollo_exist = CustomBooleanFilter(label='Protocollo', field_name='protocollo', lookup_expr='isnull', exclude=True)
     fattura_exist = CustomBooleanFilter(label='Fattura', field_name='fattura', lookup_expr='isnull',
                                         exclude=True)
-    # fattura = django_filters.ChoiceFilter(
-    #     label='Fattura',
-    #     field_name='fattura',
-    #     choices=Ricavo._meta.get_field('fattura').choices,
-    #     empty_label="Indifferente"
-    # )
     destinazione = django_filters.ChoiceFilter(
         label='Destinazione',
         field_name='destinazione',
@@ -165,7 +205,6 @@ class RicavoFilter(django_filters.FilterSet):
     fattura_id = django_filters.CharFilter(label='Fattura [Identificativo]',
                                               field_name='fattura__identificativo', lookup_expr='istartswith')
     protocollo_address = django_filters.CharFilter(label='Protocollo [Indirizzo]', field_name='protocollo__indirizzo', lookup_expr='istartswith')
-
 
     class Meta:
         model = Ricavo
@@ -189,3 +228,40 @@ class FatturaFilter(django_filters.FilterSet):
         model = Fattura
         fields = []
 
+class CodiceTributoFilter(django_filters.FilterSet):
+    identificativo = django_filters.CharFilter(label='Identificativo', field_name='identificativo',
+                                               lookup_expr='istartswith')
+    anno = django_filters.ChoiceFilter(
+        label='Anno',
+        field_name='anno',
+        choices=CodiceTributo._meta.get_field('anno').choices,
+        empty_label="Indifferente"
+    )
+    mese = django_filters.ChoiceFilter(
+        label='Mese',
+        field_name='mese',
+        choices=CodiceTributo._meta.get_field('mese').choices,
+        empty_label="Indifferente"
+    )
+
+    class Meta:
+        model = CodiceTributo
+        fields = []
+
+class F24Filter(django_filters.FilterSet):
+    data_scadenza = django_filters.DateFromToRangeFilter(
+        label='Data Scadenza (Da - A)',
+        widget=MyRangeWidgetDate(),
+    )
+    identificativo = django_filters.CharFilter(label='Identificativo', field_name='identificativo',
+                                               lookup_expr='istartswith')
+    ente = django_filters.ChoiceFilter(
+        label='Ente',
+        field_name='ente',
+        choices=F24._meta.get_field('ente').choices,
+        empty_label="Indifferente"
+    )
+
+    class Meta:
+        model = F24
+        fields = []

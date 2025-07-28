@@ -13,7 +13,7 @@
             --primary-color: #2c3e50;
             --secondary-color: #495057;
             --admin-color: #b0e0e6;
-             --admin-color2: #EEE8AA;
+            --admin-color2: #EEE8AA;
             --light-bg: #f8f9fa;
             --border-color: #e0e0e0;
             --text-color: #333;
@@ -123,6 +123,18 @@
             border-radius: 5px;
             font-weight: bold;
             transition: opacity 0.5s ease-out;
+            list-style: none;
+        }
+        .success-message {
+            color: green;
+            border: 2px solid green;
+            background-color: #e6ffe6; /* verde chiaro */
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: opacity 0.5s ease-out;
+            list-style: none;
         }
         .fade-out {
             opacity: 0;
@@ -240,7 +252,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="navbar-brand" href="">
+                            <a class="navbar-brand" href="{% url 'AllF24' %}">
                                 <i class="fa-solid fa-scale-balanced"></i> Tasse
                             </a>
                         </li>
@@ -264,19 +276,36 @@
                     {% for message in messages %}
                         {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
                             <li class="error-message">{{ message }}</li>
+                        {% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                            <li class="success-message">{{ message }}</li>
+                        {% else %}
+                            <li class="info-message">{{ message }}</li>
                         {% endif %}
                     {% endfor %}
                 </ul>
 
                 <script>
-                    // Attende 5 secondi, poi fa sparire il messaggio
-                    setTimeout(function () {
-                        const messages = document.querySelectorAll('.error-message');
-                        messages.forEach(function (msg) {
-                            msg.classList.add('fade-out');
-                            setTimeout(() => msg.remove(), 500); // Rimuove dopo la transizione
-                        });
-                    }, 10000);
+                    // Gestione messaggi con timeout diversi
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const errorMessages = document.querySelectorAll('.error-message, .info-message');
+                        const successMessages = document.querySelectorAll('.success-message');
+
+                        // Errore e info: 10 secondi
+                        setTimeout(function () {
+                            errorMessages.forEach(function (msg) {
+                                msg.classList.add('fade-out');
+                                setTimeout(() => msg.remove(), 500); // Rimuove dopo la transizione
+                            });
+                        }, 10000);
+
+                        // Successo: 5 secondi
+                        setTimeout(function () {
+                            successMessages.forEach(function (msg) {
+                                msg.classList.add('fade-out');
+                                setTimeout(() => msg.remove(), 500);
+                            });
+                        }, 5000);
+                    });
                 </script>
             {% endif %}
             {% block content %}

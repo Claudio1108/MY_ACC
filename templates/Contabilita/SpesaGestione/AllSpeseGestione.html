@@ -151,6 +151,7 @@
                 <tr>
                     <th></th>
                     <th>MODIFICA</th>
+                    <th>Identificativo</th>
                     <th>Registrazione</th>
                     <th>Importo</th>
                     <th>Causale</th>
@@ -165,9 +166,20 @@
                         <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                     </td>
                     <td style='width: 15px;' align="center"><a href="/UpdateSpesaGestione/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
+                    <td style='width: 20px;'><b>{{ b.identificativo }}</b></td>
                     <td style='width: 90px;'>{{ b.data_registrazione }}</td>
                     <td style='width: 80px;'>{{ b.importo }} €</td>
-                    <td style='width: 110px;'>{{ b.causale|default_if_none:'' }}</td>
+                    <td style='width: 100px; overflow: auto;'>
+                        {% if b.f24 %}
+                            <a href="/F24Detail/{{ b.f24.id }}">
+                                {{ b.f24|default_if_none:'' }}
+                            </a>
+                        {% elif b.causale %}
+                            {{ b.causale }}
+                        {% else %}
+                            &nbsp;
+                        {% endif %}
+                    </td>
                     <td style='width: 110px;'>{{ b.fattura|default_if_none:'' }}</td>
                     <td style='width: 110px;'>{{ b.provenienza|default_if_none:'' }}</td>
                 </tr>

@@ -69,6 +69,46 @@ def resoconto_contabilita_protocolli(filter):
                        ORDER BY t1.identificativo) {filter}""".format(filter= f"WHERE cliente LIKE '{filter}%';" if filter else ''))
     return cursor.fetchall()
 
+def resoconto_fiscale():
+    cursor = connection.cursor()
+    query = """
+        SELECT
+            anni.anno,
+            ROUND(COALESCE(fatt.totale_fatturato, 0.0), 2) AS totale_fatturato,
+            ROUND(COALESCE(tasse.totale_tasse, 0.0), 2) AS totale_tasse,
+            ROUND(
+                COALESCE(fatt.totale_fatturato, 0.0) - COALESCE(tasse.totale_tasse, 0.0),
+                2
+            ) AS differenza,
+            ROUND(
+                CASE
+                    WHEN COALESCE(fatt.totale_fatturato, 0.0) = 0 THEN NULL
+                    ELSE COALESCE(tasse.totale_tasse, 0.0) / fatt.totale_fatturato
+                END,
+                2
+            ) AS percentuale_tasse_su_fatturato
+        FROM (
+            SELECT strftime('%Y', data_registrazione) AS anno
+            FROM Contabilita_fattura
+            UNION
+            SELECT CAST(anno AS TEXT) FROM Contabilita_codicetributo
+        ) AS anni
+        LEFT JOIN (
+            SELECT strftime('%Y', data_registrazione) AS anno, SUM(importo) AS totale_fatturato
+            FROM Contabilita_fattura
+            GROUP BY anno
+        ) AS fatt ON fatt.anno = anni.anno
+        LEFT JOIN (
+            SELECT CAST(anno AS TEXT) AS anno, SUM(COALESCE(debito, 0) - COALESCE(credito, 0)) AS totale_tasse
+            FROM Contabilita_codicetributo
+            GROUP BY anno
+        ) AS tasse ON tasse.anno = anni.anno
+        ORDER BY anni.anno DESC;
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
 #------------------------- forms.py ------------------------
 def extract_sum_all_importi_ricavi_of_protocol(id_protocollo):
     cursor = connection.cursor()

@@ -77,29 +77,38 @@
                     }
                 });
             });
+            document.addEventListener("DOMContentLoaded", function () {
+                const form = document.getElementById("filter-form");
+                if (!form) return;
+
+                // Submit automatico per select, checkbox, radio, date
+                form.querySelectorAll("select, input[type='checkbox'], input[type='radio'], input[type='date']").forEach(function(field) {
+                    field.addEventListener("change", function() {
+                        form.submit();
+                    });
+                });
+                // Per input testo nessun submit automatico (usa solo bottone)
+            });
     </script>
 {% endblock %}
 
 {% block content %}
-    <form method="get">
-        <table style="margin: 0 auto; border-spacing: 20px;">
+    <form id="filter-form" method="get">
+        <div class="filter-form">
             {% for field in filter.form %}
-                <tr>
-                    <td style="text-align: left; vertical-align: top; white-space: nowrap;">
-                        <label for="{{ field.id_for_label }}"><b>{{ field.label }}</b></label>
-                    </td>
-                    <td style="min-width: 300px; text-align: left;">
-                        <div style="width: 100%;">
-                            {{ field }}
-                        </div>
-                    </td>
-                </tr>
+                <div class="filter-item">
+                    <label class="filter-label" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                </div>
             {% endfor %}
-        </table>
-        <br>
-        <button type="submit" class="btn btn-light">
-            <i class="fa fa-filter" aria-hidden="true"></i> Filtra
-        </button>
+        </div>
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-light">
+                <i class="fa fa-filter" aria-hidden="true"></i> Filtra
+            </button>
+        </div>
     </form>
     </br>
     <style>

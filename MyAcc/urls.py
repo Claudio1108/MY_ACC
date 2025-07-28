@@ -18,7 +18,9 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 from Contabilita import views as contviews
 from django.conf.urls import  url
-from Contabilita.views import ProtocolloAutocomplete, ClienteAutocomplete, ReferenteAutocomplete, FatturaAutocomplete
+
+from Contabilita.views import ProtocolloAutocomplete, ClienteAutocomplete, ReferenteAutocomplete, FatturaAutocomplete, \
+     F24Autocomplete
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -75,10 +77,23 @@ urlpatterns = [
     path('DeleteFattura/<int:id>', contviews.viewDeleteFattura, name='DeleteFattura'),
     url(r'^DeleteFattureGroup/$', contviews.viewDeleteFattureGroup, name='DeleteFattureGroup'),
     path('UpdateFattura/<int:id>', contviews.viewUpdateFattura, name='UpdateFattura'),
+    #F24
+    path('AllF24/', contviews.viewAllF24, name='AllF24'),
+    path('CreateF24/', contviews.viewCreateF24, name='CreateF24'),
+    path('DeleteF24/<int:id>', contviews.viewDeleteF24, name='DeleteF24'),
+    url(r'^DeleteF24Group/$', contviews.viewDeleteF24Group, name='DeleteF24Group'),
+    path('UpdateF24/<int:id>', contviews.viewUpdateF24, name='UpdateF24'),
+    path('F24Detail/<int:id>', contviews.viewF24Detail, name='F24Detail'),
+    #Codice Tributo
+    path('CreateCodiceTributo/<int:f24_id>', contviews.viewCreateCodiceTributo, name='CreateCodiceTributo'),
+    path('DeleteCodiciTributoGroup/<int:f24_id>', contviews.viewDeleteCodiciTributoGroup, name='DeleteCodiciTributoGroup'),
+    path('UpdateCodiceTributo/<int:id>/<int:f24_id>', contviews.viewUpdateCodiceTributo, name='UpdateCodiceTributo'),
     #Output
     path('Resoconto/', contviews.viewResoconto, name='Resoconto'),
-    # path('ResocontoRicavi/', contviews.viewResocontoRicavi, name='ResocontoRicavi'),
-    # path('GestioneGuadagniEffettivi/', contviews.viewGestioneGuadagniEffettivi, name='GestioneGuadagniEffettivi'),
+    path('ResocontoFiscale/', contviews.viewResocontoFiscale, name='ResocontoFiscale'),
+    path('ResocontoFiscaleAnnuo/<int:anno>', contviews.viewResocontoFiscaleAnnuo, name='ResocontoFiscaleAnnuo'),
+    path('ResocontoFiscaleAnnuoFatture/<int:anno>', contviews.viewResocontoFiscaleAnnuoFatture, name='ResocontoFiscaleAnnuoFatture'),
+    path('ResocontoFiscaleAnnuoTasse/<int:anno>', contviews.viewResocontoFiscaleAnnuoTasse, name='ResocontoFiscaleAnnuoTasse'),
     path('ContabilitaProtocolli/', contviews.viewContabilitaProtocolli, name='ContabilitaProtocolli'),
     #Reporter
     url(r'^export_input_table/xls/\?list=(?P<list>.*)/\?model=(?P<model>.*)$', contviews.export_input_table_xls, name='export_input_table_xls'),
@@ -87,5 +102,6 @@ urlpatterns = [
     url(r'^proto-autocomp/$', ProtocolloAutocomplete.as_view(), name='proto_autocomp'),
     url(r'^cliente-autocomp/$', ClienteAutocomplete.as_view(), name='cliente_autocomp'),
     url(r'^referente-autocomp/$', ReferenteAutocomplete.as_view(), name='referente_autocomp'),
-    url(r'^fattura-autocomp/$', FatturaAutocomplete.as_view(), name='fattura_autocomp')
+    url(r'^fattura-autocomp/$', FatturaAutocomplete.as_view(), name='fattura_autocomp'),
+    url(r'^f24-autocomp/$', F24Autocomplete.as_view(), name='f24_autocomp')
 ]

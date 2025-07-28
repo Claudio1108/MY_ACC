@@ -61,10 +61,10 @@
         </a>
     </div>
     <div class="numero-box">
-      <img src="https://img.icons8.com/?size=100&id=40939&format=png" alt="Protocolli Consegnati" />
-      <div class="numero-valore" id="n2" data-count="{{ count_deactive_protocols }}">0</div>
-      <a href="{% url 'AllProtocols' %}?stato_protocollo=consegnato">
-        <div class="numero-label">Protocolli Consegnati</div>
+      <img src="https://img.icons8.com/?size=100&id=40939&format=png" alt="Protocolli Totali" />
+      <div class="numero-valore" id="n2" data-count="{{ count_protocols }}">0</div>
+      <a href="{% url 'AllProtocols' %}">
+        <div class="numero-label">Protocolli Totali</div>
       </a>
     </div>
     <div class="numero-box">
@@ -75,10 +75,10 @@
       </a>
     </div>
     <div class="numero-box">
-      <img src="https://img.icons8.com/?size=100&id=UeT94dCyirJ7&format=png" alt="Consulenze Consegnate" />
-      <div class="numero-valore" id="n4" data-count="{{ count_deactive_consultancies }}">0</div>
-      <a href="{% url 'AllConsulenze' %}?stato_consulenza=consegnato">
-        <div class="numero-label">Consulenze Consegnate</div>
+      <img src="https://img.icons8.com/?size=100&id=UeT94dCyirJ7&format=png" alt="Consulenze Totali" />
+      <div class="numero-valore" id="n4" data-count="{{ count_consultancies }}">0</div>
+      <a href="{% url 'AllConsulenze' %}">
+        <div class="numero-label">Consulenze Totali</div>
       </a>
     </div>
   </div>
@@ -87,17 +87,17 @@
 <div class="numeri-amministrazione">
   <div class="numeri-grid">
     <div class="numero-box">
-      <img src="https://img.icons8.com/ios-filled/100/user-group-man-man.png" alt="Clienti" />
-      <div class="numero-valore" id="n5" data-count="{{ count_clients }}">0</div>
-      <a href="{% url 'AllClienti' %}">
-        <div class="numero-label">Clienti</div>
+      <img src="https://img.icons8.com/ios-filled/100/user-group-man-man.png" alt="Clienti Attivi" />
+      <div class="numero-valore" id="n5" data-count="{{ count_active_clients }}">0</div>
+      <a href="{% url 'AllClienti' %}?stato_cliente=attivo">
+        <div class="numero-label">Clienti Attivi</div>
       </a>
     </div>
     <div class="numero-box">
-      <img src="https://img.icons8.com/ios-filled/100/businessman.png" alt="Referenti" />
-      <div class="numero-valore" id="n6" data-count="{{ count_referents }}">0</div>
-      <a href="{% url 'AllReferenti' %}">
-        <div class="numero-label">Referenti</div>
+      <img src="https://img.icons8.com/ios-filled/100/businessman.png" alt="Referenti Attivi" />
+      <div class="numero-valore" id="n6" data-count="{{ count_active_referents }}">0</div>
+      <a href="{% url 'AllReferenti' %}?stato_referente=attivo">
+        <div class="numero-label">Referenti Attivi</div>
       </a>
     </div>
   </div>

@@ -22,6 +22,10 @@
     {% csrf_token %}
     <table align="center">
         <tr>
+            <td style="text-align: right;"><label for="{{ form.identificativo.id_for_label }}"><b>Identificativo*</b></label></td>
+            <td style="text-align: left;">{{ form.identificativo }}</td>
+        </tr>
+        <tr>
             <td style="text-align: right;"><label for="{{ form.data_registrazione.id_for_label }}"><b>Data Registrazione*</b></label></td>
             <td style="text-align: left;">{{ form.data_registrazione }}</td>
         </tr>
@@ -32,6 +36,10 @@
         <tr>
             <td style="text-align: right;"><label for="{{ form.causale.id_for_label }}">Causale</label></td>
             <td style="text-align: left;">{{ form.causale }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: right;"><label for="{{ form.f24.id_for_label }}">F24</label></td>
+            <td style="text-align: left;">{{ form.f24 }}</td>
         </tr>
         <tr>
             <td style="text-align: right;"><label for="{{ form.fattura.id_for_label }}">Fattura</label></td>
@@ -48,4 +56,9 @@
     <input type="submit" class="btn btn-primary" value="Modifica Spesa di Gestione">
 </form>
 
+{% endblock %}
+
+{% block footer %}
+    <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+    {{ form.media }}
 {% endblock %}

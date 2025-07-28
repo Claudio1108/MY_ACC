@@ -338,26 +338,106 @@ class formSpesaGestione(forms.ModelForm):
         model = SpesaGestione
         fields = "__all__"
         labels = {
+            "identificativo": "Identificativo* ",
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
             "causale": "Causale ",
+            "f24": "F24 ",
             "fattura": "Fattura ",
             "provenienza": "Provenienza "
         }
-        widgets = {'data_registrazione': DateInput()}
+        widgets = {'data_registrazione': DateInput(),
+                   'f24': autocomplete.ModelSelect2(url='f24_autocomp')
+        }
 
 class formSpesaGestioneUpdate(forms.ModelForm):
     class Meta:
         model = SpesaGestione
         fields = "__all__"
         labels = {
+            "identificativo": "Identificativo* ",
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
             "causale": "Causale ",
+            "f24": "F24 ",
             "fattura": "Fattura ",
             "provenienza": "Provenienza "
         }
-        widgets = {'data_registrazione': DateInput2(format='%Y-%m-%d')}
+        widgets = {'data_registrazione': DateInput2(format='%Y-%m-%d'),
+                   'f24': autocomplete.ModelSelect2(url='f24_autocomp')
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['identificativo'].disabled = True
+
+class formCodiceTributo(forms.ModelForm):
+    class Meta:
+        model = CodiceTributo
+        fields = "__all__"
+        labels = {
+            "f24": "F24 ",
+            "identificativo": "Identificativo* ",
+            "anno": "Anno* ",
+            "mese": "Mese ",
+            "credito": "Credito ",
+            "debito": "Debito "
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['f24'].required = False
+        self.fields['f24'].widget.attrs['disabled'] = 'disabled'
+
+class formCodiceTributoUpdate(forms.ModelForm):
+    class Meta:
+        model = CodiceTributo
+        fields = "__all__"
+        labels = {
+            "f24": "F24 ",
+            "identificativo": "Identificativo* ",
+            "anno": "Anno ",
+            "mese": "Mese ",
+            "credito": "Credito ",
+            "debito": "Debito ",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['identificativo'].widget.attrs['disabled'] = 'disabled'
+        self.fields['f24'].required = False
+        self.fields['f24'].widget.attrs['disabled'] = 'disabled'
+
+class formF24(forms.ModelForm):
+    class Meta:
+        model = F24
+        fields = "__all__"
+        labels = {
+            "identificativo": "Identificativo* ",
+            "data_scadenza": "Data Scadenza* ",
+            "ente": "Ente* ",
+        }
+        widgets = {
+            'data_scadenza': DateInput2(format='%Y-%m-%d')
+        }
+
+class formF24Update(forms.ModelForm):
+    class Meta:
+        model = F24
+        fields = "__all__"
+        labels = {
+            "identificativo": "Identificativo ",
+            "data_scadenza": "Data Scadenza* ",
+            "ente": "Ente* ",
+        }
+        widgets = {
+            'data_scadenza': DateInput2(format='%Y-%m-%d')
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['identificativo'].disabled = True
+
 
 class form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(forms.Form):
     anno_inizio = forms.ChoiceField(
