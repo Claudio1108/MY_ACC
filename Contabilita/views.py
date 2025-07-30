@@ -3,6 +3,8 @@ import json
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import F, ExpressionWrapper, DecimalField, Max
+from django.db.models.functions import Round, Coalesce
 from .forms import *
 from .filters import *
 from datetime import date, datetime
@@ -836,15 +838,101 @@ def viewResocontoFiscale(request):
 
 @login_required
 def viewResocontoFiscaleAnnuo(request, anno):
-    return render(request, "Contabilita/ResocontoFiscale/ResocontoFiscaleAnnuo.html",{'anno': anno})
+    imponibile = round(Fattura.objects.filter(data_registrazione__year=anno).aggregate(somma=Sum('imponibile'))['somma'] or Decimal('0.00'), 2)
+    contributo_inarcassa = round(imponibile * Decimal('0.04'), 2)
+    fatturato = imponibile + contributo_inarcassa
+    importi_codicetributo_ade = CodiceTributo.objects.filter(
+        anno=anno,
+        f24__ente='AdE'
+    ).annotate(
+        importo=ExpressionWrapper(
+            F('debito') - F('credito'),
+            output_field=DecimalField(max_digits=14, decimal_places=2)
+        )
+    ).aggregate(
+        totale=Sum('importo')
+    )
+    importo_ade = importi_codicetributo_ade['totale'] or Decimal('0.00')
+    percentuale_importo_ade_su_fatturato =  round(importo_ade / fatturato * 100, 2) if fatturato != 0 else None
+    importi_codicetributo_inarcassa = CodiceTributo.objects.filter(
+        anno=anno,
+        f24__ente='INARCASSA'
+    ).annotate(
+        importo=ExpressionWrapper(
+            F('debito') - F('credito'),
+            output_field=DecimalField(max_digits=14, decimal_places=2)
+        )
+    ).aggregate(
+        totale=Sum('importo')
+    )
+    importo_inarcassa = round(importi_codicetributo_inarcassa.get('totale') or Decimal('0.00'), 2)
+    percentuale_importo_inarcassa_su_fatturato = round(importo_inarcassa / fatturato * 100, 2) if fatturato != 0 else None
+    importo_totale = importo_ade + importo_inarcassa
+    percentuale_importo_totale_su_fatturato = round(importo_totale / fatturato * 100, 2) if fatturato != 0 else None
+    percentuale =  round((importo_totale - contributo_inarcassa) / imponibile * 100, 2) if imponibile != 0 else None
+    return render(request, "Contabilita/ResocontoFiscale/ResocontoFiscaleAnnuo.html",
+                  {'anno': anno, 'imponibile': imponibile, 'contributo_inarcassa': contributo_inarcassa,
+                   'fatturato': fatturato, 'importo_ade': importo_ade, 'importo_ade_su_fatturato': percentuale_importo_ade_su_fatturato,
+                   'importo_inarcassa': importo_inarcassa, 'importo_inarcassa_su_fatturato': percentuale_importo_inarcassa_su_fatturato,
+                   'importo_totale': importo_totale, 'importo_totale_su_fatturato': percentuale_importo_totale_su_fatturato,
+                   'percentuale': percentuale})
 
 @login_required
 def viewResocontoFiscaleAnnuoFatture(request, anno):
-    return render(request, "Contabilita/ResocontoFiscale/ResocontoFiscaleAnnuoFatture.html",{'anno': anno})
+    fatture = (
+        Fattura.objects
+        .filter(data_registrazione__year=anno)
+        .annotate(
+            contributo_inarcassa=Round(
+                ExpressionWrapper(
+                    F('imponibile') * Decimal('0.04'),
+                    output_field=DecimalField(max_digits=14, decimal_places=4)
+                ),
+                precision=2
+            ),
+            data_pagamento=Max('ricavi_fattura__data_registrazione'),
+            intestatario=F('protocollo__cliente__nominativo')
+        )
+        .values(
+            'identificativo',
+            'intestatario',
+            'imponibile',
+            'contributo_inarcassa',
+            'data_pagamento',
+            'id'
+        )
+        .order_by('data_registrazione')
+    )
+    return render(request, "Contabilita/ResocontoFiscale/ResocontoFiscaleAnnuoFatture.html",{'anno': anno, 'fatture': fatture})
 
 @login_required
 def viewResocontoFiscaleAnnuoTasse(request, anno):
-    return render(request, "Contabilita/ResocontoFiscale/ResocontoFiscaleAnnuoTasse.html", {'anno': anno})
+    codici = (
+        CodiceTributo.objects
+        .filter(anno=anno)
+        .annotate(
+            importo=ExpressionWrapper(
+                Coalesce(F('debito'), 0) - Coalesce(F('credito'), 0),
+                output_field=DecimalField(max_digits=14, decimal_places=2)
+            ),
+            identificativo_f24=F('f24__identificativo'),
+            ente=F('f24__ente'),
+            data_pagamento=F('f24__spesagestione__data_registrazione'),
+            id_f24=F('f24__id')  # <-- ID dell'F24
+        )
+        .values(
+            'id',  # ID del CodiceTributo
+            'identificativo',
+            'anno',
+            'importo',
+            'identificativo_f24',
+            'id_f24',
+            'ente',
+            'data_pagamento'
+        )
+        .order_by('f24__data_scadenza', 'identificativo')
+    )
+    return render(request, "Contabilita/ResocontoFiscale/ResocontoFiscaleAnnuoTasse.html", {'anno': anno, 'codici': codici})
 
 @login_required
 def viewContabilitaProtocolli(request):
@@ -912,10 +1000,6 @@ def export_output_table_xls(request, numquery, data_inizio, data_fine):
         output = 'ricavi'
         columns = ['Anno', 'Importo Fatturato', 'Tasse', 'Utile', '%']
         rows = sqlite.resoconto_fiscale()
-    # if int(numquery) == 3:
-    #     output = 'guadagni_eff'
-    #     columns = ['Mese', 'Guadagni Teorici (€)', 'Guadagni Effettivi (€)', 'Daniele (€)', 'Laura (€)', 'Federico (€)', 'GT - GE (€)']
-    #     rows = sqlite.resoconto_guadagni_effettivi(year)
     if int(numquery) == 4:
         output = 'contabilita_protocolli'
         columns = ['Id', 'Identificativo', 'Cliente', 'Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Entrate', 'Uscite', 'Saldo']
