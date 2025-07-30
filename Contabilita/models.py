@@ -1,5 +1,6 @@
 from django.db import models
 from ckeditor.fields import RichTextField
+from django.core.validators import MinValueValidator
 
 class RubricaClienti(models.Model):
     nominativo = models.CharField(max_length=40) #obbligatorio
@@ -19,29 +20,19 @@ class RubricaReferenti(models.Model):
     def __str__(self):
         return self.nominativo + "/" + self.tel
 
-class Socio(models.Model):
-    nome = models.CharField(max_length=25)
-    cognome = models.CharField(max_length=25)
-    percentuale = models.DecimalField(max_digits=4, decimal_places=2)
-
-    def __str__(self):
-        return self.nome + " " + self.cognome
-
 class Protocollo(models.Model):
     identificativo = models.CharField(max_length=10, blank=True)
     data_registrazione = models.DateField(auto_now=False, auto_now_add=False)  #obbligatorio
     #foreign_key
     cliente = models.ForeignKey(RubricaClienti, on_delete=models.CASCADE)  # obbligatorio
-    referente = models.ForeignKey(RubricaReferenti, on_delete=models.CASCADE, null=True, blank=True)
-    indirizzo = models.CharField(max_length=30) #obbligatorio
+    referente = models.ForeignKey(RubricaReferenti, on_delete=models.SET_NULL, null=True, blank=True)
+    indirizzo = models.CharField(max_length=100) #obbligatorio
     pratica = models.CharField(max_length=30)   #obbligatorio
-    parcella = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
+    parcella = models.DecimalField(max_digits=14, decimal_places=2, validators = [MinValueValidator(0)]) #obbligatorio
     note = RichTextField(null=True, blank=True)
     data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None) #obbligatorio
     data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     status = models.IntegerField(default=None, null=True, blank=True)
-    #foreign_key
-    responsabile = models.ForeignKey(Socio, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return str(self.identificativo)+" | "+str(self.indirizzo)
@@ -49,14 +40,27 @@ class Protocollo(models.Model):
     class Meta:
         ordering = ['-identificativo']
 
+class Fattura(models.Model):
+    identificativo = models.CharField(max_length=10)
+    data_registrazione = models.DateField(auto_now=False, auto_now_add=False)
+    imponibile = models.DecimalField(max_digits=14, decimal_places=2, validators = [MinValueValidator(0)])
+    importo = models.DecimalField(max_digits=14, decimal_places=2, validators = [MinValueValidator(0)], null=True)
+    # foreign_key
+    protocollo = models.ForeignKey(Protocollo, on_delete=models.SET_NULL, related_name='fatture', null=True, blank=True)
+
+    def __str__(self):
+        return str(self.identificativo)
+
+    class Meta:
+        ordering = ['-identificativo']
+
 class Ricavo(models.Model):
     data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
     movimento = models.CharField(max_length=15, choices=(('ACCONTO', 'ACCONTO'),('SALDO', 'SALDO')), default="ACCONTO")
-    importo = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
-    fattura = models.CharField(max_length=2, choices=(('SI', 'SI'),('NO', 'NO')), default='NO')
+    importo = models.DecimalField(max_digits=14, decimal_places=2, validators = [MinValueValidator(0)]) #obbligatorio
     # foreign_key
-    intestatario_fattura = models.ForeignKey(Socio, on_delete=models.CASCADE, related_name="sociofatturaricavo", null=True, blank=True)
-    protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="ricavi", null=True, blank=True)
+    fattura = models.ForeignKey(Fattura, on_delete=models.SET_NULL, related_name="ricavi_fattura", null=True, blank=True)
+    protocollo = models.ForeignKey(Protocollo, on_delete=models.SET_NULL, related_name="ricavi", null=True, blank=True)
     note = RichTextField(null=True, blank=True)
     destinazione = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="DEPOSITO")
 
@@ -65,28 +69,10 @@ class Ricavo(models.Model):
 
 class SpesaCommessa(models.Model):
     data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
-    importo = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
+    importo = models.DecimalField(max_digits=14, decimal_places=2, validators = [MinValueValidator(0)]) #obbligatorio
     # foreign_key
-    protocollo = models.ForeignKey(Protocollo, on_delete=models.CASCADE, related_name="spesecommessa", null=True,blank=True)
+    protocollo = models.ForeignKey(Protocollo, on_delete=models.SET_NULL, related_name="spesecommessa", null=True, blank=True)
     note = RichTextField(null=True, blank=True)
-    provenienza = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="DEPOSITO")
-
-    def __str__(self):
-        return "id: "+str(self.id)
-
-class SpesaGestione(models.Model):
-    data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
-    importo = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
-    causale = models.CharField(max_length=30, default="", null=True, blank=True)
-    fattura = models.CharField(max_length=50, default="", null=True, blank=True)
-    provenienza = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="DEPOSITO")
-
-    def __str__(self):
-        return "id: "+str(self.id)
-
-class GuadagnoEffettivo(models.Model):
-    data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
-    importo = models.DecimalField(max_digits=14, decimal_places=2) #obbligatorio
     provenienza = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="DEPOSITO")
 
     def __str__(self):
@@ -95,15 +81,68 @@ class GuadagnoEffettivo(models.Model):
 class Consulenza(models.Model):
     data_registrazione = models.DateField(auto_now=False, auto_now_add=False)  #obbligatorio
     richiedente = models.CharField(max_length=40, null=True, blank=True)
-    indirizzo = models.CharField(max_length=30)
+    indirizzo = models.CharField(max_length=100)
     attivita = models.CharField(max_length=40)  #obbligatorio
-    compenso = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    compenso = models.DecimalField(max_digits=14, decimal_places=2, default=0, validators = [MinValueValidator(0)])
     note = RichTextField(null=True, blank=True)
     data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None)  #obbligatorio
     data_consegna = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     status = models.IntegerField(default=None, null=True, blank=True)
+
+class F24(models.Model):
+    data_scadenza = models.DateField(auto_now=False, auto_now_add=False, default=None) #obbligatorio
+    identificativo = models.CharField(max_length=50, unique=True) #obbligatorio
+    ente = models.CharField(max_length=15, choices=(('AdE', 'AdE'), ('INARCASSA', 'INARCASSA')), null=False,
+                            blank=False)  # obbligatorio
+
+    def __str__(self):
+        return f"F24 - {self.identificativo}"
+
+class CodiceTributo(models.Model):
+    MESE_CHOICES = [
+        ('Gennaio', 'Gennaio'),
+        ('Febbraio', 'Febbraio'),
+        ('Marzo', 'Marzo'),
+        ('Aprile', 'Aprile'),
+        ('Maggio', 'Maggio'),
+        ('Giugno', 'Giugno'),
+        ('Luglio', 'Luglio'),
+        ('Agosto', 'Agosto'),
+        ('Settembre', 'Settembre'),
+        ('Ottobre', 'Ottobre'),
+        ('Novembre', 'Novembre'),
+        ('Dicembre', 'Dicembre'),
+    ]
+    ANNO_CHOICES = [(anno, str(anno)) for anno in range(2050, 1969, -1)]
+    anno = models.PositiveIntegerField(choices=ANNO_CHOICES, null=False, blank=False) # obbligatorio
+    mese = models.CharField(max_length=10, choices=MESE_CHOICES, null=True, blank=True)
+    identificativo = models.CharField(max_length=50, null=False, blank=False) # obbligatorio
+    debito = models.DecimalField(max_digits=14, decimal_places=2, validators = [MinValueValidator(0)], null=True, blank=True)
+    credito =  models.DecimalField(max_digits=14, decimal_places=2, validators = [MinValueValidator(0)], null=True, blank=True)
     # foreign_key
-    responsabile = models.ForeignKey(Socio, on_delete=models.CASCADE, null=True, blank=True)
+    f24 = models.ForeignKey(F24, on_delete=models.CASCADE, related_name='codicetributo', null=False, blank=False) # obbligatorio
+
+    def __str__(self):
+        return f"{self.identificativo}"
+
+class SpesaGestione(models.Model):
+    identificativo = models.CharField(max_length=50, null=False, blank=False)  # obbligatorio
+    data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
+    importo = models.DecimalField(max_digits=14, decimal_places=2, validators = [MinValueValidator(0)]) #obbligatorio
+    causale = models.CharField(max_length=30, default="", null=True, blank=True)
+    fattura = models.CharField(max_length=50, default="", null=True, blank=True)
+    provenienza = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="DEPOSITO")
+    f24 = models.OneToOneField(
+        F24,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='spesagestione'
+    )
+
+    def __str__(self):
+        return f"{self.identificativo} | {self.data_registrazione} | {self.importo} €"
 
 class CalendarioContatore(models.Model):
-    count = models.IntegerField()
+    count = models.IntegerField(default=0)
+    fatture = models.IntegerField(default=0)

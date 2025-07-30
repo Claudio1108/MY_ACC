@@ -1,6 +1,128 @@
 {% extends 'base3.html' %}
 {% load static %}
 {% block title %}AMMINISTRAZIONE{% endblock title %}
-{% block name %}<i>AMMINISTRAZIONE - STUDIO DOA</i>{% endblock %}
+{% block name %}
+<i><img src="{% static 'images/p.png' %}" width="50" style="vertical-align: bottom; margin: 0; padding: 0; display: inline;">
+    ratika Office Manager - AMMINISTRAZIONE</i>
+{% endblock %}
 {% block content %}
+<style>
+  .numeri-amministrazione {
+    max-width: 1200px;
+    margin: auto;
+    /*padding: 40px 20px;*/
+    text-align: center;
+  }
+  .numeri-amministrazione h2 {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 50px;
+  }
+  .numeri-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 50px;
+    justify-items: center;
+    align-items: center;
+  }
+  .numero-box {
+    padding: 10px;
+    transition: transform 0.3s ease;
+  }
+  .numero-box:hover {
+    transform: scale(1.05);
+  }
+  .numero-box img {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 10px;
+  }
+  .numero-valore {
+    font-size: 56px;
+    font-weight: 800;
+    color: #1a237e;
+    line-height: 1.2;
+  }
+  .numero-label {
+    font-size: 20px;
+    color: #1a237e;
+    margin-top: 5px;
+    font-weight: 500;
+  }
+</style>
+
+<div class="numeri-amministrazione">
+  <div class="numeri-grid">
+    <div class="numero-box">
+        <img src="https://img.icons8.com/?size=100&id=zIJ7FbTRUVFT&format=png" alt="Protocolli Attivi" />
+        <div class="numero-valore" id="n1" data-count="{{ count_active_protocols }}">0</div>
+        <a href="{% url 'AllProtocols' %}?stato_protocollo=attivo">
+          <div class="numero-label">Protocolli Attivi</div>
+        </a>
+    </div>
+    <div class="numero-box">
+      <img src="https://img.icons8.com/?size=100&id=40939&format=png" alt="Protocolli Totali" />
+      <div class="numero-valore" id="n2" data-count="{{ count_protocols }}">0</div>
+      <a href="{% url 'AllProtocols' %}">
+        <div class="numero-label">Protocolli Totali</div>
+      </a>
+    </div>
+    <div class="numero-box">
+      <img src="https://img.icons8.com/?size=100&id=37930&format=png" alt="Consulenze Attive" />
+      <div class="numero-valore" id="n3" data-count="{{ count_active_consultancies }}">0</div>
+      <a href="{% url 'AllConsulenze' %}?stato_consulenza=attivo">
+        <div class="numero-label">Consulenze Attive</div>
+      </a>
+    </div>
+    <div class="numero-box">
+      <img src="https://img.icons8.com/?size=100&id=UeT94dCyirJ7&format=png" alt="Consulenze Totali" />
+      <div class="numero-valore" id="n4" data-count="{{ count_consultancies }}">0</div>
+      <a href="{% url 'AllConsulenze' %}">
+        <div class="numero-label">Consulenze Totali</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="numeri-amministrazione">
+  <div class="numeri-grid">
+    <div class="numero-box">
+      <img src="https://img.icons8.com/ios-filled/100/user-group-man-man.png" alt="Clienti Attivi" />
+      <div class="numero-valore" id="n5" data-count="{{ count_active_clients }}">0</div>
+      <a href="{% url 'AllClienti' %}?stato_cliente=attivo">
+        <div class="numero-label">Clienti Attivi</div>
+      </a>
+    </div>
+    <div class="numero-box">
+      <img src="https://img.icons8.com/ios-filled/100/businessman.png" alt="Referenti Attivi" />
+      <div class="numero-valore" id="n6" data-count="{{ count_active_referents }}">0</div>
+      <a href="{% url 'AllReferenti' %}?stato_referente=attivo">
+        <div class="numero-label">Referenti Attivi</div>
+      </a>
+    </div>
+  </div>
+</div>
+<script>
+  function animateCounter(id, start, end, duration) {
+    const element = document.getElementById(id);
+    let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      element.textContent = Math.floor(progress * (end - start) + start).toLocaleString();
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    window.requestAnimationFrame(step);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const stats = document.querySelectorAll("[data-count]");
+    stats.forEach((el) => {
+      const endValue = parseInt(el.getAttribute("data-count")) || 0;
+      animateCounter(el.id, 0, endValue, 500);
+    });
+  });
+</script>
 {% endblock %}

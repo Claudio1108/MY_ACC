@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}ResocontoFiscaleAnnuoFatture{% endblock title %}
+{% block name %}<i>DETTAGLIO FATTURE {{ anno }}</i>{% endblock %}
+{% block scripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% endblock %}
+
+{% block content %}
+    <style>
+        tr.selected-row {
+            background-color: #fffaaf !important;
+            color: #333 !important;
+        }
+        table a {
+            color: #87ceeb;
+            text-decoration: none;
+        }
+        table a:hover {
+            color: #87ceeb;
+            text-decoration: underline;
+        }
+    </style>
+
+    <div style="max-height:500px; overflow-x:auto; overflow-y:auto; border:1px solid black;">
+        <table class="tabella-con-bordi" width="100%" border="1" cellpadding="5" cellspacing="0">
+            <thead bgcolor="#383838" style="color:white; position: sticky; top: 0; z-index: 100;">
+                <tr>
+                    <th>Identificativo Fattura</th>
+                    <th>Intestatario</th>
+                    <th>Imponibile</th>
+                    <th>Contributo INARCASSA</th>
+                    <th>Data Pagamento</th>
+                </tr>
+            </thead>
+            {% for f in fatture %}
+                <tr style="background-color:#585858; color:white;">
+                    <td>
+                        {% if f.identificativo %}
+                            <a href="{% url 'UpdateFattura' id=f.id %}">
+                                <b>{{ f.identificativo }}</b>
+                            </a>
+                        {% else %}
+                            &nbsp;
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'AllClienti' %}?nominativo={{ f.intestatario }}">
+                            {{ f.intestatario|default_if_none:'' }}
+                        </a>
+                    </td>
+                    <td>{{ f.imponibile }} €</td>
+                    <td>{{ f.contributo_inarcassa|floatformat:2 }} €</td>
+                    <td>{{ f.data_pagamento|default_if_none:'' }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+{% endblock %}

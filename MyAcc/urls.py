@@ -18,7 +18,9 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 from Contabilita import views as contviews
 from django.conf.urls import  url
-from Contabilita.views import ProtocolloAutocomplete, ClienteAutocomplete, ReferenteAutocomplete
+
+from Contabilita.views import ProtocolloAutocomplete, ClienteAutocomplete, ReferenteAutocomplete, FatturaAutocomplete, \
+     F24Autocomplete
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -63,31 +65,43 @@ urlpatterns = [
     path('DeleteSpesaCommessa/<int:id>', contviews.viewDeleteSpesaCommessa, name='DeleteSpesaCommessa'),
     url(r'^DeleteSpeseCommessaGroup/$', contviews.viewDeleteSpeseCommessaGroup, name='DeleteSpeseCommessaGroup'),
     path('UpdateSpesaCommessa/<int:id>', contviews.viewUpdateSpesaCommessa, name='UpdateSpesaCommessa'),
-    #Socio
-    path('AllSoci/', contviews.viewAllSoci, name='AllSoci'),
-    path('UpdateSocio/<int:id>', contviews.viewUpdateSocio, name='UpdateSocio'),
     #SpesaGestione
     path('AllSpeseGestione/', contviews.viewAllSpeseGestione, name='AllSpeseGestione'),
     path('CreateSpesaGestione/', contviews.viewCreateSpesaGestione, name='CreateSpesaGestione'),
     path('DeleteSpesaGestione/<int:id>', contviews.viewDeleteSpesaGestione, name='DeleteSpesaGestione'),
     url(r'^DeleteSpeseGestioneGroup/$', contviews.viewDeleteSpeseGestioneGroup, name='DeleteSpeseGestioneGroup'),
     path('UpdateSpesaGestione/<int:id>', contviews.viewUpdateSpesaGestione, name='UpdateSpesaGestione'),
-    #GuadagnoEffettivo
-    path('AllGuadagnoEffettivi/', contviews.viewAllGuadagniEffettivi, name='AllGuadagniEffettivi'),
-    path('CreateGuadagnoEffettivo/', contviews.viewCreateGuadagnoEffettivo, name='CreateGuadagnoEffettivo'),
-    path('DeleteGuadagnoEffettivo/<int:id>', contviews.viewDeleteGuadagnoEffettivo, name='DeleteGuadagnoEffettivo'),
-    url(r'^DeleteGuadagniEffettiviGroup/$', contviews.viewDeleteGuadagniEffettiviGroup, name='DeleteGuadagniEffettiviGroup'),
-    path('UpdateGuadagnoEffettivo/<int:id>', contviews.viewUpdateGuadagnoEffettivo, name='UpdateGuadagnoEffettivo'),
+    #Fattura
+    path('AllFatture/', contviews.viewAllFatture, name='AllFatture'),
+    path('CreateFattura/', contviews.viewCreateFattura, name='CreateFattura'),
+    path('DeleteFattura/<int:id>', contviews.viewDeleteFattura, name='DeleteFattura'),
+    url(r'^DeleteFattureGroup/$', contviews.viewDeleteFattureGroup, name='DeleteFattureGroup'),
+    path('UpdateFattura/<int:id>', contviews.viewUpdateFattura, name='UpdateFattura'),
+    #F24
+    path('AllF24/', contviews.viewAllF24, name='AllF24'),
+    path('CreateF24/', contviews.viewCreateF24, name='CreateF24'),
+    path('DeleteF24/<int:id>', contviews.viewDeleteF24, name='DeleteF24'),
+    url(r'^DeleteF24Group/$', contviews.viewDeleteF24Group, name='DeleteF24Group'),
+    path('UpdateF24/<int:id>', contviews.viewUpdateF24, name='UpdateF24'),
+    path('F24Detail/<int:id>', contviews.viewF24Detail, name='F24Detail'),
+    #Codice Tributo
+    path('CreateCodiceTributo/<int:f24_id>', contviews.viewCreateCodiceTributo, name='CreateCodiceTributo'),
+    path('DeleteCodiciTributoGroup/<int:f24_id>', contviews.viewDeleteCodiciTributoGroup, name='DeleteCodiciTributoGroup'),
+    path('UpdateCodiceTributo/<int:id>/<int:f24_id>', contviews.viewUpdateCodiceTributo, name='UpdateCodiceTributo'),
     #Output
-    path('ResocontoSpeseGestione/', contviews.viewResocontoSpeseGestione, name='ResocontoSpeseGestione'),
-    path('ResocontoRicavi/', contviews.viewResocontoRicavi, name='ResocontoRicavi'),
-    path('GestioneGuadagniEffettivi/', contviews.viewGestioneGuadagniEffettivi, name='GestioneGuadagniEffettivi'),
+    path('Resoconto/', contviews.viewResoconto, name='Resoconto'),
+    path('ResocontoFiscale/', contviews.viewResocontoFiscale, name='ResocontoFiscale'),
+    path('ResocontoFiscaleAnnuo/<int:anno>', contviews.viewResocontoFiscaleAnnuo, name='ResocontoFiscaleAnnuo'),
+    path('ResocontoFiscaleAnnuoFatture/<int:anno>', contviews.viewResocontoFiscaleAnnuoFatture, name='ResocontoFiscaleAnnuoFatture'),
+    path('ResocontoFiscaleAnnuoTasse/<int:anno>', contviews.viewResocontoFiscaleAnnuoTasse, name='ResocontoFiscaleAnnuoTasse'),
     path('ContabilitaProtocolli/', contviews.viewContabilitaProtocolli, name='ContabilitaProtocolli'),
     #Reporter
     url(r'^export_input_table/xls/\?list=(?P<list>.*)/\?model=(?P<model>.*)$', contviews.export_input_table_xls, name='export_input_table_xls'),
-    url(r'^export_output_table/xls/\?numquery=(?P<numquery>.*)/\?year=(?P<year>.*)$', contviews.export_output_table_xls, name='export_output_table_xls'),
+    url(r'^export_output_table/xls/\?numquery=(?P<numquery>.*)/\?data_inizio=(?P<data_inizio>.*)/\?data_fine=(?P<data_fine>.*)$', contviews.export_output_table_xls, name='export_output_table_xls'),
     #Autocompletamento
     url(r'^proto-autocomp/$', ProtocolloAutocomplete.as_view(), name='proto_autocomp'),
     url(r'^cliente-autocomp/$', ClienteAutocomplete.as_view(), name='cliente_autocomp'),
-    url(r'^referente-autocomp/$', ReferenteAutocomplete.as_view(), name='referente_autocomp')
+    url(r'^referente-autocomp/$', ReferenteAutocomplete.as_view(), name='referente_autocomp'),
+    url(r'^fattura-autocomp/$', FatturaAutocomplete.as_view(), name='fattura_autocomp'),
+    url(r'^f24-autocomp/$', F24Autocomplete.as_view(), name='f24_autocomp')
 ]

@@ -40,6 +40,13 @@ INSTALLED_APPS = [
     'dal_select2',
     'ckeditor'
 ]
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'enterMode': 2,  # CKEDITOR.ENTER_BR
+        'shiftEnterMode': 1,  # CKEDITOR.ENTER_P
+    }
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -66,6 +73,7 @@ TEMPLATES = [
     },
 ]
 WSGI_APPLICATION = 'MyAcc.wsgi.application'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
@@ -109,10 +117,11 @@ STATICFILES_DIRS = (
 
 LOGIN_REDIRECT_URL = 'HomePage'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+LOGIN_URL = '/accounts/login/'
 
 # i due parametri seguenti possono essere usati in combinazione
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # se impostato a True, la sessione scade alla chiusura di tutte le finestre del browser.
 # se impostato a False, il cookie viene memorizzato permanentemente sul browser e non bisognerà più reinserire le credenziali.
-SESSION_COOKIE_AGE = 7200
+SESSION_COOKIE_AGE = 18000  # 5 ore
 # la sessione scade dopo n secondi. Dopo un tempo stabilito per poter utilizzare il sito andranno reinserite le credenziali.

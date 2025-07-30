@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}ResocontoFiscale{% endblock title %}
+{% block name %}<i>RESOCONTO FISCALE</i>{% endblock %}
+{% block content %}
+    <table align="left" style="width:100%">
+        <tr>
+<!--            <form method="post" action="{% url 'ContabilitaProtocolli' %}">-->
+<!--                {% csrf_token %}-->
+<!--                <b>Cliente </b>-->
+<!--                <input id="cliente_filter" type="text" name="filter" value="{{ cliente_filter }}"></br></br>-->
+<!--                <button type="submit" class="btn btn-light" onclick="cacheFilter()"><i class="fa fa-filter" aria-hidden="true"></i> Filtra</button>-->
+<!--            </form>-->
+        </tr>
+        <tr>
+            <td>
+                <div align="right">
+                <form method="post" action="{% url 'export_output_table_xls' numquery=2 data_inizio='no' data_fine='no' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="filter" id="box_filter">
+                    <input type="text" name="fname" placeholder="NomeDelFile" required>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-download"></i> Scarica Excel</button>
+                </form>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="max-height:500px; overflow-x:auto; overflow-y:auto; border:1px solid black;">
+        <table class="tabella-con-bordi" width="100%" border="1" cellpadding="5" cellspacing="0">
+            <thead bgcolor="#383838" style="color:white; position: sticky; top: 0; z-index: 100;">
+                <tr>
+                    <th>Anno</th>
+                    <th>Importo Fatturato</th>
+                    <th>Tasse</th>
+                    <th>Utile (Importo Fatturato - Tasse)</th>
+                    <th>Percentuale Tasse su Fatturato</th>
+                </tr>
+            </thead>
+            <tbody bgcolor="#585858" style="color:white;">
+                {% for item in tabella_output4 %}
+                <tr>
+                    <td><a href="{% url 'ResocontoFiscaleAnnuo' anno=item.0 %}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>{{ item.0 }}</span></a></td>
+                    <td>{{ item.1 }} €</td>
+                    <td>{{ item.2 }} €</td>
+                    <td>{{ item.3 }} €</td>
+                    <td>{{ item.4|default_if_none:'' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+<!--    <div class="alert alert-primary" role="alert">-->
+<!--        Saldo Totale: <a href="#" class="alert-link">{{ tot_saldo }} €</a>-->
+<!--    </div>-->
+    <script>
+
+        function cacheFilter() {
+            let filter_val = document.getElementById("cliente_filter").value;
+            localStorage.setItem('filter', filter_val);
+        }
+
+        window.onload = function(){
+            let filter_val = localStorage.getItem('filter'); // or localStorage.value
+            document.getElementById("box_filter").value = filter_val;
+        }
+
+    </script>
+{% endblock %}
+

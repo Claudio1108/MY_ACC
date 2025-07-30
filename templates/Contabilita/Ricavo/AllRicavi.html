@@ -1,25 +1,30 @@
-{% extends 'base2.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% block title %}AllRicavi{% endblock title %}
 {% block name %}<i>RICAVI</i>{% endblock %}
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript">
-    function selectAll(){
-				var items=document.getElementsByName('b1');
-				for(var i=0; i<items.length; i++){
-					if(items[i].type=='checkbox')
-						items[i].checked=true;
-				}
-			}
+            function selectAll(){
+                var items = document.getElementsByName('b1');
+                for(var i=0; i<items.length; i++){
+                    if(items[i].type === 'checkbox') {
+                        items[i].checked = true;
+                        items[i].closest('tr').classList.add('selected-row');
+                    }
+                }
+            }
 			function unSelectAll(){
-				var items=document.getElementsByName('b1');
-				for(var i=0; i<items.length; i++){
-					if(items[i].type=='checkbox')
-						items[i].checked=false;
-				}
-			}
+                var items = document.getElementsByName('b1');
+                for(var i=0; i<items.length; i++){
+                    if(items[i].type === 'checkbox') {
+                        items[i].checked = false;
+                        items[i].closest('tr').classList.remove('selected-row');
+                    }
+                }
+            }
 			function getSelected(){
 				var checks=document.getElementsByName('b1');
 				var list = new Array();
@@ -30,60 +35,118 @@
 				}
 				return list;
 			}
-            function deleteGroup(){
-                  var list=getSelected();
-                  if(list.length > 0){
-                    if(confirm('Sei sicuro di voler eliminare i Ricavi selezionati ?')== true){
-                        $.ajax({
-                            type: "POST",
-                            url: "/DeleteRicaviGroup/",
-                            data: {
-                                'list': list,
-                                csrfmiddlewaretoken: '{{ csrf_token }}'
-                            },
-                            success: function(response) {
-                                location.reload(true);
-
-                            },
-                            error: function(response){
-                                alert("failure");
-                            }
-                        });
-                    }
-                  }
+            function deleteGroup() {
+                var list = getSelected();
+                if (list.length > 0) {
+                    Swal.fire({
+                        title: 'Sei sicuro di voler eliminare i Ricavi selezionati?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Sì, elimina!',
+                        cancelButtonText: 'Annulla'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                type: "POST",
+                                url: "/DeleteRicaviGroup/",
+                                data: {
+                                    'list': list,
+                                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                                },
+                                success: function(response) {
+                                    location.reload(true);
+                                },
+                                error: function(response) {
+                                    Swal.fire('Errore', 'Si è verificato un errore durante l\'eliminazione.', 'error');
+                                }
+                            });
+                        }
+                    });
+                }
             }
+            $(document).ready(function() {
+                $('input[type="checkbox"][name="b1"]').on('change', function() {
+                    const row = $(this).closest('tr');
+                    if ($(this).is(':checked')) {
+                        row.addClass('selected-row');
+                    } else {
+                        row.removeClass('selected-row');
+                    }
+                });
+            });
+            document.addEventListener("DOMContentLoaded", function () {
+                const form = document.getElementById("filter-form");
+                if (!form) return;
+
+                // Submit automatico per select, checkbox, radio, date
+                form.querySelectorAll("select, input[type='checkbox'], input[type='radio'], input[type='date']").forEach(function(field) {
+                    field.addEventListener("change", function() {
+                        form.submit();
+                    });
+                });
+                // Per input testo nessun submit automatico (usa solo bottone)
+            });
     </script>
 {% endblock %}
 
 {% block content %}
-
-    <form method="get">
-        <table border="0" rules="none">
-        {% for field in filter.form %}
-            <tr>
-                <td><b>{{ field.label }}</b></td>
-                <td>{{ field }}</td>
-            </tr>
-        {% endfor %}
-        </table></br>
-	    <button type="submit" class="btn btn-light"><i class="fa fa-filter" aria-hidden="true"></i> Filtra</button>
+    <form id="filter-form" method="get">
+        <div class="filter-form">
+            {% for field in filter.form %}
+                <div class="filter-item">
+                    <label class="filter-label" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-light">
+                <i class="fa fa-filter" aria-hidden="true"></i> Filtra
+            </button>
+        </div>
     </form>
-    </br>
+    </br></br>
+    <style>
+        tr.selected-row {
+            background-color: #fffaaf !important;
+            color: #333 !important;
+        }
+        table a {
+            color: #87ceeb;
+            text-decoration: none;
+        }
+        table a:hover {
+            color: #87ceeb;
+            text-decoration: underline;
+        }
+    </style>
     <table align="left" style="width:100%">
         <tr>
-            <td>
-                <a onclick="selectAll()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Seleziona Tutti</a>
-                <a onclick="unSelectAll()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Deseleziona Tutti</a>
-                <a onclick="deleteGroup()" class="btn btn-warning btn-sm" role="button" aria-pressed="true">Elimina Selezionati</a>
-                <a href="{% url 'CreateRicavo' %}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style="font-size: 110%;">&#43;</span> Aggiungi</a>
+            <td align="left" class="d-flex gap-2 flex-wrap">
+                <button onclick="selectAll()" class="btn-custom btn-select">
+                    <i class="fas fa-check-square"></i> Seleziona Tutti
+                </button>
+                <button onclick="unSelectAll()" class="btn-custom btn-unselect">
+                    <i class="fas fa-square"></i> Deseleziona Tutti
+                </button>
+                <button onclick="deleteGroup()" class="btn-custom btn-delete">
+                    <i class="fas fa-trash-alt"></i> Elimina Selezionati
+                </button>
+                <a href="{% url 'CreateRicavo' %}" class="btn-custom btn-add">
+                    <i class="fas fa-plus"></i> Aggiungi
+                </a>
             </td>
             <td>
                 <div align="right">
                 <form method="post" action="{% url 'export_input_table_xls' list=filter_queryset model='ricavo' %}">
                     {% csrf_token %}
                     <div class="input-group">
-                        <input class="form-control form-control" type="text" name="fname" placeholder="<NomeFileDownload>" required>
-                        <button type="submit" class="btn btn-primary"><i class="fa fa-download"></i> DOWNLOAD Excel</button>
+                        <input class="form-control form-control" type="text" name="fname" placeholder="NomeDelFile" required>
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-download"></i> Scarica Excel</button>
                     </div>
                 </form>
                 </div>
@@ -91,58 +154,54 @@
         </tr>
     </table>
 
-    <table width="100%" border="1" cellpadding="5" cellspacing="0">
-        <thead bgcolor="#383838" style="color:white;">
-            <tr>
-                <th></th>
-                <th>Registrazione</th>
-                <th>Movimento</th>
-                <th>Importo</th>
-                <th>Fattura</th>
-                <th>Intestatario fattura</th>
-                <th>Protocollo</th>
-                <th>Note</th>
-                <th>Destinazione</th>
-                <th>MODIFICA</th>
-                <th>ELIMINA</th>
-            </tr>
-        </thead>
-        {% for b,c in info %}
-            {% if c.1 < 0 %}
-                <tr style="background-color:red;">
-                    <td style='width: 10px;'>
-                        <input type="checkbox" class="checks" name="b1" value={{b.id}}>
-                    </td>
-                    <td>{{ b.data_registrazione }}</td>
-                    <td>{{ b.movimento|default_if_none:'' }}</td>
-                    <td style='width: 100px; overflow: auto'>{{ b.importo }} €</td>
-                    <td>{{ b.fattura }}</td>
-                    <td>{{ b.intestatario_fattura|default_if_none:'' }}</td>
-                    <td style='width: 350px; overflow: auto'>{{ b.protocollo|default_if_none:'' }}</td>
-                    <td style='width: 500px; overflow: auto'>{{ b.note|safe }}</td>
-                    <td>{{ b.destinazione|default_if_none:'' }}</td>
-                    <td style='width: 15px;' align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
-                    <td style='width: 15px;' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')"><span aria-hidden="true">X</span></a></td>
+    <div style="max-height:500px; overflow-x:auto; overflow-y:auto; border:1px solid black;">
+        <table class="tabella-con-bordi" width="115%" border="1" cellpadding="5" cellspacing="0">
+            <thead bgcolor="#383838" style="color:white; position: sticky; top: 0; z-index: 100;">
+                <tr>
+                    <th></th>
+                    <th>MODIFICA</th>
+                    <th>Registrazione</th>
+                    <th>Movimento</th>
+                    <th>Importo</th>
+                    <th>Fattura</th>
+                    <th>Protocollo</th>
+                    <th>Note</th>
+                    <th>Destinazione</th>
                 </tr>
-            {% else %}
+            </thead>
+            {% for b,c in info %}
                 <tr style="background-color:#585858; color:white;">
-                    <td style='width: 10px;'>
+                    <td style='width: 5px;'>
                         <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                     </td>
-                    <td>{{ b.data_registrazione }}</td>
-                    <td>{{ b.movimento|default_if_none:'' }}</td>
-                    <td style='width: 100px; overflow: auto'>{{ b.importo }} €</td>
-                    <td>{{ b.fattura }}</td>
-                    <td>{{ b.intestatario_fattura|default_if_none:'' }}</td>
-                    <td style='width: 350px; overflow: auto'>{{ b.protocollo|default_if_none:'' }}</td>
-                    <td style='width: 500px; overflow: auto'>{{ b.note|safe }}</td>
-                    <td>{{ b.destinazione|default_if_none:'' }}</td>
-                    <td style='width: 15px;' align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
-                    <td style='width: 15px;' align="center"><a href="/DeleteRicavo/{{ b.id }}" class="btn btn-danger btn-sm" role="button" aria-pressed="true" onclick="return confirm('Sei sicuro di voler eliminare questo Ricavo ?')"><span aria-hidden="true">X</span></a></td>
+                    <td style='width: 10px;' align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
+                    <td style='width: 70px;'>{{ b.data_registrazione }}</td>
+                    <td style='width: 70px;'>{{ b.movimento|default_if_none:'' }}</td>
+                    <td style='width: 70px;'>{{ b.importo }} €</td>
+                    <td style='width: 200px; text-align: left;'>
+                        {% if b.fattura %}
+                            <a href="{% url 'UpdateFattura' id=b.fattura_id %}">
+                                {{ b.fattura.identificativo }}
+                            </a>
+                        {% else %}
+                            &nbsp;
+                        {% endif %}
+                    </td>
+                    <td style='width: 200px; text-align: left;'>
+                        {% if b.protocollo_id %}
+                            <a href="{% url 'UpdateProtocol' id=b.protocollo_id %}">
+                                {{ b.protocollo|default_if_none:'' }}
+                            </a>
+                        {% else %}
+                            &nbsp;
+                        {% endif %}
+                    </td>
+                    <td style='width: 300px; overflow: auto; text-align: left;'>{{ b.note|safe }}</td>
+                    <td style='width: 70px;'>{{ b.destinazione|default_if_none:'' }}</td>
                 </tr>
-            {% endif %}
-        {% endfor %}
-    </table>
+            {% endfor %}
+        </table>
+    </div>
     <div class="alert alert-primary" role="alert">
         Totale degli importi: <a href="#" class="alert-link">{{sum_r}} €</a>
     </div>

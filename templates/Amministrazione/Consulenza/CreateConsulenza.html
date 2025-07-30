@@ -4,26 +4,61 @@
 {% block name %}<i>CREA NUOVA CONSULENZA</i>{% endblock %}
 {% block content %}
 
-    {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-                {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
-                    <font color="red"><li>{{ message }}</li></font>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    {% endif %}
+<style>
+    table {
+        font-size: 16px;
+    }
+    td {
+        padding: 6px 12px;
+        vertical-align: middle;
+    }
+    input, select, textarea {
+        width: 100%;
+        max-width: 300px;
+    }
+</style>
 
-    <form method="post">
-        {% csrf_token %}
-        <table>
-            {{ form.as_table }}
-        </table>
-        </br>
-        <h6>* Campo Obbligatorio </h6>
-        </br>
-        <input type="submit" class="btn btn-primary" value="Crea">
-    </form>
+<form method="post">
+    {% csrf_token %}
+    <table align="center">
+        <tr>
+            <td style="text-align: right;"><label for="{{ form.data_registrazione.id_for_label }}"><b>Data Registrazione*</b></label></td>
+            <td style="text-align: left;">{{ form.data_registrazione }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: right;"><label for="{{ form.data_scadenza.id_for_label }}"><b>Data Scadenza*</b></label></td>
+            <td style="text-align: left;">{{ form.data_scadenza }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: right;"><label for="{{ form.attivita.id_for_label }}"><b>Attività*</b></label></td>
+            <td style="text-align: left;">{{ form.attivita }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: right;"><label for="{{ form.indirizzo.id_for_label }}"><b>Indirizzo*</b></label></td>
+            <td style="text-align: left;">{{ form.indirizzo }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: right;"><label for="{{ form.compenso.id_for_label }}"><b>Compenso*</b></label></td>
+            <td style="text-align: left;">{{ form.compenso }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: right;"><label for="{{ form.richiedente.id_for_label }}">Richiedente</label></td>
+            <td style="text-align: left;">{{ form.richiedente }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: right; vertical-align: top;"><label for="{{ form.note.id_for_label }}">Note</label></td>
+            <td style="text-align: left;">{{ form.note }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: right;"><label for="{{ form.data_consegna.id_for_label }}">Data Consegna</label></td>
+            <td style="text-align: left;">{{ form.data_consegna }}</td>
+        </tr>
+    </table>
+    <br>
+    <h6>* Campo Obbligatorio </h6>
+    <br>
+    <input type="submit" class="btn btn-primary" value="Crea Consulenza">
+</form>
 
 {% endblock %}
 
