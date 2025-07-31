@@ -3,7 +3,7 @@ import json
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import F, ExpressionWrapper, DecimalField, Max
+from django.db.models import F, ExpressionWrapper, DecimalField, Max, Q
 from django.db.models.functions import Round, Coalesce
 from .forms import *
 from .filters import *
@@ -14,17 +14,21 @@ from Contabilita import sqlite_queries as sqlite
 
 class ProtocolloAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = Protocollo.objects.all().order_by('identificativo')
-        return qs.filter(identificativo__icontains=self.q) | qs.filter(indirizzo__icontains=self.q) if self.q else qs
+        qs = Protocollo.objects.all()
+        if self.q:
+            qs = qs.filter(
+                Q(identificativo__icontains=self.q) | Q(indirizzo__icontains=self.q)
+            )
+        return qs.order_by("-data_registrazione__year", "-identificativo")
 
 class FatturaAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = Fattura.objects.all().order_by('identificativo')
+        qs = Fattura.objects.all().order_by('-identificativo')
         return qs.filter(identificativo__icontains=self.q) if self.q else qs
 
 class F24Autocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = F24.objects.all().order_by('identificativo')
+        qs = F24.objects.all().order_by('-identificativo')
         return qs.filter(identificativo__icontains=self.q) if self.q else qs
 
 class ClienteAutocomplete(autocomplete.Select2QuerySetView):
@@ -539,7 +543,7 @@ def viewUpdateSpesaGestione(request, id):
 
 @login_required
 def viewAllFatture(request):
-    fattura_filter = FatturaFilter(request.GET, queryset=Fattura.objects.all().order_by("-data_registrazione"))
+    fattura_filter = FatturaFilter(request.GET, queryset=Fattura.objects.all().order_by("-identificativo"))
     sum_fatture = round(fattura_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
     return render(request, "Contabilita/Fattura/AllFatture.html",
                   {"filter": fattura_filter, 'filter_queryset': list(fattura_filter.qs), 'sum_f': sum_fatture})
@@ -555,14 +559,14 @@ def viewCreateFattura(request):
         form.calcola_importo(float(form['imponibile'].value()))
         if (form.is_valid()):
             protocollo = form.cleaned_data.get('protocollo')
-            nuovo_importo = float(form.cleaned_data.get('importo') or 0)
+            nuovo_imponibile = float(form.cleaned_data.get('imponibile') or 0)
             if protocollo:
                 fatture_esistenti = Fattura.objects.filter(protocollo=protocollo)
-                totale_fatture = sum(float(f.importo) or 0 for f in fatture_esistenti) + nuovo_importo
-                if totale_fatture > float(protocollo.parcella):
+                totale_imponibile_fatture = sum(float(f.imponibile) or 0 for f in fatture_esistenti) + nuovo_imponibile
+                if totale_imponibile_fatture > float(protocollo.parcella):
                     messages.error(
                         request,
-                        f"ATTENZIONE! La somma degli importi delle fatture ({totale_fatture:.2f} €) associate al Protocollo {protocollo.identificativo} supera il valore della sua parcella ({protocollo.parcella:.2f} €)"
+                        f"ATTENZIONE! La somma degli imponibili delle fatture ({totale_imponibile_fatture:.2f} €) associate al Protocollo {protocollo.identificativo} supera il valore della sua parcella ({protocollo.parcella:.2f} €)"
                     )
                     CalendarioContatore.objects.filter(id=anno).update(fatture=progressive_number_calendar)
                     return render(request, "Contabilita/Fattura/CreateFattura.html", {'form': form})
@@ -603,7 +607,7 @@ def viewUpdateFattura(request, id):
         form.calcola_importo(float(form['imponibile'].value()))
         if (form.is_valid()):
             nuovo_protocollo = form.cleaned_data['protocollo']
-            nuovo_importo = float(form.cleaned_data.get('importo') or 0)
+            nuovo_imponibile = float(form.cleaned_data.get('imponibile') or 0)
             ricavi = fattura.ricavi_fattura.all()  # Ricavi associati alla fattura
             if ricavi.exists():
                 # Prendiamo il primo protocollo tra i ricavi
@@ -627,21 +631,21 @@ def viewUpdateFattura(request, id):
 
             if nuovo_protocollo:
                 fatture_collegate = Fattura.objects.filter(protocollo=nuovo_protocollo).exclude(id=fattura.id)
-                totale_fatture = sum(float(f.importo) or 0 for f in fatture_collegate) + nuovo_importo
-                if totale_fatture > float(nuovo_protocollo.parcella):
+                totale_imponibile_fatture = sum(float(f.imponibile) or 0 for f in fatture_collegate) + nuovo_imponibile
+                if totale_imponibile_fatture > float(nuovo_protocollo.parcella):
                     messages.error(
                         request,
-                        f"ATTENZIONE! La somma degli importi delle Fatture diventerebbe ({totale_fatture:.2f} €) superando la parcella ({nuovo_protocollo.parcella:.2f} €) del protocollo {nuovo_protocollo.identificativo}"
+                        f"ATTENZIONE! La somma degli imponibili delle Fatture diventerebbe ({totale_imponibile_fatture:.2f} €) superando la parcella ({nuovo_protocollo.parcella:.2f} €) del protocollo {nuovo_protocollo.identificativo}"
                     )
                     anno != anno_pre and CalendarioContatore.objects.filter(id=anno).update(
                         fatture=progressive_number_calendar + 1)
                     return render(request, "Contabilita/Fattura/UpdateFattura.html", {'form': form})
 
             somma_ricavi = ricavi.aggregate(Sum('importo'))['importo__sum'] or 0
-            if somma_ricavi > nuovo_importo:
+            if somma_ricavi > nuovo_imponibile:
                 messages.error(
                     request,
-                    f"ATTENZIONE! La somma dei ricavi associati diventerebbe ({somma_ricavi:.2f} €) superando l'importo della fattura ({nuovo_importo:.2f} €)"
+                    f"ATTENZIONE! La somma dei ricavi associati diventerebbe ({somma_ricavi:.2f} €) superando l'imponibile della fattura ({nuovo_imponibile:.2f} €)"
                 )
                 anno != anno_pre and CalendarioContatore.objects.filter(id=anno).update(
                     fatture=progressive_number_calendar + 1)
@@ -783,7 +787,7 @@ def viewUpdateF24(request, id):
 @login_required
 def viewF24Detail(request, id):
     f_24 = F24.objects.get(id=id)
-    codici_tributo_filter = CodiceTributoFilter(request.GET, queryset=CodiceTributo.objects.filter(f24=id).order_by("-identificativo"))
+    codici_tributo_filter = CodiceTributoFilter(request.GET, queryset=CodiceTributo.objects.filter(f24=id).order_by("-anno"))
     codici = f_24.codicetributo.all()
     totale = sum((ct.debito or 0) - (ct.credito or 0) for ct in codici)
     return render(request, "Contabilita/F24/F24Detail.html",
