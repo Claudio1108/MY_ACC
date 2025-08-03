@@ -41,9 +41,9 @@
                 {% for item in tabella_output4 %}
                 <tr>
                     <td><a href="{% url 'ResocontoFiscaleAnnuo' anno=item.0 %}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>{{ item.0 }}</span></a></td>
-                    <td>{{ item.1 }} €</td>
-                    <td>{{ item.2 }} €</td>
-                    <td>{{ item.3 }} €</td>
+                    <td>{{ item.1|floatformat:2 }} €</td>
+                    <td>{{ item.2|floatformat:2 }} €</td>
+                    <td>{{ item.3|floatformat:2 }} €</td>
                     <td>{{ item.4|default_if_none:'' }}</td>
                 </tr>
                 {% endfor %}
