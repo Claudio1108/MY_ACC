@@ -502,10 +502,31 @@ def viewCreateSpesaGestione(request):
         form = formSpesaGestione(request.POST)
         identificativo = form['identificativo'].value()
         if SpesaGestione.objects.filter(identificativo=identificativo).exists():
-            # if SpesaGestione.objects.filter(identificativo__iexact=identificativo).exists():
             messages.error(request, f"ATTENZIONE! Esiste già una Spesa di Gestione con Identificativo \"{identificativo}\"")
             return render(request, "Contabilita/SpesaGestione/CreateSpesaGestione.html", {'form': form})
         if (form.is_valid()):
+            f24 = form.cleaned_data.get("f24")
+            importo_spesa = form.cleaned_data.get("importo")
+            if f24:
+                # Calcolo somma debito - credito, trattando None come 0
+                somma_codicetributo = round(CodiceTributo.objects.filter(f24=f24).annotate(
+                    debito_val=Coalesce('debito', Decimal('0.00')),
+                    credito_val=Coalesce('credito', Decimal('0.00')),
+                    differenza=ExpressionWrapper(
+                        F('debito_val') - F('credito_val'),
+                        output_field=models.DecimalField()
+                    )
+                ).aggregate(
+                    totale=Coalesce(Sum('differenza'), Decimal('0.00'))
+                )['totale'], 2)
+
+                if importo_spesa != somma_codicetributo:
+                    messages.error(
+                        request,
+                        f"L'importo inserito non corrisponde alla somma degli importi dei codici tributo associati all' \"F24 - {f24.identificativo}\" pari a {somma_codicetributo} €"
+                    )
+                    return render(request, "Contabilita/SpesaGestione/CreateSpesaGestione.html", {'form': form})
+
             form.save()
             messages.success(request, f"Spesa di Gestione con Identificativo \"{form['identificativo'].value()}\" creata con successo")
             return redirect('AllSpeseGestione')
@@ -532,6 +553,27 @@ def viewUpdateSpesaGestione(request, id):
     if (request.method == "POST"):
         form = formSpesaGestioneUpdate(request.POST, instance=SpesaGestione.objects.get(id=id))
         if (form.is_valid()):
+            f24 = form.cleaned_data.get("f24")
+            importo_spesa = form.cleaned_data.get("importo")
+            if f24:
+                # Calcolo somma debito - credito, trattando None come 0
+                somma_codicetributo = round(CodiceTributo.objects.filter(f24=f24).annotate(
+                    debito_val=Coalesce('debito', Decimal('0.00')),
+                    credito_val=Coalesce('credito', Decimal('0.00')),
+                    differenza=ExpressionWrapper(
+                        F('debito_val') - F('credito_val'),
+                        output_field=models.DecimalField()
+                    )
+                ).aggregate(
+                    totale=Coalesce(Sum('differenza'), Decimal('0.00'))
+                )['totale'], 2)
+
+                if importo_spesa != somma_codicetributo:
+                    messages.error(
+                        request,
+                        f"L'importo inserito non corrisponde alla somma degli importi dei codici tributo associati all' \"F24 - {f24.identificativo}\" pari a {somma_codicetributo} €"
+                    )
+                    return render(request, "Contabilita/SpesaGestione/CreateSpesaGestione.html", {'form': form})
             form.save()
             messages.success(request, f"Spesa di Gestione con Identificativo \"{form['identificativo'].value()}\" modificata con successo")
             return redirect('AllSpeseGestione')
@@ -887,12 +929,10 @@ def viewResocontoFiscaleAnnuoFatture(request, anno):
         Fattura.objects
         .filter(data_registrazione__year=anno)
         .annotate(
-            contributo_inarcassa=Round(
+            contributo_inarcassa=
                 ExpressionWrapper(
                     F('imponibile') * Decimal('0.04'),
-                    output_field=DecimalField(max_digits=14, decimal_places=4)
-                ),
-                precision=2
+                    output_field=DecimalField(max_digits=14, decimal_places=2)
             ),
             data_pagamento=Max('ricavi_fattura__data_registrazione'),
             intestatario=F('protocollo__cliente__nominativo')
@@ -942,7 +982,12 @@ def viewResocontoFiscaleAnnuoTasse(request, anno):
 def viewContabilitaProtocolli(request):
     filter = request.POST.get("filter")
     protocols = sqlite.resoconto_contabilita_protocolli(filter)
-    return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': protocols, 'tot_saldo': sum([protocol[9] for protocol in protocols]), 'cliente_filter': filter if filter else ""})
+    protocols_ordered = sorted(
+        protocols,
+        key=lambda x: tuple(map(int, x[1].split('-')))[::-1],
+        reverse=True
+    )
+    return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': protocols_ordered, 'tot_saldo': sum([protocol[9] for protocol in protocols_ordered]), 'cliente_filter': filter if filter else ""})
 
 def export_input_table_xls(request, list, model):
     fields_models = {'protocollo': ['Identificativo', 'Nominativo Cliente', 'Telefono Cliente', 'Nominativo Referente', 'Telefono Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Registrazione', 'Data Consegna'],

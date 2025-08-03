@@ -48,7 +48,7 @@
                         {% endif %}
                     </td>
                     <td>{{ c.anno }}</td>
-                    <td>{{ c.importo }} €</td>
+                    <td>{{ c.importo|floatformat:2 }} €</td>
                     <td>
                         {% if c.identificativo_f24 %}
                             <a href="{% url 'F24Detail' id=c.id_f24 %}">
