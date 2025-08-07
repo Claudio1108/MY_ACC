@@ -141,8 +141,6 @@ class SpesaGestioneFilter(django_filters.FilterSet):
         from_attrs={'placeholder': 'Da'},
         to_attrs={'placeholder': 'A'},
     ))
-    identificativo = django_filters.CharFilter(label='Identificativo', field_name='identificativo',
-                                               lookup_expr='istartswith')
     fattura = django_filters.CharFilter(label='Fattura', field_name='fattura', lookup_expr='istartswith')
     causale = django_filters.CharFilter(label='Causale', field_name='causale', lookup_expr='istartswith')
     f24_id = django_filters.CharFilter(label='F24 [Identificativo]',
@@ -221,8 +219,7 @@ class FatturaFilter(django_filters.FilterSet):
                                            exclude=True)
     protocollo_id = django_filters.CharFilter(label='Protocollo [Identificativo]',
                                               field_name='protocollo__identificativo', lookup_expr='istartswith')
-    protocollo_intestatario = django_filters.CharFilter(label='Intestatario [Cliente-Protocollo]',
-                                              field_name='protocollo__cliente__nominativo', lookup_expr='istartswith')
+    intestatario = django_filters.CharFilter(label='Intestatario', field_name='intestatario', lookup_expr='istartswith')
 
     class Meta:
         model = Fattura

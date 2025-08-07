@@ -9,7 +9,7 @@ class RubricaClienti(models.Model):
     note = RichTextField(null=True, blank=True)
 
     def __str__(self):
-        return self.nominativo + "/" + self.tel
+        return self.nominativo
 
 class RubricaReferenti(models.Model):
     nominativo = models.CharField(max_length=40) #obbligatorio
@@ -18,7 +18,7 @@ class RubricaReferenti(models.Model):
     note = RichTextField(null=True, blank=True)
 
     def __str__(self):
-        return self.nominativo + "/" + self.tel
+        return self.nominativo
 
 class Protocollo(models.Model):
     identificativo = models.CharField(max_length=10, blank=True)
@@ -45,11 +45,12 @@ class Fattura(models.Model):
     data_registrazione = models.DateField(auto_now=False, auto_now_add=False)
     imponibile = models.DecimalField(max_digits=14, decimal_places=2, validators = [MinValueValidator(0)])
     importo = models.DecimalField(max_digits=14, decimal_places=2, validators = [MinValueValidator(0)], null=True)
+    intestatario = models.CharField(max_length=60, default="", null=True, blank=True)
     # foreign_key
     protocollo = models.ForeignKey(Protocollo, on_delete=models.SET_NULL, related_name='fatture', null=True, blank=True)
 
     def __str__(self):
-        return str(self.identificativo)
+        return f"{str(self.identificativo)} | {str(self.intestatario)}"
 
     class Meta:
         ordering = ['-identificativo']
@@ -126,12 +127,11 @@ class CodiceTributo(models.Model):
         return f"{self.identificativo}"
 
 class SpesaGestione(models.Model):
-    identificativo = models.CharField(max_length=50, null=False, blank=False)  # obbligatorio
     data_registrazione = models.DateField(auto_now=False, auto_now_add=False) #obbligatorio
     importo = models.DecimalField(max_digits=14, decimal_places=2, validators = [MinValueValidator(0)]) #obbligatorio
     causale = models.CharField(max_length=30, default="", null=True, blank=True)
     fattura = models.CharField(max_length=50, default="", null=True, blank=True)
-    provenienza = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="DEPOSITO")
+    provenienza = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="CARTA")
     f24 = models.OneToOneField(
         F24,
         on_delete=models.SET_NULL,
@@ -141,7 +141,7 @@ class SpesaGestione(models.Model):
     )
 
     def __str__(self):
-        return f"{self.identificativo} | {self.data_registrazione} | {self.importo} €"
+        return f"{self.data_registrazione} | {self.importo} €"
 
 class CalendarioContatore(models.Model):
     count = models.IntegerField(default=0)

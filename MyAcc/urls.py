@@ -20,7 +20,7 @@ from Contabilita import views as contviews
 from django.conf.urls import  url
 
 from Contabilita.views import ProtocolloAutocomplete, ClienteAutocomplete, ReferenteAutocomplete, FatturaAutocomplete, \
-     F24Autocomplete
+     F24Autocomplete, ClienteReferenteAutocomplete
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -101,6 +101,7 @@ urlpatterns = [
     #Autocompletamento
     url(r'^proto-autocomp/$', ProtocolloAutocomplete.as_view(), name='proto_autocomp'),
     url(r'^cliente-autocomp/$', ClienteAutocomplete.as_view(), name='cliente_autocomp'),
+    path('cliente-referente-autocomp/', ClienteReferenteAutocomplete.as_view(), name='cliente_referente_autocomp'),
     url(r'^referente-autocomp/$', ReferenteAutocomplete.as_view(), name='referente_autocomp'),
     url(r'^fattura-autocomp/$', FatturaAutocomplete.as_view(), name='fattura_autocomp'),
     url(r'^f24-autocomp/$', F24Autocomplete.as_view(), name='f24_autocomp')

@@ -41,6 +41,26 @@ class ReferenteAutocomplete(autocomplete.Select2QuerySetView):
         qs = RubricaReferenti.objects.all().order_by('nominativo')
         return qs.filter(nominativo__icontains=self.q) | qs.filter(tel__icontains=self.q) if self.q else qs
 
+class ClienteReferenteAutocomplete(autocomplete.Select2ListView):
+    def get_list(self):
+        q = self.q or ""
+        # Filtra e ordina i clienti per nominativo
+        clienti = RubricaClienti.objects.filter(
+            models.Q(nominativo__icontains=q) | models.Q(tel__icontains=q)
+        ).order_by("nominativo")
+
+        # Filtra e ordina i referenti per nominativo
+        referenti = RubricaReferenti.objects.filter(
+            models.Q(nominativo__icontains=q) | models.Q(tel__icontains=q)
+        ).order_by("nominativo")
+
+        risultati = []
+        for c in clienti:
+            risultati.append(f"[Cliente] {c.nominativo}")
+        for r in referenti:
+            risultati.append(f"[Referente] {r.nominativo}")
+        return risultati
+
 @login_required
 def viewHomePage(request):
     return render(request, "Homepage/HomePage.html", {"user": request.user})
@@ -500,10 +520,6 @@ def viewAllSpeseGestione(request):
 def viewCreateSpesaGestione(request):
     if (request.method == "POST"):
         form = formSpesaGestione(request.POST)
-        identificativo = form['identificativo'].value()
-        if SpesaGestione.objects.filter(identificativo=identificativo).exists():
-            messages.error(request, f"ATTENZIONE! Esiste già una Spesa di Gestione con Identificativo \"{identificativo}\"")
-            return render(request, "Contabilita/SpesaGestione/CreateSpesaGestione.html", {'form': form})
         if (form.is_valid()):
             f24 = form.cleaned_data.get("f24")
             importo_spesa = form.cleaned_data.get("importo")
@@ -528,7 +544,7 @@ def viewCreateSpesaGestione(request):
                     return render(request, "Contabilita/SpesaGestione/CreateSpesaGestione.html", {'form': form})
 
             form.save()
-            messages.success(request, f"Spesa di Gestione con Identificativo \"{form['identificativo'].value()}\" creata con successo")
+            messages.success(request, f"Spesa di Gestione creata con successo")
             return redirect('AllSpeseGestione')
         else:
             messages.error(request,f"ATTENZIONE! {form.errors}")
@@ -575,7 +591,7 @@ def viewUpdateSpesaGestione(request, id):
                     )
                     return render(request, "Contabilita/SpesaGestione/CreateSpesaGestione.html", {'form': form})
             form.save()
-            messages.success(request, f"Spesa di Gestione con Identificativo \"{form['identificativo'].value()}\" modificata con successo")
+            messages.success(request, f"Spesa di Gestione modificata con successo")
             return redirect('AllSpeseGestione')
         else:
             messages.error(request,f"ATTENZIONE! {form.errors}")
@@ -585,10 +601,18 @@ def viewUpdateSpesaGestione(request, id):
 
 @login_required
 def viewAllFatture(request):
-    fattura_filter = FatturaFilter(request.GET, queryset=Fattura.objects.all().order_by("-identificativo"))
+    fattura_filter = FatturaFilter(request.GET, queryset=Fattura.objects.all())
+    fatture_ordinate = sorted(
+        fattura_filter.qs,
+        key=lambda f: tuple(
+            int(x) if x.isdigit() else 0
+            for x in re.match(r"FT_(\d+)-(\d+)", f.identificativo).groups()[::-1]
+        ),
+        reverse=True
+    )
     sum_fatture = round(fattura_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
     return render(request, "Contabilita/Fattura/AllFatture.html",
-                  {"filter": fattura_filter, 'filter_queryset': list(fattura_filter.qs), 'sum_f': sum_fatture})
+                  {"filter": fattura_filter, 'filter_queryset': fatture_ordinate, 'sum_f': sum_fatture})
 
 @login_required
 def viewCreateFattura(request):
@@ -602,6 +626,7 @@ def viewCreateFattura(request):
         if (form.is_valid()):
             protocollo = form.cleaned_data.get('protocollo')
             nuovo_imponibile = float(form.cleaned_data.get('imponibile') or 0)
+            intestatario = form.cleaned_data.get('intestatario')
             if protocollo:
                 fatture_esistenti = Fattura.objects.filter(protocollo=protocollo)
                 totale_imponibile_fatture = sum(float(f.imponibile) or 0 for f in fatture_esistenti) + nuovo_imponibile
@@ -612,6 +637,17 @@ def viewCreateFattura(request):
                     )
                     CalendarioContatore.objects.filter(id=anno).update(fatture=progressive_number_calendar)
                     return render(request, "Contabilita/Fattura/CreateFattura.html", {'form': form})
+
+                cliente_str = f"[Cliente] {protocollo.cliente.nominativo}"
+                referente_str = f"[Referente] {protocollo.referente.nominativo}" if protocollo.referente else None
+                if intestatario != cliente_str and intestatario != referente_str:
+                    messages.error(
+                        request,
+                        f"ATTENZIONE! L'intestatario selezionato \"{intestatario}\" non corrisponde al Cliente e neanche al Referente associato al Protocollo \"{protocollo.identificativo}\"."
+                    )
+                    CalendarioContatore.objects.filter(id=anno).update(fatture=progressive_number_calendar)
+                    return render(request, "Contabilita/Fattura/CreateFattura.html", {'form': form})
+
             form.save()
             messages.success(request, f"Fattura con Identificativo \"{form['identificativo'].value()}\" creata con successo")
             return redirect('AllFatture')
@@ -650,6 +686,7 @@ def viewUpdateFattura(request, id):
         if (form.is_valid()):
             nuovo_protocollo = form.cleaned_data['protocollo']
             nuovo_imponibile = float(form.cleaned_data.get('imponibile') or 0)
+            intestatario = form.cleaned_data.get('intestatario')
             ricavi = fattura.ricavi_fattura.all()  # Ricavi associati alla fattura
             if ricavi.exists():
                 # Prendiamo il primo protocollo tra i ricavi
@@ -683,6 +720,16 @@ def viewUpdateFattura(request, id):
                         fatture=progressive_number_calendar + 1)
                     return render(request, "Contabilita/Fattura/UpdateFattura.html", {'form': form})
 
+                cliente_str = f"[Cliente] {nuovo_protocollo.cliente.nominativo}"
+                referente_str = f"[Referente] {nuovo_protocollo.referente.nominativo}" if nuovo_protocollo.referente else None
+                if intestatario != cliente_str and intestatario != referente_str:
+                    messages.error(
+                        request,
+                        f"ATTENZIONE! L'intestatario selezionato \"{intestatario}\" non corrisponde al Cliente e neanche al Referente associato al Protocollo \"{nuovo_protocollo.identificativo}\"."
+                    )
+                    CalendarioContatore.objects.filter(id=anno).update(fatture=progressive_number_calendar)
+                    return render(request, "Contabilita/Fattura/CreateFattura.html", {'form': formFatturaUpdate(instance=fattura)})
+
             somma_ricavi = ricavi.aggregate(Sum('importo'))['importo__sum'] or 0
             if somma_ricavi > nuovo_imponibile:
                 messages.error(
@@ -705,8 +752,9 @@ def viewUpdateFattura(request, id):
             messages.error(request, f"ATTENZIONE! {form.errors}")
             return render(request, "Contabilita/Fattura/UpdateFattura.html", {'form': form})
     else:
+        form = formFatturaUpdate(instance=fattura)
         return render(request, "Contabilita/Fattura/UpdateFattura.html",
-                  {'form': formFatturaUpdate(instance=fattura)})
+                  {'form': form})
 
 @login_required
 def viewCreateCodiceTributo(request, f24_id):
@@ -997,7 +1045,7 @@ def export_input_table_xls(request, list, model):
                      'consulenza': ['Data Registrazione', 'Richiedente', 'Indirizzo', 'Attivita', 'Compenso', 'Note', 'Data Scadenza', 'Data Consegna'],
                      'rubricaclienti': ['Nominativo', 'Telefono', 'Mail', 'Note'],
                      'rubricareferenti': ['Nominativo', 'Telefono', 'Mail', 'Note'],
-                     'fattura': ['Identificativo', 'Data Registrazione', 'Id Protocollo', 'Intestatario Protocollo', 'Indirizzo Protocollo', 'Importo'],
+                     'fattura': ['Identificativo', 'Data Registrazione', 'Id Protocollo', 'Intestatario', 'Indirizzo Protocollo', 'Importo'],
                      'codicetributo': ['Identificativo', 'Anno', 'Mese', 'Debito', 'Credito'],
                      'f24': ['Identificativo', 'Data Scadenza', 'Ente']}
     response = HttpResponse(content_type='application/ms-excel')
@@ -1027,7 +1075,20 @@ def export_input_table_xls(request, list, model):
     if model == 'rubricareferenti':
         rows = RubricaReferenti.objects.filter(tel__in=re.findall("(\d+)", list)).order_by('nominativo').values_list('nominativo', 'tel', 'mail', 'note')
     if model == 'fattura':
-        rows = Fattura.objects.filter(identificativo__in=re.findall("(FT_\d+-\d+)", list)).order_by('-identificativo').values_list('identificativo', 'data_registrazione', 'protocollo__identificativo', 'protocollo__cliente__nominativo', 'protocollo__indirizzo', 'importo')
+        unordered_rows = Fattura.objects.filter(
+            identificativo__in=re.findall(r"FT_\d+-\d+", list)
+        ).values_list(
+            'identificativo', 'data_registrazione', 'protocollo__identificativo',
+            'intestatario', 'protocollo__indirizzo', 'importo'
+        )
+        rows = sorted(
+            unordered_rows,
+            key=lambda r: (
+                (lambda m: (int(m.group(2)), int(m.group(1))) if m else (0, 0))
+                (re.match(r"FT_(\d+)-(\d+)", r[0]))  # r[0] = identificativo
+            ),
+            reverse=True
+        )
     if model == 'codicetributo':
         rows = CodiceTributo.objects.filter(identificativo__in=re.findall("(\d+)", list)).order_by('-identificativo').values_list('identificativo', 'anno', 'mese', 'debito', 'credito')
     if model == 'f24':
