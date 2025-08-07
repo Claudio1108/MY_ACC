@@ -740,8 +740,9 @@ def viewUpdateFattura(request, id):
                     fatture=progressive_number_calendar + 1)
                 return render(request, "Contabilita/Fattura/UpdateFattura.html", {'form': form})
 
-            # Nessun ricavo associato o controlli superati
-            form.save()
+            obj = form.save(commit=False)
+            obj.intestatario = form.cleaned_data['intestatario']
+            obj.save()
             anno != anno_pre and Fattura.objects.filter(id=id).update(
                 identificativo=str('FT_{0:02}'.format(progressive_number_calendar + 1)) + "-" + anno[2:4])
             messages.success(request,
@@ -992,9 +993,16 @@ def viewResocontoFiscaleAnnuoFatture(request, anno):
             'data_pagamento',
             'id'
         )
-        .order_by('data_registrazione')
     )
-    return render(request, "Contabilita/ResocontoFiscale/ResocontoFiscaleAnnuoFatture.html",{'anno': anno, 'fatture': fatture})
+    fatture_ordinate = sorted(
+        fatture,
+        key=lambda f: tuple(
+            int(x) if x.isdigit() else 0
+            for x in re.match(r"FT_(\d+)-(\d+)", f['identificativo']).groups()[::-1]
+        ),
+        reverse=True
+    )
+    return render(request, "Contabilita/ResocontoFiscale/ResocontoFiscaleAnnuoFatture.html",{'anno': anno, 'fatture': fatture_ordinate})
 
 @login_required
 def viewResocontoFiscaleAnnuoTasse(request, anno):
