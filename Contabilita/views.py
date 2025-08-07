@@ -982,8 +982,7 @@ def viewResocontoFiscaleAnnuoFatture(request, anno):
                     F('imponibile') * Decimal('0.04'),
                     output_field=DecimalField(max_digits=14, decimal_places=2)
             ),
-            data_pagamento=Max('ricavi_fattura__data_registrazione'),
-            intestatario=F('protocollo__cliente__nominativo')
+            data_pagamento=Max('ricavi_fattura__data_registrazione')
         )
         .values(
             'identificativo',
