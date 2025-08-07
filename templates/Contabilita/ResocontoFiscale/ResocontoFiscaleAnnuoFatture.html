@@ -47,9 +47,31 @@
                         {% endif %}
                     </td>
                     <td>
-                        <a href="{% url 'AllClienti' %}?nominativo={{ f.intestatario }}">
-                            {{ f.intestatario|default_if_none:'' }}
-                        </a>
+                        {% if f.intestatario %}
+                            {% if f.protocollo %}
+                                {% if f.intestatario|slice:":9" == "[Cliente]" %}
+                                    <a href="{% url 'AllClienti' %}?nominativo={{ f.protocollo.cliente.nominativo }}">
+                                        {{ f.intestatario }}
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'AllReferenti' %}?nominativo={{ f.protocollo.referente.nominativo }}">
+                                        {{ f.intestatario }}
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                {% if f.intestatario|slice:":9" == "[Cliente]" %}
+                                    <a href="{% url 'AllClienti' %}?nominativo={{ f.intestatario|slice:"9:"|urlencode }}">
+                                        {{ f.intestatario }}
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'AllReferenti' %}?nominativo={{ f.intestatario|slice:"11:"|urlencode }}">
+                                        {{ f.intestatario }}
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        {% else %}
+                            &nbsp;
+                        {% endif %}
                     </td>
                     <td>{{ f.imponibile }} €</td>
                     <td>{{ f.contributo_inarcassa|floatformat:2 }} €</td>
