@@ -202,15 +202,17 @@ class formConsulenzaUpdate(forms.ModelForm):
 class formFattura(forms.ModelForm):
     class Meta:
         model = Fattura
-        fields = ('data_registrazione', 'imponibile', 'protocollo', 'identificativo', 'importo')
+        fields = ('data_registrazione', 'imponibile', 'protocollo', 'identificativo', 'importo', 'intestatario')
         labels = {
             "data_registrazione": "Data Registrazione* ",
             "imponibile": "Imponibile* ",
-            "protocollo": "Protocollo "
+            "protocollo": "Protocollo ",
+            "intestatario": "Intestatario "
         }
         widgets = {
             'data_registrazione': DateInput(),
-            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')
+            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp'),
+            'intestatario': autocomplete.ListSelect2(url='cliente_referente_autocomp')
         }
 
     def set_identificativo(self, value):
@@ -224,6 +226,10 @@ class formFattura(forms.ModelForm):
         self.data = data
 
 class formFatturaUpdate(forms.ModelForm):
+    intestatario = forms.CharField(
+        widget=autocomplete.ListSelect2(url='cliente_referente_autocomp'),
+        required=False
+    )
     class Meta:
         model = Fattura
         fields = "__all__"
@@ -231,15 +237,20 @@ class formFatturaUpdate(forms.ModelForm):
             "data_registrazione": "Data Registrazione* ",
             "imponibile": "Imponibile* ",
             "protocollo": "Protocollo ",
+            "intestatario": "Intestatario "
         }
         widgets = {
             'data_registrazione': DateInput2(format='%Y-%m-%d'),
-            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp')
+            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp'),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['identificativo'].disabled = True
+        # se c'è un valore salvato in intestatario, aggiungilo tra le opzioni di Select2
+        initial_intestatario = self.initial.get('intestatario') or self.instance.intestatario
+        if initial_intestatario:
+            self.fields['intestatario'].widget.choices = [(initial_intestatario, initial_intestatario)]
 
     def set_identificativo(self, value):
         data = self.data.copy()
@@ -338,7 +349,6 @@ class formSpesaGestione(forms.ModelForm):
         model = SpesaGestione
         fields = "__all__"
         labels = {
-            "identificativo": "Identificativo* ",
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
             "causale": "Causale ",
@@ -355,7 +365,6 @@ class formSpesaGestioneUpdate(forms.ModelForm):
         model = SpesaGestione
         fields = "__all__"
         labels = {
-            "identificativo": "Identificativo* ",
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
             "causale": "Causale ",
@@ -367,9 +376,6 @@ class formSpesaGestioneUpdate(forms.ModelForm):
                    'f24': autocomplete.ModelSelect2(url='f24_autocomp')
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['identificativo'].disabled = True
 
 class formCodiceTributo(forms.ModelForm):
     class Meta:

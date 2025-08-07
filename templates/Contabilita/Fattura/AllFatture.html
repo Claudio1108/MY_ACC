@@ -186,10 +186,28 @@
                         {% endif %}
                     </td>
                     <td style='width: 200px; text-align: left;'>
-                        {% if b.protocollo_id %}
-                            <a href="{% url 'AllClienti' %}?nominativo={{ b.protocollo.cliente.nominativo }}">
-                                {{ b.protocollo.cliente.nominativo|default_if_none:'' }}
-                            </a>
+                        {% if b.intestatario %}
+                            {% if b.protocollo %}
+                                {% if b.intestatario|slice:":9" == "[Cliente]" %}
+                                    <a href="{% url 'AllClienti' %}?nominativo={{ b.protocollo.cliente.nominativo }}">
+                                        {{ b.intestatario }}
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'AllReferenti' %}?nominativo={{ b.protocollo.referente.nominativo }}">
+                                        {{ b.intestatario }}
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                {% if b.intestatario|slice:":9" == "[Cliente]" %}
+                                    <a href="{% url 'AllClienti' %}?nominativo={{ b.intestatario|slice:"9:"|urlencode }}">
+                                        {{ b.intestatario }}
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'AllReferenti' %}?nominativo={{ b.intestatario|slice:"11:"|urlencode }}">
+                                        {{ b.intestatario }}
+                                    </a>
+                                {% endif %}
+                            {% endif %}
                         {% else %}
                             &nbsp;
                         {% endif %}
