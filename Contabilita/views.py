@@ -1036,19 +1036,54 @@ def viewResocontoFiscaleAnnuoTasse(request, anno):
 @login_required
 def viewContabilitaProtocolli(request):
     filter = request.POST.get("filter")
-    protocols = sqlite.resoconto_contabilita_protocolli(filter)
+    if filter:
+        protocolli = Protocollo.objects.filter(cliente__nominativo__icontains=filter)
+    else:
+        protocolli = Protocollo.objects.all()
+    table_data = []
+    for protocollo in protocolli:
+        ricavi = Ricavo.objects.filter(protocollo=protocollo)
+        entrate = Decimal('0.00')
+        for ricavo in ricavi:
+            if ricavo.fattura:
+                # Se c'è una fattura, aggiungi l'imponibile della fattura
+                entrate += ricavo.fattura.imponibile
+            else:
+                # Altrimenti aggiungi l'importo del ricavo
+                entrate += ricavo.importo
+        uscite_raw = SpesaCommessa.objects.filter(protocollo=protocollo).aggregate(
+            totale=Sum('importo')
+        )['totale']
+        uscite = (uscite_raw if uscite_raw is not None else Decimal('0.00')).quantize(Decimal('0.00'), rounding=ROUND_HALF_UP)
+        saldo = protocollo.parcella - (entrate - uscite)
+        table_data.append([
+            protocollo.id,
+            protocollo.identificativo,
+            protocollo.cliente.nominativo,
+            protocollo.indirizzo,
+            protocollo.pratica,
+            protocollo.parcella,
+            entrate,
+            uscite,
+            saldo
+        ])
     protocols_ordered = sorted(
-        protocols,
+        table_data,
         key=lambda x: tuple(map(int, x[1].split('-')))[::-1],
         reverse=True
     )
-    return render(request, "Contabilita/ContabilitaProtocolli.html", {'tabella_output4': protocols_ordered, 'tot_saldo': sum([protocol[9] for protocol in protocols_ordered]), 'cliente_filter': filter if filter else ""})
+    tot_saldo = sum([row[8] for row in protocols_ordered])
+    return render(request, "Contabilita/ContabilitaProtocolli.html", {
+        'tabella_output4': protocols_ordered,
+        'tot_saldo': tot_saldo,
+        'cliente_filter': filter if filter else ""
+    })
 
 def export_input_table_xls(request, list, model):
     fields_models = {'protocollo': ['Identificativo', 'Nominativo Cliente', 'Telefono Cliente', 'Nominativo Referente', 'Telefono Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Note', 'Data Registrazione', 'Data Consegna'],
                      'ricavo': ['Data Registrazione', 'Movimento', 'Importo', 'Id Fattura', 'Id Protocollo', 'Indirizzo Protocollo', 'Note'],
                      'spesacommessa': ['Data Registrazione', 'Importo', 'Id Protocollo', 'Indirizzo Protocollo', 'Note'],
-                     'spesagestione': ['Identificativo', 'Data Registrazione', 'Importo', 'Causale', 'Fattura'],
+                     'spesagestione': ['Data Registrazione', 'Importo', 'Causale', 'Fattura'],
                      'consulenza': ['Data Registrazione', 'Richiedente', 'Indirizzo', 'Attivita', 'Compenso', 'Note', 'Data Scadenza', 'Data Consegna'],
                      'rubricaclienti': ['Nominativo', 'Telefono', 'Mail', 'Note'],
                      'rubricareferenti': ['Nominativo', 'Telefono', 'Mail', 'Note'],
@@ -1073,8 +1108,8 @@ def export_input_table_xls(request, list, model):
     if model == 'spesacommessa':
         rows = SpesaCommessa.objects.filter(id__in=re.findall("(\d+)", list)).order_by('-data_registrazione').values_list('data_registrazione', 'importo', 'protocollo__identificativo', 'protocollo__indirizzo', 'note')
     if model == 'spesagestione':
-       # TODO F24 or Causale
-        rows = SpesaGestione.objects.filter(identificativo__in=re.findall("(\d+)", list)).order_by('-identificativo').values_list('identificativo', 'data_registrazione', 'importo', 'causale', 'fattura')
+        # TODO F24 or Causale
+        rows = SpesaGestione.objects.filter(id__in=re.findall("(\d+)", list)).order_by('-data_registrazione').values_list('data_registrazione', 'importo', 'causale', 'fattura')
     if model == 'consulenza':
         rows = Consulenza.objects.filter(id__in=re.findall("(\d+)", list)).order_by('-data_registrazione').values_list('data_registrazione', 'richiedente', 'indirizzo', 'attivita', 'compenso', 'note', 'data_scadenza', 'data_consegna')
     if model == 'rubricaclienti':
@@ -1119,8 +1154,45 @@ def export_output_table_xls(request, numquery, data_inizio, data_fine):
         rows = sqlite.resoconto_fiscale()
     if int(numquery) == 4:
         output = 'contabilita_protocolli'
-        columns = ['Id', 'Identificativo', 'Cliente', 'Referente', 'Indirizzo', 'Pratica', 'Parcella', 'Entrate', 'Uscite', 'Saldo']
-        rows = sqlite.resoconto_contabilita_protocolli(request.POST.get("filter"))
+        columns = ['Identificativo', 'Cliente', 'Indirizzo', 'Pratica', 'Parcella', 'Entrate', 'Uscite', 'Saldo']
+        filter = request.POST.get("filter")
+        if filter:
+            protocolli = Protocollo.objects.filter(cliente__nominativo__icontains=filter)
+        else:
+            protocolli = Protocollo.objects.all()
+        table_data = []
+        for protocollo in protocolli:
+            ricavi = Ricavo.objects.filter(protocollo=protocollo)
+            entrate = Decimal('0.00')
+            for ricavo in ricavi:
+                if ricavo.fattura:
+                    # Se c'è una fattura, aggiungi l'imponibile della fattura
+                    entrate += ricavo.fattura.imponibile
+                else:
+                    # Altrimenti aggiungi l'importo del ricavo
+                    entrate += ricavo.importo
+            uscite_raw = SpesaCommessa.objects.filter(protocollo=protocollo).aggregate(
+                totale=Sum('importo')
+            )['totale']
+            uscite = (uscite_raw if uscite_raw is not None else Decimal('0.00')).quantize(Decimal('0.00'),
+                                                                                          rounding=ROUND_HALF_UP)
+            saldo = protocollo.parcella - (entrate - uscite)
+            table_data.append([
+                protocollo.identificativo,
+                protocollo.cliente.nominativo,
+                protocollo.indirizzo,
+                protocollo.pratica,
+                protocollo.parcella,
+                entrate,
+                uscite,
+                saldo
+            ])
+        rows = sorted(
+            table_data,
+            key=lambda x: tuple(map(int, x[0].split('-')))[::-1],
+            reverse=True
+        )
+        # rows = sqlite.resoconto_contabilita_protocolli(request.POST.get("filter"))
     wb = xlwt.Workbook(encoding='utf-8')
     name_file = request.POST.get("fname")
     ws = wb.add_sheet(output)
