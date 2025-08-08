@@ -74,7 +74,7 @@ class SpesaCommessa(models.Model):
     # foreign_key
     protocollo = models.ForeignKey(Protocollo, on_delete=models.SET_NULL, related_name="spesecommessa", null=True, blank=True)
     note = RichTextField(null=True, blank=True)
-    provenienza = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="DEPOSITO")
+    provenienza = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="CARTA")
 
     def __str__(self):
         return "id: "+str(self.id)

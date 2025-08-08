@@ -51,24 +51,6 @@ def resoconto(data_inizio, data_fine):
     cursor.execute(query, (data_inizio, data_fine, data_inizio, data_fine, data_inizio, data_fine))
     return cursor.fetchall()[:-1]
 
-def resoconto_contabilita_protocolli(filter):
-    cursor = connection.cursor()
-    cursor.execute(""" SELECT * FROM(SELECT t1.id, t1.identificativo, t4.nominativo as cliente, t1.referente_id, t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
-                            (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as uscite,
-                            t1.parcella-(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id)+
-                            (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as saldo
-                       FROM   Contabilita_protocollo t1, Contabilita_rubricaclienti t4
-                       WHERE saldo != 0 and t1.cliente_id = t4.id and t1.referente_id is NULL
-                       union
-                       SELECT t1.id, t1.identificativo, t4.nominativo as cliente, t5.nominativo, t1.indirizzo,t1.pratica,t1.parcella,(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id) as entrate,
-                            (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as uscite,
-                            t1.parcella-(SELECT coalesce(sum(t2.importo), 0) FROM Contabilita_ricavo t2 WHERE t1.id = t2.protocollo_id)+
-                            (SELECT coalesce(sum(t3.importo), 0) FROM Contabilita_spesacommessa t3 WHERE t1.id=t3.protocollo_id) as saldo
-                       FROM   Contabilita_protocollo t1, Contabilita_rubricaclienti t4, Contabilita_rubricareferenti t5
-                       WHERE saldo != 0 and t1.cliente_id = t4.id and t1.referente_id = t5.id
-                       ORDER BY t1.identificativo) {filter}""".format(filter= f"WHERE cliente LIKE '{filter}%';" if filter else ''))
-    return cursor.fetchall()
-
 def resoconto_fiscale():
     cursor = connection.cursor()
     query = """
@@ -107,7 +89,6 @@ def resoconto_fiscale():
     """
     cursor.execute(query)
     return cursor.fetchall()
-
 
 #------------------------- forms.py ------------------------
 def extract_sum_all_importi_ricavi_of_protocol(id_protocollo):
