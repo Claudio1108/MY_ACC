@@ -4,7 +4,7 @@ from django.core.validators import MinValueValidator
 
 class RubricaClienti(models.Model):
     nominativo = models.CharField(max_length=40) #obbligatorio
-    tel = models.CharField(max_length=20) #obbligatorio
+    tel = models.CharField(max_length=20, null=True, blank=True)
     mail = models.EmailField(max_length=50, blank=True)
     note = RichTextField(null=True, blank=True)
 
@@ -13,7 +13,7 @@ class RubricaClienti(models.Model):
 
 class RubricaReferenti(models.Model):
     nominativo = models.CharField(max_length=40) #obbligatorio
-    tel = models.CharField(max_length=20) #obbligatorio
+    tel = models.CharField(max_length=20, null=True, blank=True)
     mail = models.EmailField(max_length=50, blank=True)
     note = RichTextField(null=True, blank=True)
 
@@ -63,7 +63,7 @@ class Ricavo(models.Model):
     fattura = models.ForeignKey(Fattura, on_delete=models.SET_NULL, related_name="ricavi_fattura", null=True, blank=True)
     protocollo = models.ForeignKey(Protocollo, on_delete=models.SET_NULL, related_name="ricavi", null=True, blank=True)
     note = RichTextField(null=True, blank=True)
-    destinazione = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="DEPOSITO")
+    destinazione = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="CARTA")
 
     def __str__(self):
         return "id: "+str(self.id)
@@ -73,15 +73,15 @@ class SpesaCommessa(models.Model):
     importo = models.DecimalField(max_digits=14, decimal_places=2, validators = [MinValueValidator(0)]) #obbligatorio
     # foreign_key
     protocollo = models.ForeignKey(Protocollo, on_delete=models.SET_NULL, related_name="spesecommessa", null=True, blank=True)
-    note = RichTextField(null=True, blank=True)
     provenienza = models.CharField(max_length=15, choices=(('DEPOSITO', 'DEPOSITO'),('CARTA', 'CARTA')), default="CARTA")
+    causale = models.CharField(max_length=30, default="", null=True, blank=True)
 
     def __str__(self):
         return "id: "+str(self.id)
 
 class Consulenza(models.Model):
     data_registrazione = models.DateField(auto_now=False, auto_now_add=False)  #obbligatorio
-    richiedente = models.CharField(max_length=40, null=True, blank=True)
+    richiedente = models.CharField(max_length=40, default="") #obbligatorio
     indirizzo = models.CharField(max_length=100)
     attivita = models.CharField(max_length=40)  #obbligatorio
     compenso = models.DecimalField(max_digits=14, decimal_places=2, default=0, validators = [MinValueValidator(0)])
@@ -139,6 +139,7 @@ class SpesaGestione(models.Model):
         blank=True,
         related_name='spesagestione'
     )
+    note = RichTextField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.data_registrazione} | {self.importo} €"

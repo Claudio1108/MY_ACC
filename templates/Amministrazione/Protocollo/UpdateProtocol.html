@@ -24,10 +24,6 @@
             <td style="text-align: left;">{{ form.identificativo }}</td>
         </tr>
         <tr>
-            <td style="text-align: right;"><label for="{{ form.data_registrazione.id_for_label }}"><b>Data Registrazione*</b></label></td>
-            <td style="text-align: left;">{{ form.data_registrazione }}</td>
-        </tr>
-        <tr>
             <td style="text-align: right;"><label for="{{ form.cliente.id_for_label }}"><b>Cliente*</b></label></td>
             <td style="text-align: left;">{{ form.cliente }}</td>
         </tr>
@@ -44,16 +40,20 @@
             <td style="text-align: left;">{{ form.parcella }}</td>
         </tr>
         <tr>
-            <td style="text-align: right;"><label for="{{ form.data_scadenza.id_for_label }}"><b>Data Scadenza*</b></label></td>
-            <td style="text-align: left;">{{ form.data_scadenza }}</td>
-        </tr>
-        <tr>
             <td style="text-align: right;"><label for="{{ form.referente.id_for_label }}">Referente</label></td>
             <td style="text-align: left;">{{ form.referente }}</td>
         </tr>
         <tr>
             <td style="text-align: right; vertical-align: top;"><label for="{{ form.note.id_for_label }}">Note</label></td>
             <td style="text-align: left;">{{ form.note }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: right;"><label for="{{ form.data_registrazione.id_for_label }}"><b>Data Registrazione*</b></label></td>
+            <td style="text-align: left;">{{ form.data_registrazione }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: right;"><label for="{{ form.data_scadenza.id_for_label }}"><b>Data Scadenza*</b></label></td>
+            <td style="text-align: left;">{{ form.data_scadenza }}</td>
         </tr>
         <tr>
             <td style="text-align: right;"><label for="{{ form.data_consegna.id_for_label }}">Data Consegna</label></td>

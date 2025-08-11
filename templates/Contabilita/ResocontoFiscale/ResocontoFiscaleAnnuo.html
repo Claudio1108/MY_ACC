@@ -48,33 +48,33 @@
                 <tbody>
                     <tr>
                         <th>Imponibile</th>
-                        <td>{{ imponibile }} €</td>
+                        <td style='text-align: right;'>{{ imponibile }} €</td>
                         <th>Contributo INARCASSA</th>
-                        <td>{{ contributo_inarcassa }} €</td>
+                        <td style='text-align: right;'>{{ contributo_inarcassa }} €</td>
                     </tr>
                     <tr>
                         <th>Fatturato</th>
-                        <td>{{ fatturato }} €</td>
+                        <td style='text-align: right;'>{{ fatturato }} €</td>
                         <th>Importo Versato AdE</th>
-                        <td>{{ importo_ade }} €</td>
+                        <td style='text-align: right;'>{{ importo_ade }} €</td>
                     </tr>
                     <tr>
                         <th>Percentuale Importo AdE su Fatturato</th>
-                        <td>{{ importo_ade_su_fatturato|default_if_none:'0' }}%</td>
+                        <td style='text-align: right;'>{{ importo_ade_su_fatturato|default_if_none:'0' }}%</td>
                         <th>Importo Versato INARCASSA</th>
-                        <td>{{ importo_inarcassa }} €</td>
+                        <td style='text-align: right;'>{{ importo_inarcassa }} €</td>
                     </tr>
                     <tr>
                         <th>Percentuale INARCASSA su Fatturato</th>
-                        <td>{{ importo_inarcassa_su_fatturato|default_if_none:'0' }}%</td>
+                        <td style='text-align: right;'>{{ importo_inarcassa_su_fatturato|default_if_none:'0' }}%</td>
                         <th>Importo Totale Versato</th>
-                        <td>{{ importo_totale }} €</td>
+                        <td style='text-align: right;'>{{ importo_totale }} €</td>
                     </tr>
                     <tr>
                         <th>Percentuale Totale su Fatturato</th>
-                        <td>{{ importo_totale_su_fatturato|default_if_none:'0' }}%</td>
+                        <td style='text-align: right;'>{{ importo_totale_su_fatturato|default_if_none:'0' }}%</td>
                         <th>Percentuale finale</th>
-                        <td>{{ percentuale|default_if_none:'0' }}%</td>
+                        <td style='text-align: right;'>{{ percentuale|default_if_none:'0' }}%</td>
                     </tr>
                 </tbody>
             </table>

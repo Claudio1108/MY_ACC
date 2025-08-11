@@ -65,10 +65,10 @@ def resoconto_fiscale():
             ROUND(
                 CASE
                     WHEN COALESCE(fatt.totale_fatturato, 0.0) = 0 THEN NULL
-                    ELSE COALESCE(tasse.totale_tasse, 0.0) / fatt.totale_fatturato
+                    ELSE (COALESCE(tasse.totale_tasse, 0.0) / fatt.totale_fatturato) * 100
                 END,
-                2
-            ) AS percentuale_tasse_su_fatturato
+                1
+            ) || '%' AS percentuale_tasse_su_fatturato
         FROM (
             SELECT strftime('%Y', data_registrazione) AS anno
             FROM Contabilita_fattura

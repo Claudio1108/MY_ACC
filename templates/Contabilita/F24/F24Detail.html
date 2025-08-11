@@ -167,14 +167,14 @@
                     <td style='width: 20px;'>{{ b.identificativo }}</td>
                     <td style='width: 50px;'>{{ b.anno }}</td>
                     <td style='width: 50px;'>{{ b.mese|default_if_none:'' }}</td>
-                    <td style='width: 50px;'>
+                    <td style='width: 50px; text-align: right;'>
                         {% if b.debito %}
                             {{ b.debito }} €
                         {% else %}
                             &nbsp;
                         {% endif %}
                     </td>
-                    <td style='width: 70px;'>
+                    <td style='width: 70px; text-align: right;'>
                         {% if b.credito %}
                             {{ b.credito }} €
                         {% else %}

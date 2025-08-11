@@ -162,8 +162,8 @@
                     <th>MODIFICA</th>
                     <th>Registrazione</th>
                     <th>Importo</th>
+                    <th>Causale</th>
                     <th style='width: 350px; overflow: auto'>Protocollo</th>
-                    <th style='width: 500px; overflow: auto'>Note</th>
                     <th>Provenienza</th>
                 </tr>
             </thead>
@@ -175,7 +175,8 @@
                     </td>
                     <td style='width: 15px;' align="center"><a href="/UpdateSpesaCommessa/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
                     <td style='width: 170px; overflow: auto'>{{ b.data_registrazione }}</td>
-                    <td style='width: 100px; overflow: auto'>{{ b.importo }} €</td>
+                    <td style='width: 100px; text-align: right;'>{{ b.importo }} €</td>
+                    <td style='width: 100px; overflow: auto;'>{{ b.causale }}</td>
                     <td style='width: 200px; overflow: auto; text-align: left;'>
                         {% if b.protocollo_id %}
                             <a href="{% url 'UpdateProtocol' id=b.protocollo_id %}">
@@ -185,7 +186,6 @@
                             &nbsp;
                         {% endif %}
                     </td>
-                    <td style='width: 300px; text-align: left;'>{{ b.note|safe }}</td>
                     <td style='width: 50px;'>{{ b.provenienza|default_if_none:'' }}</td>
                 </tr>
             {% endfor %}

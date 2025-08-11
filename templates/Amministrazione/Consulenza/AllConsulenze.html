@@ -198,12 +198,11 @@
                 <tr>
                     <th style="position: sticky; left: 0; z-index: 101; background-color: #383838;"></th>
                     <th>MODIFICA</th>
-                    <th>Registrazione</th>
                     <th>Richiedente</th>
                     <th>Indirizzo</th>
                     <th>Attività</th>
                     <th>Note</th>
-                    <th>Scadenza</th>
+                    <th>Registrazione</th>
                     <th>Consegna</th>
                 </tr>
             </thead>
@@ -214,12 +213,11 @@
                             <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                         </td>
                         <td style='width: 15px;' align="center"><a href="/UpdateConsulenza/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
-                        <td style='width: 150px;'>{{ b.data_registrazione }}</td>
-                        <td style='width: 300px;'>{{ b.richiedente|default_if_none:'' }}</td>
+                        <td style='width: 300px; text-align: left;'>{{ b.richiedente|default_if_none:'' }}</td>
                         <td style='width: 350px; text-align: left;'>{{ b.indirizzo }}</td>
                         <td style='width: 100px;'>{{ b.attivita }}</td>
                         <td style='width: 500px; text-align: left;'>{{ b.note|safe }}</td>
-                        <td style='width: 150px;'>{{ b.data_scadenza }}</td>
+                        <td style='width: 150px;'>{{ b.data_registrazione }}</td>
                         <td style='width: 150px;'>{{ b.data_consegna|default_if_none:'' }}</td>
                     </tr>
                 {% else %}
@@ -229,12 +227,11 @@
                                 <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                             </td>
                             <td style='width: 15px;' align="center"><a href="/UpdateConsulenza/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
-                            <td style='width: 150px;'>{{ b.data_registrazione }}</td>
-                            <td style='width: 300px;'>{{ b.richiedente|default_if_none:'' }}</td>
+                            <td style='width: 300px; text-align: left;'>{{ b.richiedente|default_if_none:'' }}</td>
                             <td style='width: 350px; text-align: left;'>{{ b.indirizzo }}</td>
                             <td style='width: 100px;'>{{ b.attivita }}</td>
                             <td style='width: 500px; text-align: left;'>{{ b.note|safe }}</td>
-                            <td style='width: 150px;'>{{ b.data_scadenza }}</td>
+                            <td style='width: 150px;'>{{ b.data_registrazione }}</td>
                             <td style='width: 150px;'>{{ b.data_consegna|default_if_none:'' }}</td>
                         </tr>
                     {% else %}
@@ -244,12 +241,11 @@
                                     <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                                 </td>
                                 <td style='width: 15px;' align="center"><a href="/UpdateConsulenza/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
-                                <td style='width: 150px;'>{{ b.data_registrazione }}</td>
-                                <td style='width: 300px;'>{{ b.richiedente|default_if_none:'' }}</td>
+                                <td style='width: 300px; text-align: left;'>{{ b.richiedente|default_if_none:'' }}</td>
                                 <td style='width: 350px; text-align: left;'>{{ b.indirizzo }}</td>
                                 <td style='width: 100px;'>{{ b.attivita }}</td>
                                 <td style='width: 500px; text-align: left;'>{{ b.note|safe }}</td>
-                                <td style='width: 150px;'>{{ b.data_scadenza }}</td>
+                                <td style='width: 150px;'>{{ b.data_registrazione }}</td>
                                 <td style='width: 150px;'>{{ b.data_consegna|default_if_none:'' }}</td>
                             </tr>
                         {% else %}
@@ -258,12 +254,11 @@
                                     <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                                 </td>
                                 <td style='width: 15px;' align="center"><a href="/UpdateConsulenza/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
-                                <td style='width: 150px;'>{{ b.data_registrazione }}</td>
-                                <td style='width: 300px;'>{{ b.richiedente|default_if_none:'' }}</td>
+                                <td style='width: 300px; text-align: left;'>{{ b.richiedente|default_if_none:'' }}</td>
                                 <td style='width: 350px; text-align: left;'>{{ b.indirizzo }}</td>
                                 <td style='width: 100px;'>{{ b.attivita }}</td>
                                 <td style='width: 500px; text-align: left;'>{{ b.note|safe }}</td>
-                                <td style='width: 150px;'>{{ b.data_scadenza }}</td>
+                                <td style='width: 150px;'>{{ b.data_registrazione }}</td>
                                 <td style='width: 150px;'>{{ b.data_consegna|default_if_none:'' }}</td>
                             </tr>
                         {% endif %}

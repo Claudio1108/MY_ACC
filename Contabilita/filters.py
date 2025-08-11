@@ -79,17 +79,17 @@ class ProtocolloFilter(django_filters.FilterSet):
         label='Data Registrazione (Da - A)',
         widget=MyRangeWidgetDate()
     )
+    identificativo = django_filters.CharFilter(label='Identificativo', field_name='identificativo', lookup_expr='istartswith')
+    indirizzo = django_filters.CharFilter(label='Indirizzo', field_name='indirizzo', lookup_expr='istartswith')
+    pratica = django_filters.CharFilter(label='Pratica', field_name='pratica', lookup_expr='istartswith')
     stato_protocollo = django_filters.ChoiceFilter(
         label='Stato Protocollo',
         choices=(('attivo', 'Attivi ⚙️'), ('consegnato', 'Consegnati ⚫'), ('scaduti', 'Scaduti 🔴'), ('in_scadenza', 'In Scadenza 🟠'), ('puntuale', 'Puntuali 🟢')),
         method='filter_by_stato_protocollo',
         empty_label='Indifferente'
     )
-    identificativo = django_filters.CharFilter(label='Identificativo', field_name='identificativo', lookup_expr='istartswith')
     cliente = django_filters.CharFilter(label='Cliente', field_name='cliente__nominativo', lookup_expr='istartswith')
     referente = django_filters.CharFilter(label='Referente', field_name='referente__nominativo', lookup_expr='istartswith')
-    indirizzo = django_filters.CharFilter(label='Indirizzo', field_name='indirizzo', lookup_expr='istartswith')
-    pratica = django_filters.CharFilter(label='Pratica', field_name='pratica', lookup_expr='istartswith')
 
     def filter_by_stato_protocollo(self, queryset, name, value):
         if value == 'scaduti':
@@ -109,15 +109,16 @@ class ConsulenzaFilter(django_filters.FilterSet):
         label='Data Registrazione (Da - A)',
         widget=MyRangeWidgetDate()
     )
-    stato_consulenza = django_filters.ChoiceFilter(
-        label='Stato Consulenza',
-        choices=(('attivo', 'Attivi ⚙️'), ('consegnato', 'Consegnati ⚫'), ('scaduti', 'Scaduti 🔴'), ('in_scadenza', 'In Scadenza 🟠'), ('puntuale', 'Puntuali 🟢')),
-        method='filter_by_stato_consulenza',
-        empty_label='Indifferente'
-    )
     richiedente = django_filters.CharFilter(label='Richiedente', field_name='richiedente', lookup_expr='istartswith')
     indirizzo = django_filters.CharFilter(label='Indirizzo', field_name='indirizzo', lookup_expr='istartswith')
     attivita = django_filters.CharFilter(label='Attività', field_name='attivita', lookup_expr='istartswith')
+    stato_consulenza = django_filters.ChoiceFilter(
+        label='Stato Consulenza',
+        choices=(('attivo', 'Attivi ⚙️'), ('consegnato', 'Consegnati ⚫'), ('scaduti', 'Scaduti 🔴'),
+                 ('in_scadenza', 'In Scadenza 🟠'), ('puntuale', 'Puntuali 🟢')),
+        method='filter_by_stato_consulenza',
+        empty_label='Indifferente'
+    )
 
     def filter_by_stato_consulenza(self, queryset, name, value):
         if value == 'scaduti':
@@ -137,14 +138,14 @@ class SpesaGestioneFilter(django_filters.FilterSet):
         label='Data Registrazione (Da - A)',
         widget=MyRangeWidgetDate()
     )
+    fattura = django_filters.CharFilter(label='Fattura', field_name='fattura', lookup_expr='istartswith')
+    f24_id = django_filters.CharFilter(label='F24 [Identificativo]',
+                                       field_name='f24__identificativo', lookup_expr='istartswith')
     importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
         from_attrs={'placeholder': 'Da'},
         to_attrs={'placeholder': 'A'},
     ))
-    fattura = django_filters.CharFilter(label='Fattura', field_name='fattura', lookup_expr='istartswith')
     causale = django_filters.CharFilter(label='Causale', field_name='causale', lookup_expr='istartswith')
-    f24_id = django_filters.CharFilter(label='F24 [Identificativo]',
-                                              field_name='f24__identificativo', lookup_expr='istartswith')
     provenienza = django_filters.ChoiceFilter(
         label='Provenienza',
         field_name='provenienza',
@@ -162,20 +163,22 @@ class SpesaCommessaFilter(django_filters.FilterSet):
         label='Data Registrazione (Da - A)',
         widget=MyRangeWidgetDate()
     )
-    importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
-        from_attrs={'placeholder': 'Da'},
-        to_attrs={'placeholder': 'A'},
-    ))
-    protocollo_exist = CustomBooleanFilter(label='Protocollo', field_name='protocollo', lookup_expr='isnull',
-                                           exclude=True)
-    protocollo_id = django_filters.CharFilter(label='Protocollo [Identificativo]', field_name='protocollo__identificativo', lookup_expr='istartswith')
-    protocollo_address = django_filters.CharFilter(label='Protocollo [Indirizzo]', field_name='protocollo__indirizzo', lookup_expr='istartswith')
     provenienza = django_filters.ChoiceFilter(
         label='Provenienza',
         field_name='provenienza',
         choices=SpesaCommessa._meta.get_field('provenienza').choices,
         empty_label="Indifferente"
     )
+    importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
+        from_attrs={'placeholder': 'Da'},
+        to_attrs={'placeholder': 'A'},
+    ))
+    protocollo_exist = CustomBooleanFilter(label='Protocollo', field_name='protocollo', lookup_expr='isnull',
+                                           exclude=True)
+    protocollo_id = django_filters.CharFilter(label='Protocollo [Identificativo]',
+                                              field_name='protocollo__identificativo', lookup_expr='istartswith')
+    protocollo_address = django_filters.CharFilter(label='Protocollo [Indirizzo]', field_name='protocollo__indirizzo',
+                                                   lookup_expr='istartswith')
 
     class Meta:
         model = SpesaCommessa
@@ -186,23 +189,25 @@ class RicavoFilter(django_filters.FilterSet):
         label='Data Registrazione (Da - A)',
         widget=MyRangeWidgetDate(),
     )
+    fattura_exist = CustomBooleanFilter(label='Fattura', field_name='fattura', lookup_expr='isnull',
+                                        exclude=True)
+    fattura_id = django_filters.CharFilter(label='Fattura [Identificativo]',
+                                           field_name='fattura__identificativo', lookup_expr='istartswith')
     importo = django_filters.RangeFilter(label='Importo (€) ', field_name='importo', widget=MyRangeWidget(
         from_attrs={'placeholder': 'Da'},
         to_attrs={'placeholder': 'A'},
     ))
+    protocollo_address = django_filters.CharFilter(label='Protocollo [Indirizzo]', field_name='protocollo__indirizzo',
+                                                   lookup_expr='istartswith')
     protocollo_exist = CustomBooleanFilter(label='Protocollo', field_name='protocollo', lookup_expr='isnull', exclude=True)
-    fattura_exist = CustomBooleanFilter(label='Fattura', field_name='fattura', lookup_expr='isnull',
-                                        exclude=True)
+    protocollo_id = django_filters.CharFilter(label='Protocollo [Identificativo]',
+                                              field_name='protocollo__identificativo', lookup_expr='istartswith')
     destinazione = django_filters.ChoiceFilter(
         label='Destinazione',
         field_name='destinazione',
         choices=Ricavo._meta.get_field('destinazione').choices,
         empty_label="Indifferente"
     )
-    protocollo_id = django_filters.CharFilter(label='Protocollo [Identificativo]', field_name='protocollo__identificativo', lookup_expr='istartswith')
-    fattura_id = django_filters.CharFilter(label='Fattura [Identificativo]',
-                                              field_name='fattura__identificativo', lookup_expr='istartswith')
-    protocollo_address = django_filters.CharFilter(label='Protocollo [Indirizzo]', field_name='protocollo__indirizzo', lookup_expr='istartswith')
 
     class Meta:
         model = Ricavo

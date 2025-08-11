@@ -174,8 +174,8 @@
                         <input type="checkbox" class="checks" name="b1" value={{b.id}}>
                     </td>
                     <td style='width: 15px;' align="center"><a href="/UpdateCliente/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
-                    <td style='width: 250px; overflow: auto'>{{ b.nominativo }}</td>
-                    <td style='width: 150px; overflow: auto'>{{ b.tel }}</td>
+                    <td style='width: 250px; text-align: left;'>{{ b.nominativo }}</td>
+                    <td style='width: 150px; overflow: auto'>{{ b.tel|default_if_none:'' }}</td>
                     <td style='width: 250px; overflow: auto'><a href="https://mail.google.com/mail/?view=cm&fs=1&tf=1&to={{ b.mail }}" target="_blank">{{ b.mail }}</a></td>
                     <td style='width: 300px; text-align: left;'>{{ b.note|safe }}</td>
                 </tr>

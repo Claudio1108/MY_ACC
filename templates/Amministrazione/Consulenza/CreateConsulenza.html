@@ -22,32 +22,32 @@
     {% csrf_token %}
     <table align="center">
         <tr>
-            <td style="text-align: right;"><label for="{{ form.data_registrazione.id_for_label }}"><b>Data Registrazione*</b></label></td>
-            <td style="text-align: left;">{{ form.data_registrazione }}</td>
-        </tr>
-        <tr>
-            <td style="text-align: right;"><label for="{{ form.data_scadenza.id_for_label }}"><b>Data Scadenza*</b></label></td>
-            <td style="text-align: left;">{{ form.data_scadenza }}</td>
-        </tr>
-        <tr>
-            <td style="text-align: right;"><label for="{{ form.attivita.id_for_label }}"><b>Attività*</b></label></td>
-            <td style="text-align: left;">{{ form.attivita }}</td>
+            <td style="text-align: right;"><label for="{{ form.richiedente.id_for_label }}"><b>Richiedente*</b></label></td>
+            <td style="text-align: left;">{{ form.richiedente }}</td>
         </tr>
         <tr>
             <td style="text-align: right;"><label for="{{ form.indirizzo.id_for_label }}"><b>Indirizzo*</b></label></td>
             <td style="text-align: left;">{{ form.indirizzo }}</td>
         </tr>
         <tr>
+            <td style="text-align: right;"><label for="{{ form.attivita.id_for_label }}"><b>Attività*</b></label></td>
+            <td style="text-align: left;">{{ form.attivita }}</td>
+        </tr>
+        <tr>
             <td style="text-align: right;"><label for="{{ form.compenso.id_for_label }}"><b>Compenso*</b></label></td>
             <td style="text-align: left;">{{ form.compenso }}</td>
         </tr>
         <tr>
-            <td style="text-align: right;"><label for="{{ form.richiedente.id_for_label }}">Richiedente</label></td>
-            <td style="text-align: left;">{{ form.richiedente }}</td>
-        </tr>
-        <tr>
             <td style="text-align: right; vertical-align: top;"><label for="{{ form.note.id_for_label }}">Note</label></td>
             <td style="text-align: left;">{{ form.note }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: right;"><label for="{{ form.data_registrazione.id_for_label }}"><b>Data Registrazione*</b></label></td>
+            <td style="text-align: left;">{{ form.data_registrazione }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: right;"><label for="{{ form.data_scadenza.id_for_label }}"><b>Data Scadenza*</b></label></td>
+            <td style="text-align: left;">{{ form.data_scadenza }}</td>
         </tr>
         <tr>
             <td style="text-align: right;"><label for="{{ form.data_consegna.id_for_label }}">Data Consegna</label></td>

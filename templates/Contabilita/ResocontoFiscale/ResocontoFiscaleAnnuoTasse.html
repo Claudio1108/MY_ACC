@@ -28,16 +28,25 @@
         <table class="tabella-con-bordi" width="100%" border="1" cellpadding="5" cellspacing="0">
             <thead bgcolor="#383838" style="color:white; position: sticky; top: 0; z-index: 100;">
                 <tr>
+                    <th>Identificativo F24</th>
                     <th>Identificativo Codice Tributo</th>
                     <th>Anno</th>
                     <th>Importo</th>
-                    <th>Identificativo F24</th>
                     <th>Ente</th>
                     <th>Data Pagamento</th>
                 </tr>
             </thead>
             {% for c in codici %}
                 <tr style="background-color:#585858; color:white;">
+                    <td>
+                        {% if c.identificativo_f24 %}
+                            <a href="{% url 'F24Detail' id=c.id_f24 %}">
+                                <b>{{ c.identificativo_f24 }}</b>
+                            </a>
+                        {% else %}
+                            &nbsp;
+                        {% endif %}
+                    </td>
                     <td>
                         {% if c.identificativo %}
                             <a href="{% url 'UpdateCodiceTributo' id=c.id f24_id=c.id_f24 %}">
@@ -49,15 +58,6 @@
                     </td>
                     <td>{{ c.anno }}</td>
                     <td>{{ c.importo|floatformat:2 }} €</td>
-                    <td>
-                        {% if c.identificativo_f24 %}
-                            <a href="{% url 'F24Detail' id=c.id_f24 %}">
-                                <b>{{ c.identificativo_f24 }}</b>
-                            </a>
-                        {% else %}
-                            &nbsp;
-                        {% endif %}
-                    </td>
                     <td>{{ c.ente }}</td>
                     <td>{{ c.data_pagamento|default_if_none:'' }}</td>
                 </tr>
