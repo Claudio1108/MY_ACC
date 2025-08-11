@@ -162,9 +162,8 @@
                     <th>MODIFICA</th>
                     <th>Identificativo</th>
                     <th>Registrazione</th>
-                    <th>Protocollo</th>
                     <th>Intestatario</th>
-                    <th>Indirizzo</th>
+                    <th>Protocollo</th>
                     <th>Importo</th>
                 </tr>
             </thead>
@@ -176,15 +175,6 @@
                     <td style='width: 10px;' align="center"><a href="/UpdateFattura/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
                     <td style='width: 70px;'><b>{{ b.identificativo }}</b></td>
                     <td style='width: 70px;'>{{ b.data_registrazione }}</td>
-                    <td style='width: 200px; text-align: left;'>
-                        {% if b.protocollo_id %}
-                            <a href="{% url 'UpdateProtocol' id=b.protocollo_id %}">
-                                {{ b.protocollo.identificativo|default_if_none:'' }}
-                            </a>
-                        {% else %}
-                            &nbsp;&nbsp;
-                        {% endif %}
-                    </td>
                     <td style='width: 200px; text-align: left;'>
                         {% if b.intestatario %}
                             {% if b.protocollo %}
@@ -214,12 +204,14 @@
                     </td>
                     <td style='width: 200px; text-align: left;'>
                         {% if b.protocollo_id %}
-                            <a>{{ b.protocollo.indirizzo|default_if_none:'' }}</a>
+                            <a href="{% url 'UpdateProtocol' id=b.protocollo_id %}">
+                                {{ b.protocollo|default_if_none:'' }}
+                            </a>
                         {% else %}
-                            &nbsp;
+                            &nbsp;&nbsp;
                         {% endif %}
                     </td>
-                    <td style='width: 70px;'>{{ b.importo }} €</td>
+                    <td style='width: 70px; text-align: right;'>{{ b.importo }} €</td>
                 </tr>
             {% endfor %}
         </table>

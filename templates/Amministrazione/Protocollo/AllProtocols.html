@@ -224,8 +224,8 @@
                         </td>
                         <td style='width: 15px;' align="center"><a href="/UpdateProtocol/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
                         <td style='width: 80px;'><b>{{ b.identificativo }}</b></td>
-                        <td class="link-col" style='width: 200px;'>
-                            <a href="{% url 'AllClienti' %}?nominativo={{ b.cliente.nominativo }}">
+                        <td class="link-col" style='width: 200px; text-align: left;'>
+                            <a href="{% url 'AllClienti' %}?nominativo={{ b.cliente.nominativo }}" >
                                 {{ b.cliente.nominativo }}
                             </a>
                         </td>
@@ -248,7 +248,7 @@
                             </td>
                             <td style='width: 15px;' align="center"><a href="/UpdateProtocol/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
                             <td style='width: 80px;'><b>{{ b.identificativo }}</b></td>
-                            <td style='width: 200px;'>
+                            <td style='width: 200px; text-align: left;'>
                             <a href="{% url 'AllClienti' %}?nominativo={{ b.cliente.nominativo }}">
                                 {{ b.cliente.nominativo }}
                             </a>
@@ -272,7 +272,7 @@
                                 </td>
                                 <td style='width: 15px;' align="center"><a href="/UpdateProtocol/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
                                 <td style='width: 80px;'><b>{{ b.identificativo }}</b></td>
-                                <td style='width: 200px;'>
+                                <td style='width: 200px; text-align: left;'>
                                     <a href="{% url 'AllClienti' %}?nominativo={{ b.cliente.nominativo }}">
                                         {{ b.cliente.nominativo }}
                                     </a>
@@ -295,7 +295,7 @@
                                 </td>
                                 <td style='width: 15px;' align="center"><a href="/UpdateProtocol/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
                                 <td style='width: 80px;'><b>{{ b.identificativo }}</b></td>
-                                <td style='width: 200px;'>
+                                <td style='width: 200px; text-align: left;'>
                                     <a href="{% url 'AllClienti' %}?nominativo={{ b.cliente.nominativo }}">
                                         {{ b.cliente.nominativo }}
                                     </a>

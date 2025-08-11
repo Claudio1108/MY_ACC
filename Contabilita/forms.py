@@ -174,7 +174,7 @@ class formConsulenzaUpdate(forms.ModelForm):
         fields = "__all__"
         labels = {
             "data_registrazione": "Data Registrazione* ",
-            "richiedente": "Richiedente ",
+            "richiedente": "Richiedente* ",
             "indirizzo": "Indirizzo* ",
             "attivita": "Attività* ",
             "compenso": "Compenso* ",
@@ -320,8 +320,8 @@ class formSpesaCommessa(forms.ModelForm):
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
             "protocollo": "Protocollo ",
-            "note": "Note ",
-            "provenienza": "Provenienza "
+            "provenienza": "Provenienza ",
+            "causale": "Causale "
         }
         widgets = {
             'data_registrazione': DateInput(),
@@ -336,8 +336,8 @@ class formSpesaCommessaUpdate(forms.ModelForm):
             "data_registrazione": "Data Registrazione* ",
             "importo": "Importo* ",
             "protocollo": "Protocollo ",
-            "note": "Note ",
-            "provenienza": "Provenienza "
+            "provenienza": "Provenienza ",
+            "causale": "Causale "
         }
         widgets = {
             'data_registrazione': DateInput2(format='%Y-%m-%d'),
@@ -354,7 +354,8 @@ class formSpesaGestione(forms.ModelForm):
             "causale": "Causale ",
             "f24": "F24 ",
             "fattura": "Fattura ",
-            "provenienza": "Provenienza "
+            "provenienza": "Provenienza ",
+            "note": "Note "
         }
         widgets = {'data_registrazione': DateInput(),
                    'f24': autocomplete.ModelSelect2(url='f24_autocomp')
@@ -370,7 +371,8 @@ class formSpesaGestioneUpdate(forms.ModelForm):
             "causale": "Causale ",
             "f24": "F24 ",
             "fattura": "Fattura ",
-            "provenienza": "Provenienza "
+            "provenienza": "Provenienza ",
+            "note": "Note "
         }
         widgets = {'data_registrazione': DateInput2(format='%Y-%m-%d'),
                    'f24': autocomplete.ModelSelect2(url='f24_autocomp')

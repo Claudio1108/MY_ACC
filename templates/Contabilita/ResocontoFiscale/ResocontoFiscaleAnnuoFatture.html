@@ -73,8 +73,8 @@
                             &nbsp;
                         {% endif %}
                     </td>
-                    <td>{{ f.imponibile }} €</td>
-                    <td>{{ f.contributo_inarcassa|floatformat:2 }} €</td>
+                    <td style='text-align: right;'>{{ f.imponibile }} €</td>
+                    <td style='text-align: right;'>{{ f.contributo_inarcassa|floatformat:2 }} €</td>
                     <td>{{ f.data_pagamento|default_if_none:'' }}</td>
                 </tr>
             {% endfor %}

@@ -177,8 +177,8 @@
                     <td style='width: 10px;' align="center"><a href="/UpdateRicavo/{{ b.id }}" class="btn btn-success btn-sm" role="button" aria-pressed="true"><span style='font-size:15px;'>&#x21F2;</span></a></td>
                     <td style='width: 70px;'>{{ b.data_registrazione }}</td>
                     <td style='width: 70px;'>{{ b.movimento|default_if_none:'' }}</td>
-                    <td style='width: 70px;'>{{ b.importo }} €</td>
-                    <td style='width: 200px; text-align: left;'>
+                    <td style='width: 70px; text-align: right;'>{{ b.importo }} €</td>
+                    <td style='width: 100px;'>
                         {% if b.fattura %}
                             <a href="{% url 'UpdateFattura' id=b.fattura_id %}">
                                 {{ b.fattura }}

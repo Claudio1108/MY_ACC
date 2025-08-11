@@ -246,6 +246,15 @@
                                 <i class="fa-solid fa-euro-sign"></i> Ricavi
                             </a>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a class="navbar-brand dropdown-toggle" href="#" id="navbarDropdownMenuLink5" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-cart-shopping"></i> Spese
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink5">
+                                <li><a class="dropdown-item" href="{% url 'AllSpeseGestione' %}">Spese di Gestione</a></li>
+                                <li><a class="dropdown-item" href="{% url 'AllSpeseCommessa' %}">Spese di Commessa</a></li>
+                            </ul>
+                        </li>
                         <li class="nav-item">
                             <a class="navbar-brand" href="{% url 'AllFatture' %}">
                                 <i class="fa-solid fa-receipt"></i> Fatture
@@ -255,15 +264,6 @@
                             <a class="navbar-brand" href="{% url 'AllF24' %}">
                                 <i class="fa-solid fa-scale-balanced"></i> Tasse
                             </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="navbar-brand dropdown-toggle" href="#" id="navbarDropdownMenuLink5" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-cart-shopping"></i> Spese
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink5">
-                                <li><a class="dropdown-item" href="{% url 'AllSpeseGestione' %}">Spese di Gestione</a></li>
-                                <li><a class="dropdown-item" href="{% url 'AllSpeseCommessa' %}">Spese di Commessa</a></li>
-                            </ul>
                         </li>
                     </ul>
                 </div>
