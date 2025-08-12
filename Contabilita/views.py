@@ -22,7 +22,7 @@ class ProtocolloAutocomplete(autocomplete.Select2QuerySetView):
             qs = qs.filter(
                 Q(identificativo__icontains=self.q) | Q(indirizzo__icontains=self.q)
             )
-        return qs.order_by("-data_registrazione", "-identificativo")
+        return qs.order_by("-data_registrazione__year", "-identificativo")
 
 class FatturaAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
