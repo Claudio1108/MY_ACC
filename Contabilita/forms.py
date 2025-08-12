@@ -275,10 +275,11 @@ class formRicavo(forms.ModelForm):
             "note": "Note ",
             "destinazione": "Destinazione "
         }
+
         widgets = {
             'data_registrazione': DateInput(),
-            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp'),
-            'fattura': autocomplete.ModelSelect2(url='fattura_autocomp')
+            'fattura': autocomplete.ModelSelect2(url='fattura_autocomp'),
+            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp', forward=['fattura'])
         }
 
     def Check1(self):
@@ -302,8 +303,8 @@ class formRicavoUpdate(forms.ModelForm):
         }
         widgets = {
             'data_registrazione': DateInput2(format='%Y-%m-%d'),
-            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp'),
-            'fattura': autocomplete.ModelSelect2(url='fattura_autocomp')
+            'fattura': autocomplete.ModelSelect2(url='fattura_autocomp'),
+            'protocollo': autocomplete.ModelSelect2(url='proto_autocomp', forward=['fattura'])
         }
 
     def Check2(self, id_ricavo):
