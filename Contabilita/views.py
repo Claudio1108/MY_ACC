@@ -15,11 +15,14 @@ from Contabilita import sqlite_queries as sqlite
 class ProtocolloAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = Protocollo.objects.all()
+        fattura_id = self.forwarded.get('fattura', None)
+        if fattura_id:
+            qs = qs.filter(fatture__id=fattura_id)
         if self.q:
             qs = qs.filter(
                 Q(identificativo__icontains=self.q) | Q(indirizzo__icontains=self.q)
             )
-        return qs.order_by("-data_registrazione__year", "-identificativo")
+        return qs.order_by("-data_registrazione", "-identificativo")
 
 class FatturaAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
@@ -44,12 +47,10 @@ class ReferenteAutocomplete(autocomplete.Select2QuerySetView):
 class ClienteReferenteAutocomplete(autocomplete.Select2ListView):
     def get_list(self):
         q = self.q or ""
-        # Filtra e ordina i clienti per nominativo
         clienti = RubricaClienti.objects.filter(
             models.Q(nominativo__icontains=q) | models.Q(tel__icontains=q)
         ).order_by("nominativo")
 
-        # Filtra e ordina i referenti per nominativo
         referenti = RubricaReferenti.objects.filter(
             models.Q(nominativo__icontains=q) | models.Q(tel__icontains=q)
         ).order_by("nominativo")
