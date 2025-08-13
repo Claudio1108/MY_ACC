@@ -687,6 +687,7 @@ def viewUpdateFattura(request, id):
         if (form.is_valid()):
             nuovo_protocollo = form.cleaned_data['protocollo']
             nuovo_imponibile = float(form.cleaned_data.get('imponibile') or 0)
+            nuovo_importo = float(form.cleaned_data.get('importo') or 0)
             intestatario = form.cleaned_data.get('intestatario')
             ricavi = fattura.ricavi_fattura.all()  # Ricavi associati alla fattura
             if ricavi.exists():
@@ -732,10 +733,10 @@ def viewUpdateFattura(request, id):
                     return render(request, "Contabilita/Fattura/CreateFattura.html", {'form': formFatturaUpdate(instance=fattura)})
 
             somma_ricavi = ricavi.aggregate(Sum('importo'))['importo__sum'] or 0
-            if somma_ricavi > nuovo_imponibile:
+            if somma_ricavi > nuovo_importo:
                 messages.error(
                     request,
-                    f"ATTENZIONE! La somma dei ricavi associati diventerebbe ({somma_ricavi:.2f} €) superando l'imponibile della fattura ({nuovo_imponibile:.2f} €)"
+                    f"ATTENZIONE! La somma dei ricavi associati diventerebbe ({somma_ricavi:.2f} €) superando l'importo della fattura ({nuovo_importo:.2f} €)"
                 )
                 anno != anno_pre and CalendarioContatore.objects.filter(id=anno).update(
                     fatture=progressive_number_calendar + 1)
