@@ -1,8 +1,8 @@
 import django_filters
+import re
 from .models import *
 from django import forms
 from .forms import DateInput
-
 
 class MyRangeWidget(django_filters.widgets.RangeWidget):
     def __init__(self, from_attrs=None, to_attrs=None, attrs=None):
@@ -224,11 +224,22 @@ class FatturaFilter(django_filters.FilterSet):
                                            exclude=True)
     protocollo_id = django_filters.CharFilter(label='Protocollo [Identificativo]',
                                               field_name='protocollo__identificativo', lookup_expr='istartswith')
-    intestatario = django_filters.CharFilter(label='Intestatario', field_name='intestatario', lookup_expr='istartswith')
+    # intestatario = django_filters.CharFilter(label='Intestatario', field_name='intestatario', lookup_expr='istartswith')
+    intestatario = django_filters.CharFilter(
+        label='Intestatario',
+        method='filter_intestatario_startswith_ignoring_tag'
+    )
 
     class Meta:
         model = Fattura
         fields = []
+
+    def filter_intestatario_startswith_ignoring_tag(self, qs, name, value):
+        if not value:
+            return qs
+        # Rimuove uno o più prefissi tipo [Cliente] , [Referente] , ecc. poi controlla che inizi con "value"
+        pattern = r'^(?:\[[^\]]*\]\s*)+' + re.escape(value)
+        return qs.filter(**{f"{name}__iregex": pattern})
 
 class CodiceTributoFilter(django_filters.FilterSet):
     identificativo = django_filters.CharFilter(label='Identificativo', field_name='identificativo',
