@@ -732,7 +732,7 @@ def viewUpdateFattura(request, id):
                     CalendarioContatore.objects.filter(id=anno).update(fatture=progressive_number_calendar)
                     return render(request, "Contabilita/Fattura/CreateFattura.html", {'form': formFatturaUpdate(instance=fattura)})
 
-            somma_ricavi = ricavi.aggregate(Sum('importo'))['importo__sum'] or 0
+            somma_ricavi = float(ricavi.aggregate(Sum('importo'))['importo__sum'] or 0)
             if somma_ricavi > nuovo_importo:
                 messages.error(
                     request,
