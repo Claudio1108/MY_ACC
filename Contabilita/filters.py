@@ -157,7 +157,6 @@ class SpesaGestioneFilter(django_filters.FilterSet):
         model = SpesaGestione
         fields = []
 
-
 class SpesaCommessaFilter(django_filters.FilterSet):
     data_registrazione = django_filters.DateFromToRangeFilter(
         label='Data Registrazione (Da - A)',
@@ -224,10 +223,9 @@ class FatturaFilter(django_filters.FilterSet):
                                            exclude=True)
     protocollo_id = django_filters.CharFilter(label='Protocollo [Identificativo]',
                                               field_name='protocollo__identificativo', lookup_expr='istartswith')
-    # intestatario = django_filters.CharFilter(label='Intestatario', field_name='intestatario', lookup_expr='istartswith')
     intestatario = django_filters.CharFilter(
         label='Intestatario',
-        method='filter_intestatario_startswith_ignoring_tag'
+        method='filter_intestatario_startswith_ignoring_tag',
     )
 
     class Meta:
@@ -237,7 +235,7 @@ class FatturaFilter(django_filters.FilterSet):
     def filter_intestatario_startswith_ignoring_tag(self, qs, name, value):
         if not value:
             return qs
-        # Rimuove uno o più prefissi tipo [Cliente] , [Referente] , ecc. poi controlla che inizi con "value"
+        # Rimuove uno o più prefissi tipo [Cliente] , [Referente]
         pattern = r'^(?:\[[^\]]*\]\s*)+' + re.escape(value)
         return qs.filter(**{f"{name}__iregex": pattern})
 
