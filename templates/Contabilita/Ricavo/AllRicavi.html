@@ -181,7 +181,7 @@
                     <td style='width: 100px;'>
                         {% if b.fattura %}
                             <a href="{% url 'UpdateFattura' id=b.fattura_id %}">
-                                {{ b.fattura }}
+                                {{ b.fattura_short }}
                             </a>
                         {% else %}
                             &nbsp;

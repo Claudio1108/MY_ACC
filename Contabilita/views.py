@@ -352,6 +352,11 @@ def viewAllRicavi(request):
     ricavo_filter = RicavoFilter(request.GET, queryset=Ricavo.objects.all().order_by("-data_registrazione"))
     sum_ricavi_for_proto = [(r1.id, r1.protocollo.parcella - sum(r2.importo for r2 in ricavo_filter.qs if r1.protocollo == r2.protocollo)) if r1.protocollo is not None
                             else (r1.id,0) for r1 in ricavo_filter.qs ]
+    for b, c in zip(ricavo_filter.qs, sum_ricavi_for_proto):
+        if b.fattura:
+            b.fattura_short = str(b.fattura).split('|', 1)[0].strip()
+        else:
+            b.fattura_short = ""
     sum_ricavi = round(ricavo_filter.qs.aggregate(Sum('importo'))['importo__sum'] or 0, 2)
     return render(request, "Contabilita/Ricavo/AllRicavi.html", {"filter": ricavo_filter, "filter_queryset": list(ricavo_filter.qs), 'sum_r': sum_ricavi, 'info': zip(ricavo_filter.qs, sum_ricavi_for_proto)})
 
