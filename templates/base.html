@@ -205,6 +205,9 @@
             opacity: 0.9;
             transform: translateY(-1px);
         }
+        .dropdown-menu .dropdown-item:hover {
+            background-color: rgba(253,126,20,0.12);
+        }
     </style>
     {% block scripts %}{% endblock %}
     {% block extra_css %}{% endblock %}
@@ -251,8 +254,8 @@
                                 <i class="fa-solid fa-cart-shopping"></i> Spese
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink5">
-                                <li><a class="dropdown-item" href="{% url 'AllSpeseGestione' %}">Spese di Gestione</a></li>
-                                <li><a class="dropdown-item" href="{% url 'AllSpeseCommessa' %}">Spese di Commessa</a></li>
+                                <li><a class="dropdown-item text-dark" href="{% url 'AllSpeseGestione' %}">Spese di Gestione</a></li>
+                                <li><a class="dropdown-item text-dark" href="{% url 'AllSpeseCommessa' %}">Spese di Commessa</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
@@ -264,6 +267,15 @@
                             <a class="navbar-brand" href="{% url 'AllF24' %}">
                                 <i class="fa-solid fa-scale-balanced"></i> Tasse
                             </a>
+                        </li>
+                        <li class="nav-item dropdown" style="font-family: 'Comic Sans MS', 'Comic Sans', cursive;">
+                            <a class="navbar-brand dropdown-toggle" href="#" id="navbarDropdownMenuLink6" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: large; color: #fd7e14">
+                                <i class="fas fa-user-circle" ></i> {{ request.user.username }}</h6>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink6">
+                                <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-calendar-days me-2"></i> Calendario</a></li>
+                            </ul>
                         </li>
                     </ul>
                 </div>
