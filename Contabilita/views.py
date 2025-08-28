@@ -1141,6 +1141,7 @@ def export_input_table_xls(request, list, model):
     if model == 'codicetributo':
         rows = CodiceTributo.objects.filter(identificativo__in=re.findall("(\d+)", list)).order_by('-identificativo').values_list('identificativo', 'anno', 'mese', 'debito', 'credito')
     if model == 'f24':
+        # TODO non funziona
         rows = F24.objects.filter(identificativo__in=re.findall("(\d+)", list)).order_by('-identificativo').values_list('identificativo', 'data_scadenza', 'ente')
     for row in rows:
         row_num += 1
