@@ -247,6 +247,7 @@ class formFatturaUpdate(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['identificativo'].disabled = True
+        self.fields['importo'].disabled = True
         # se c'è un valore salvato in intestatario, aggiungilo tra le opzioni di Select2
         initial_intestatario = self.initial.get('intestatario') or self.instance.intestatario
         if initial_intestatario:
@@ -450,7 +451,7 @@ class formF24Update(forms.ModelForm):
 
 class form_ResocontoSpeseGestione_Ricavi_GuadagniEffettivi(forms.Form):
     anno_inizio = forms.ChoiceField(
-        choices=[(str(y), str(y)) for y in list(range(2050, 1970, -1))],
+        choices=[(str(y), str(y)) for y in YEARS],
         label="Dall' Anno:",
         initial=str(datetime.now().year),
         widget=forms.Select(attrs={'class': 'form-control'})
