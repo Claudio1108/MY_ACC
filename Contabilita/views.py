@@ -907,6 +907,10 @@ def viewResoconto(request):
             serie1 = [row[1] for row in ordinato]  # Spese
             serie2 = [row[2] for row in ordinato]  # Ricavi
             serie3 = [row[3] for row in ordinato]  # Utile
+            # Totali
+            tot_ricavi = sum(row[1] for row in ordinato)
+            tot_spese = sum(row[2] for row in ordinato)
+            tot_utile = sum(row[3] for row in ordinato)
             context = {
                 'form': form,
                 'tabella_output1': risultato,
@@ -916,6 +920,9 @@ def viewResoconto(request):
                 'serie1': json.dumps(serie1),
                 'serie2': json.dumps(serie2),
                 'serie3': json.dumps(serie3),
+                'tot_ricavi': tot_ricavi,
+                'tot_spese': tot_spese,
+                'tot_utile': tot_utile,
             }
             return render(request, "Contabilita/Resoconto.html", context)
         else:
@@ -928,6 +935,9 @@ def viewResoconto(request):
                 'serie1': json.dumps([]),
                 'serie2': json.dumps([]),
                 'serie3': json.dumps([]),
+                'tot_ricavi': 0,
+                'tot_spese': 0,
+                'tot_utile': 0,
             }
             return render(request, "Contabilita/Resoconto.html", context)
     else:

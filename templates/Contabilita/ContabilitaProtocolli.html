@@ -42,24 +42,26 @@
             </thead>
             <tbody bgcolor="#585858" style="color:white;">
                 {% for item in tabella_output4 %}
-                <tr>
-                    <td style='width: 35px; overflow: auto'>
-                        <a href="{% url 'UpdateProtocol' id=item.0 %}">
-                            {{ item.1 }}
-                        </a>
-                    </td>
-                    <td style='width: 200px;'>
-                        <a href="{% url 'AllClienti' %}?nominativo={{ item.2 }}">
-                            {{ item.2 }}
-                        </a>
-                    </td>
-                    <td>{{ item.3 }}</td>
-                    <td>{{ item.4 }}</td>
-                    <td style='text-align: right;'>{{ item.5 }} €</td>
-                    <td style='text-align: right;'>{{ item.6 }} €</td>
-                    <td style='text-align: right;'>{{ item.7 }} €</td>
-                    <td style='text-align: right;'>{{ item.8 }} €</td>
-                </tr>
+                    {% if item.8 > 0 %}
+                        <tr>
+                            <td style='width: 35px; overflow: auto'>
+                                <a href="{% url 'UpdateProtocol' id=item.0 %}">
+                                    {{ item.1 }}
+                                </a>
+                            </td>
+                            <td style='width: 200px;'>
+                                <a href="{% url 'AllClienti' %}?nominativo={{ item.2 }}">
+                                    {{ item.2 }}
+                                </a>
+                            </td>
+                            <td>{{ item.3 }}</td>
+                            <td>{{ item.4 }}</td>
+                            <td style='text-align: right;'>{{ item.5 }} €</td>
+                            <td style='text-align: right;'>{{ item.6 }} €</td>
+                            <td style='text-align: right;'>{{ item.7 }} €</td>
+                            <td style='text-align: right;'>{{ item.8 }} €</td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
             </tbody>
         </table>
