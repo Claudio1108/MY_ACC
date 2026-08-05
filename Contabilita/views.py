@@ -393,10 +393,33 @@ def viewCreateRicavo(request):
                 return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
 
             # Controllo importo <= parcella
-            if protocollo and not form.Check1():
-                messages.error(request,
-                               f"ATTENZIONE! L'importo inserito rende la somma dei ricavi del protocollo {protocollo} maggiore della sua parcella: {protocollo.parcella} €")
-                return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
+            # if protocollo and not form.Check1():
+            #     messages.error(request,
+            #                    f"ATTENZIONE! L'importo inserito rende la somma dei ricavi del protocollo {protocollo} maggiore della sua parcella: {protocollo.parcella} €")
+            #     return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
+
+            if protocollo:
+                ricavi_protocollo = Ricavo.objects.filter(protocollo=protocollo).select_related("fattura")
+                somma_imponibili = 0
+                somma_importi = 0
+                fatture_contate = set()
+                for r in ricavi_protocollo:
+                    if r.fattura:
+                        if r.fattura_id not in fatture_contate:
+                            somma_imponibili += r.fattura.imponibile
+                            fatture_contate.add(r.fattura_id)
+                    else:
+                        somma_importi += r.importo
+                if fattura:
+                    nuovo_valore = 0 if fattura.id in fatture_contate else fattura.imponibile
+                else:
+                    nuovo_valore = form.cleaned_data.get("importo")
+                if somma_imponibili + somma_importi + nuovo_valore > protocollo.parcella:
+                    messages.error(
+                        request,
+                        f"ATTENZIONE! Il ricavo inserito supera i limiti di parcella del protocollo {protocollo}: {protocollo.parcella} €"
+                    )
+                    return render(request, "Contabilita/Ricavo/CreateRicavo.html", {'form': form})
 
             # Controllo somma importi ricavi <= importo fattura
             if fattura:
@@ -444,10 +467,38 @@ def viewUpdateRicavo(request, id):
                 return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
 
             # Controllo parcella
-            if protocollo and not form.Check2(ricavo):
-                messages.error(request,
-                               f"ATTENZIONE! L'importo inserito rende la somma dei ricavi del protocollo {protocollo} maggiore della sua parcella: {protocollo.parcella} €" )
-                return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
+            # if protocollo and not form.Check2(ricavo):
+            #     messages.error(request,
+            #                    f"ATTENZIONE! L'importo inserito rende la somma dei ricavi del protocollo {protocollo} maggiore della sua parcella: {protocollo.parcella} €" )
+            #     return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
+
+            if protocollo:
+                ricavi_protocollo = (
+                    Ricavo.objects
+                    .filter(protocollo=protocollo)
+                    .exclude(id=ricavo.id)
+                    .select_related("fattura")
+                )
+                somma_imponibili = 0
+                somma_importi = 0
+                fatture_contate = set()
+                for r in ricavi_protocollo:
+                    if r.fattura:
+                        if r.fattura_id not in fatture_contate:
+                            somma_imponibili += r.fattura.imponibile
+                            fatture_contate.add(r.fattura_id)
+                    else:
+                        somma_importi += r.importo
+                if fattura:
+                    nuovo_valore = 0 if fattura.id in fatture_contate else fattura.imponibile
+                else:
+                    nuovo_valore = form.cleaned_data.get("importo")
+                if somma_imponibili + somma_importi + nuovo_valore > protocollo.parcella:
+                    messages.error(
+                        request,
+                        f"ATTENZIONE! Il ricavo aggiornato supera i limiti di parcella del protocollo {protocollo}: {protocollo.parcella} €"
+                    )
+                    return render(request, "Contabilita/Ricavo/UpdateRicavo.html", {'form': form})
 
             # Controllo importo > fattura (sommando i ricavi esistenti, ma sostituendo l'importo del ricavo attuale con quello nuovo)
             if fattura:
